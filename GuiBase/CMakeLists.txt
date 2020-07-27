@@ -1,9 +1,9 @@
-﻿cmake_minimum_required (VERSION 3.8)
-project (RSL2 VERSION 1.0.0
-                  DESCRIPTION "RSL2"
+cmake_minimum_required (VERSION 3.8)
+project (GuiBase VERSION 1.0.0
+                  DESCRIPTION "GuiBase"
                   LANGUAGES CXX)
 
-# Make sure cmake doesn't add the build config name to the end of built DLLs (eg. RSL2_debug.dll instead of RSL2.dll)
+# Make sure cmake doesn't add the build config name to the end of built DLLs (eg. GuiBase_debug.dll instead of GuiBase.dll)
 set(CMAKE_DEBUG_POSTFIX "")
 set(CMAKE_RELEASE_POSTFIX "")
 set(CMAKE_RELWITHDEBINFO_POSTFIX "")
@@ -11,20 +11,20 @@ set(CMAKE_RELWITHDEBINFO_POSTFIX "")
 # Get list of source files in project src folders recursively
 # Places in SOURCES variable
 file(GLOB_RECURSE SOURCES 
-    ${CMAKE_SOURCE_DIR}/RSL2/rsl2/*.cpp
-    ${CMAKE_SOURCE_DIR}/RSL2/rsl2/*.h
+    ${CMAKE_SOURCE_DIR}/GuiBase/guiBase/*.cpp
+    ${CMAKE_SOURCE_DIR}/GuiBase/guiBase/*.h
 )
 
 # Add source to this project's DLL
-add_library(RSL2 SHARED ${SOURCES})
+add_library(GuiBase SHARED ${SOURCES})
 
 # Compile in profiler if it's flag is set
 if(COMPILE_IN_PROFILER)
-    target_link_libraries(RSL2 PRIVATE Profiler)
+    target_link_libraries(GuiBase PRIVATE Profiler)
 endif()
 
 # Add include directories
-target_include_directories(RSL2 SYSTEM PRIVATE
+target_include_directories(GuiBase SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
     ${CMAKE_SOURCE_DIR}/dependencies/
 )
