@@ -26,6 +26,7 @@ endif()
 # Add include directories
 target_include_directories(RSL2 SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
+    ${CMAKE_SOURCE_DIR}/RSL2/
     ${CMAKE_SOURCE_DIR}/dependencies/
 )
 

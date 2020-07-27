@@ -25,6 +25,7 @@ add_library(Profiler SHARED ${SOURCES}
 # Add include directories
 target_include_directories(Profiler SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
+    ${CMAKE_SOURCE_DIR}/Profiler/
 )
 
 add_compile_definitions(TRACY_EXPORTS)

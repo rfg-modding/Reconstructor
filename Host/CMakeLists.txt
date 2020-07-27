@@ -18,6 +18,8 @@ file(GLOB_RECURSE SOURCES
 # Add source to this project's DLL
 add_library(Host SHARED ${SOURCES})
 
+target_link_libraries(Host PRIVATE Common)
+
 # Compile in profiler if it's flag is set
 if(COMPILE_IN_PROFILER)
     target_link_libraries(Host PRIVATE Profiler)
@@ -26,6 +28,7 @@ endif()
 # Add include directories
 target_include_directories(Host SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
+    ${CMAKE_SOURCE_DIR}/Host/
     ${CMAKE_SOURCE_DIR}/dependencies/
 )
 

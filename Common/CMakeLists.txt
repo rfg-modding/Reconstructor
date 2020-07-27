@@ -17,3 +17,7 @@ file(GLOB_RECURSE SOURCES
 
 # Add source to this project's static lib
 add_library(Common STATIC ${SOURCES})
+
+target_include_directories(Common SYSTEM PRIVATE
+    ${CMAKE_SOURCE_DIR}/Common/
+)

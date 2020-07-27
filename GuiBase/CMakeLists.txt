@@ -26,6 +26,7 @@ endif()
 # Add include directories
 target_include_directories(GuiBase SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
+    ${CMAKE_SOURCE_DIR}/GuiBase/
     ${CMAKE_SOURCE_DIR}/dependencies/
 )
 

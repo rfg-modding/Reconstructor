@@ -1,3 +1,9 @@
 [submodule "Dependencies/tracy"]
 	path = Dependencies/tracy
 	url = https://github.com/wolfpld/tracy.git
+[submodule "Dependencies/subhook"]
+	path = Dependencies/subhook
+	url = https://github.com/Zeex/subhook.git
+[submodule "Dependencies/imgui"]
+	path = Dependencies/imgui
+	url = https://github.com/ocornut/imgui.git
