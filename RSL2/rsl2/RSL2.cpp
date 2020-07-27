@@ -12,9 +12,7 @@ extern "C"
     DLLEXPORT bool __cdecl RSL2_PluginInit()
     {
         printf("RSL2.dll RSL2_PluginInit() called!\n");
-     
-        
-        return false;
+        return true;
     }
 
     //Called when the host dll unloads this plugin
