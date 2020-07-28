@@ -58,7 +58,7 @@ static const std::vector<string> PluginIgnoreList =
 #ifdef DEBUG_BUILD
 string pluginsPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\out\\build\\x86-Debug\\bin\\";
 #else
-string pluginsPath = "./RSL2/Plugins/"
+string pluginsPath = "./RSL2/Plugins/";
 #endif
 
 //Todo: Provide host interface for plugins to interact with. Uses:
