@@ -16,7 +16,10 @@ file(GLOB_RECURSE SOURCES
 )
 
 # Add source to this project's static lib
-add_library(Common STATIC ${SOURCES})
+add_library(Common STATIC ${SOURCES}
+            ${CMAKE_SOURCE_DIR}/Dependencies/subhook/subhook.c)
+
+target_link_libraries(Common PRIVATE subhook)
 
 target_include_directories(Common SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/

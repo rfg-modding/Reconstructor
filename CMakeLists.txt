@@ -35,6 +35,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInf
 endif()
 
 # Include sub-projects.
+add_subdirectory(Dependencies)
 add_subdirectory(Common) # Statically linked common lib used in multiple sub-projects
 add_subdirectory(Profiler) # Profiler DLL included by other DLLs / applications which want to use tracy profiler. Needed for multi-DLL projects
 add_subdirectory(Launcher) # Launcher that starts RFGR and injects the host DLL into it

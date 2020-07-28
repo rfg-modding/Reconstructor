@@ -16,7 +16,10 @@ file(GLOB_RECURSE SOURCES
 )
 
 # Add source to this project's DLL
-add_library(RSL2 SHARED ${SOURCES})
+add_library(RSL2 SHARED ${SOURCES}
+            ${CMAKE_SOURCE_DIR}/Dependencies/subhook/subhook.c)
+
+target_link_libraries(RSL2 PRIVATE subhook)
 
 # Compile in profiler if it's flag is set
 if(COMPILE_IN_PROFILER)
