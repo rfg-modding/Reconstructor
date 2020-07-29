@@ -22,8 +22,8 @@ add_library(RSL2 SHARED ${SOURCES}
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_demo.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_draw.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_widgets.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_dx11.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_win32.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_dx11.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/kiero/kiero.cpp
             )
 

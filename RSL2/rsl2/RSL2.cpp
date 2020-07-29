@@ -10,6 +10,8 @@
 #include "rfg/keen/GraphicsSystem.h"
 #include "rfg/Game.h"
 
+#include "rsl2/patching/SnippetManager.h"
+
 #include <imgui/imgui.h>
 #include <imgui/examples/imgui_impl_win32.h>
 #include <imgui/examples/imgui_impl_dx11.h>
@@ -39,10 +41,49 @@ ImFont* FontHuge = nullptr;
 HWND gGameWindowHandle = nullptr;
 RECT gWindowRect = { 0, 0, 0, 0 };
 
+SnippetManager gSnippetManager;
+
+WNDPROC RfgWndProc = nullptr;
+
 bool ReadyForD3D11Init();
 void InitImGuiD3D11();
 
+//Whether overlay is active (does not block input)
+bool OverlayActive = true;
+//Whether imgui gui overlay is active (does block input)
+bool GuiActive = false;
+
 namespace fs = std::filesystem;
+
+//Functions for locking / unlocking the games auto-centering and hiding of the mouse. For imgui interaction with game running
+bool MouseUnlocked = false;
+DWORD MouseGenericPollMouseVisibleAddress = 0;
+DWORD CenterMouseCursorCallAddress = 0;
+char* MouseGenericPollOriginalCode = nullptr;
+char* CenterMouseCursorOriginalCode = nullptr;
+
+void LockMouse()
+{
+    if (!MouseUnlocked)
+        return;
+
+    gSnippetManager.RestoreSnippet("MouseGenericPollMouseVisible", true);
+    gSnippetManager.RestoreSnippet("CenterMouseCursorCall", true); //Todo: See if this patch is even needed anymore
+    
+    printf("Locked mouse movement.\n");
+    MouseUnlocked = false;
+}
+void UnlockMouse()
+{
+    if (MouseUnlocked)
+        return;
+
+    gSnippetManager.BackupSnippet("MouseGenericPollMouseVisible", MouseGenericPollMouseVisibleAddress, 12, true);
+    gSnippetManager.BackupSnippet("CenterMouseCursorCall", CenterMouseCursorCallAddress, 11, true);
+
+    MouseUnlocked = true;
+    printf("Unlocked mouse movement.\n");
+}
 
 //Todo: Stick this in the common lib or something
 std::string GetLastWin32ErrorAsString()
@@ -62,6 +103,66 @@ std::string GetLastWin32ErrorAsString()
     LocalFree(messageBuffer);
 
     return message;
+}
+
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);// , const KeyState& keys);
+LRESULT __stdcall RSL2_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    //Pass input to RSL2 input function
+    ProcessInput(hWnd, msg, wParam, lParam);
+
+    //Todo: Make it so you can have imgui visible without unlocking mouse look. Useful for data overlays
+    if (GuiActive)
+    {
+        //When imgui is active only pass WM_SIZE messages to game so it doesn't react to gui mouse/keyboard input
+        if (msg == WM_SIZE)
+            return CallWindowProc(RfgWndProc, hWnd, msg, wParam, lParam);
+
+        //Todo: Pass input to dear imgui when necessary
+        ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
+        return true;
+    }
+    
+    //If no blocking conditions met simply pass message to game WndProc
+    return CallWindowProc(RfgWndProc, hWnd, msg, wParam, lParam);
+}
+
+LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , const KeyState& keys);
+{
+    if (!ImGuiInitialized)
+        return 0;
+
+    if (msg == WM_KEYDOWN)
+    {
+        switch (wParam)
+        {
+        case VK_F1:
+            GuiActive = !GuiActive;
+            if (GuiActive)
+                UnlockMouse();
+            else
+                LockMouse();
+
+            break;
+        case VK_F2:
+            OverlayActive = !OverlayActive;
+        }
+    }
+
+    //if (GetAsyncKeyState(VK_F1))
+//{
+//    if (MouseUnlocked)
+//    {
+//        LockMouse();
+//        Sleep(200); //Todo: Fix this. It's a quick stupid fix to prevent multiple presses til we get real input handling
+//    }
+//    else
+//    {
+//        UnlockMouse();
+//        Sleep(200); //Todo: Fix this. It's a quick stupid fix to prevent multiple presses til we get real input handling
+//    }
+//}
 }
 
 //Todo: Organize this properly
@@ -150,8 +251,12 @@ FunHook<void*(keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwa
             printf("CreateRenderTargetView() failed, return value: %d\n", Result);
 
         BackBuffer->Release();
-        printf("gGameWindowHandle: %u\n", gMainRenderTargetView);
-        printf("gGameWindowHandle isWindow() result: %s\n", IsWindow(gGameWindowHandle) ? "true" : "false");
+       
+        RfgWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(RSL2_WndProc)));
+        if (!RfgWndProc)
+            printf("Failed to set custom WndProc! Error message: {}\n", GetLastWin32ErrorAsString().c_str());
+
+
         InitImGuiD3D11();
         
         return keen_graphics_beginFrame.CallTarget(pGraphicsSystem, pSwapChain);
@@ -204,6 +309,54 @@ HRESULT __stdcall D3D11_ResizeBuffersHookFunc(IDXGISwapChain* pSwapChain, UINT B
 }
 FunHook<D3D11_ResizeBuffersHook_Type> D3D11_ResizeBuffersHook{ 0x0, D3D11_ResizeBuffersHookFunc };
 
+//Todo: Put this somewhere sane
+namespace gui
+{
+    const ImVec4 SecondaryTextColor(0.2f, 0.7f, 1.0f, 1.00f); //Light blue;
+}
+
+void ShowExampleAppSimpleOverlay(bool* p_open)
+{
+    // FIXME-VIEWPORT: Select a default viewport
+    const float DISTANCE = 10.0f;
+    static int corner = 0;
+    ImGuiIO& io = ImGui::GetIO();
+    if (corner != -1)
+    {
+        ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImVec2 work_area_pos = viewport->GetWorkPos();   // Instead of using viewport->Pos we use GetWorkPos() to avoid menu bars, if any!
+        ImVec2 work_area_size = viewport->GetWorkSize();
+        ImVec2 window_pos = ImVec2((corner & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (corner & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
+        ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+        ImGui::SetNextWindowViewport(viewport->ID);
+    }
+    ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    if (corner != -1)
+        window_flags |= ImGuiWindowFlags_NoMove;
+    if (ImGui::Begin("Example: Simple overlay", p_open, window_flags))
+    {
+        ImGui::Text("Simple overlay\n" "in the corner of the screen.\n" "(right-click to change position)");
+        ImGui::Separator();
+        if (ImGui::IsMousePosValid())
+            ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+        else
+            ImGui::Text("Mouse Position: <invalid>");
+        if (ImGui::BeginPopupContextWindow())
+        {
+            if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;
+            if (ImGui::MenuItem("Top-left", NULL, corner == 0)) corner = 0;
+            if (ImGui::MenuItem("Top-right", NULL, corner == 1)) corner = 1;
+            if (ImGui::MenuItem("Bottom-left", NULL, corner == 2)) corner = 2;
+            if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
+            if (p_open && ImGui::MenuItem("Close")) *p_open = false;
+            ImGui::EndPopup();
+        }
+    }
+    ImGui::End();
+}
+
 using D3D11_PresentHook_Type = HRESULT __stdcall(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 extern FunHook<D3D11_PresentHook_Type> D3D11_PresentHook;
 HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
@@ -215,12 +368,34 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
 
     //static auto Gui = IocContainer->resolve<IGuiManager>();
     //if (Gui && Gui->Ready())
+    if(OverlayActive || GuiActive)
     {
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::ShowDemoWindow();
+        //Gui code here. This is an input blocking overlay
+        if (GuiActive)
+        {
+            ImGui::ShowDemoWindow();
+        }
+        //Overlay code here, non input blocking
+        if (OverlayActive)
+        {
+            ShowExampleAppSimpleOverlay(&OverlayActive);
+            //ImGui::SetNextWindowBgAlpha(0.0f);
+            //ImGui::Begin("FPS overlay", &OverlayActive, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoTitleBar);
+            //ImGui::SetWindowPos({ 0.0f, 0.0f });
+
+            //auto* drawList = ImGui::GetWindowDrawList();
+            //string framerate = std::to_string(ImGui::GetIO().Framerate);
+            //u64 decimal = framerate.find('.');
+            //const char* labelAndSeparator = "|    FPS: ";
+            //drawList->AddText(ImVec2(ImGui::GetCursorPosX(), 3.0f), 0xF2F5FAFF, labelAndSeparator, labelAndSeparator + strlen(labelAndSeparator));
+            //drawList->AddText(ImVec2(ImGui::GetCursorPosX() + 49.0f, 3.0f), ImGui::ColorConvertFloat4ToU32(gui::SecondaryTextColor), framerate.c_str(), framerate.c_str() + decimal + 3);
+
+            //ImGui::End();
+        }
 
         //Gui->Draw();
         gD3D11Context->OMSetRenderTargets(1, &gMainRenderTargetView, nullptr);
@@ -401,6 +576,10 @@ extern "C"
             return false;
         }
 
+        //Todo: Find the offset needed for these patches so this old technique can be removed
+        MouseGenericPollMouseVisibleAddress = ModuleBase + 0x001B88DC;
+        CenterMouseCursorCallAddress = ModuleBase + 0x878D90;
+
         //Todo: Maybe set ModuleBase in FuncHook and provide option to offset function address from it for convenience & less mistakes
         PlayerDoFrame_hook.SetAddr(ModuleBase + 0x6E6290);
         PlayerDoFrame_hook.Install();
@@ -425,7 +604,17 @@ extern "C"
     {
         printf("RSL2.dll RSL2_PluginUnload() called!\n");
         
+        //Remove hooks
         PlayerDoFrame_hook.Remove();
+        keen_graphics_beginFrame.Remove();
+        D3D11_ResizeBuffersHook.Remove();
+        D3D11_PresentHook.Remove();
+
+        //Relock mouse so game has full control of it
+        LockMouse();
+
+        //Remove custom WndProc
+        SetWindowLongPtr(gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(RfgWndProc));
 
         return true;
     }
