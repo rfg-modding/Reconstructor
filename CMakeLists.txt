@@ -31,9 +31,11 @@ message(BinaryDir=${CMAKE_BINARY_DIR})
 
 # TODO: this toggleable via command line for CI
 # Set config specific defines
-# if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-#    add_compile_definitions(DEBUG_BUILD)
-# endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    add_compile_definitions(DEBUG_BUILD)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_compile_definitions(DEBUG_BUILD_OPTIMIZED)
+endif()
 
 # Include sub-projects.
 add_subdirectory(Dependencies)
