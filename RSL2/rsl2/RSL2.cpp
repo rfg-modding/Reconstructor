@@ -25,6 +25,7 @@ static uintptr_t ModuleBase = 0;
 
 bool ImGuiInitialized = false;
 keen::GraphicsSystem* gGraphicsSystem = nullptr;
+keen::RenderSwapChain* gSwapChain = nullptr;
 ID3D11Device* gD3D11Device = nullptr;
 ID3D11DeviceContext* gD3D11Context = nullptr;
 IDXGISwapChain* gD3D11Swapchain = nullptr;
@@ -40,10 +41,47 @@ RECT gWindowRect = { 0, 0, 0, 0 };
 
 bool ReadyForD3D11Init();
 void InitImGuiD3D11();
-void WaitForValidGameState();
-HWND GetTopWindowHandle();
 
 namespace fs = std::filesystem;
+
+//Todo: Stick this in the common lib or something
+std::string GetLastWin32ErrorAsString()
+{
+    //Get the error message, if any.
+    DWORD errorMessageID = ::GetLastError();
+    if (errorMessageID == 0)
+        return std::string(); //No error message has been recorded
+
+    LPSTR messageBuffer = nullptr;
+    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+    std::string message(messageBuffer, size);
+
+    //Free the buffer.
+    LocalFree(messageBuffer);
+
+    return message;
+}
+
+//Todo: Organize this properly
+namespace rfg
+{
+    //game_state __cdecl gameseq_set_state(game_state state, bool uninterruptible)
+    using F_GameseqGetState = game_state(__cdecl*)();
+    F_GameseqGetState GameseqGetState;
+
+    //void __cdecl gameseq_set_state(game_state state, bool uninterruptible)
+    using F_GameseqSetState = void(__cdecl*)(game_state state, bool uninterruptible);
+    F_GameseqSetState GameseqSetState;
+}
+
+//Todo: Organize this properly
+template<typename T>
+void RegisterFunction(T& Function, DWORD RelativeAddress)
+{
+    Function = reinterpret_cast<T>(ModuleBase + RelativeAddress);
+}
 
 FunHook<void(Player*)> PlayerDoFrame_hook
 {
@@ -70,17 +108,27 @@ FunHook<void*(keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwa
     0x0086A8A0,
     [](keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwapChain) -> void*
     {
-        if (gGraphicsSystem != pGraphicsSystem)
+        if (gGraphicsSystem != pGraphicsSystem || gSwapChain != pSwapChain)
         {
             if(gGraphicsSystem)
                 printf("gGraphicsSystem changed!");
+            if(gSwapChain)
+                printf("gSwapChain changed!");
             
             gGraphicsSystem = pGraphicsSystem;
+            gSwapChain = pSwapChain;
         }
         if (ImGuiInitialized)
             return keen_graphics_beginFrame.CallTarget(pGraphicsSystem, pSwapChain);
         if(!ReadyForD3D11Init())
             return keen_graphics_beginFrame.CallTarget(pGraphicsSystem, pSwapChain);
+        
+        static u32 framesReady = 0;
+        if (framesReady < 600)
+        {
+            framesReady++;
+            return keen_graphics_beginFrame.CallTarget(pGraphicsSystem, pSwapChain);
+        }
 
         //Grab required D3D11 pointers for rendering and set up imgui.
         gGraphicsSystem = pGraphicsSystem;
@@ -102,6 +150,8 @@ FunHook<void*(keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwa
             printf("CreateRenderTargetView() failed, return value: %d\n", Result);
 
         BackBuffer->Release();
+        printf("gGameWindowHandle: %u\n", gMainRenderTargetView);
+        printf("gGameWindowHandle isWindow() result: %s\n", IsWindow(gGameWindowHandle) ? "true" : "false");
         InitImGuiD3D11();
         
         return keen_graphics_beginFrame.CallTarget(pGraphicsSystem, pSwapChain);
@@ -122,6 +172,7 @@ HRESULT __stdcall D3D11_ResizeBuffersHookFunc(IDXGISwapChain* pSwapChain, UINT B
     }
 
     HRESULT Result = D3D11_ResizeBuffersHook.CallTarget(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    printf("D3D11_ResizeBuffersHook called!\n");
 #ifdef DEBUG
     Logger::Log("[D3D11_ResizeBuffersHook]:: BufferCount: {}, Width: {}, Height: {}, NewFormat: {}, SwapChainFlags: {} .... Result: {:#x}\n", BufferCount, Width, Height, NewFormat, SwapChainFlags, (uint)Result);
 #endif
@@ -180,17 +231,25 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
 }
 FunHook<D3D11_PresentHook_Type> D3D11_PresentHook{ 0x0, D3D11_PresentHookFunc };
 
-
-//Todo: Write basic gui test + gui toggling + mouse & keyboard input
-//Todo: Organize this code into separate files in a reasonable way
-
 bool ReadyForD3D11Init()
 {
-    if (gGraphicsSystem && gGraphicsSystem->pDevice && gGraphicsSystem->pImmediateContext && gGraphicsSystem->pDefaultSwapChain)
-        if (gGraphicsSystem->pDefaultSwapChain->pSwapChain && gGraphicsSystem->pDefaultSwapChain->pBackBufferRenderTargetView)
-            return true;
+    if (!gGraphicsSystem || !gGraphicsSystem->pDevice || !gGraphicsSystem->pImmediateContext || !gGraphicsSystem->pDefaultSwapChain 
+        || !gGraphicsSystem->pDefaultSwapChain->pSwapChain || !gGraphicsSystem->pDefaultSwapChain->pBackBufferRenderTargetView)
+        return false;
 
-    return false;
+    game_state state = rfg::GameseqGetState();
+    if (state < 0 || state > 63) //Wait for proper game state to do any graphics stuff to ensure the game is fully initialized
+        return false;
+
+    if (!gGameWindowHandle) //This is required for imgui init which comes at the end of d3d11 init
+    {
+        if (!gSwapChain || !gSwapChain->windowHandle)
+            return false;
+
+        gGameWindowHandle = gSwapChain->windowHandle;
+    }
+
+    return true;
 }
 
 void InitImGuiD3D11()
@@ -205,18 +264,18 @@ void InitImGuiD3D11()
     ImGui_ImplDX11_Init(gD3D11Device, gD3D11Context);
     const bool RectResult = GetWindowRect(gGameWindowHandle, &gWindowRect);
     if (!RectResult)
-        printf("GetWindowRect() failed during RSL2 init!\n");
+        printf("GetWindowRect() failed during RSL2 init! Error message: %s\n", GetLastWin32ErrorAsString().c_str());
         //Logger::LogError("GetWindowRect() failed during script loader init!\n Error message: {}\n", Globals::GetLastWin32ErrorAsString());
 
 #ifdef DEBUG_BUILD
-    string FontAwesomeSolidPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\Fonts\\fa-solid-900.ttf";
-    string DefaultFontPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\Fonts\\Ruda-Bold.ttf";
+    string FontAwesomeSolidPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\fonts\\fa-solid-900.ttf";
+    string DefaultFontPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\fonts\\Ruda-Bold.ttf";
 #elif defined DEBUG_BUILD_OPTIMIZED
-    string FontAwesomeSolidPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\Fonts\\fa-solid-900.ttf";
-    string DefaultFontPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\Fonts\\Ruda-Bold.ttf";
+    string FontAwesomeSolidPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\fonts\\fa-solid-900.ttf";
+    string DefaultFontPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\fonts\\Ruda-Bold.ttf";
 #else
-    string FontAwesomeSolidPath = "./RSL/Fonts/fa-solid-900.ttf");
-    string DefaultFontPath = "./RSL/Fonts/Roboto-Regular.ttf");
+    string FontAwesomeSolidPath = "./RSL/fonts/fa-solid-900.ttf");
+    string DefaultFontPath = "./RSL/fonts/Roboto-Regular.ttf");
 #endif
 
     ImGui_ImplWin32_Init(gGameWindowHandle);
@@ -321,74 +380,9 @@ void InitImGuiD3D11()
     printf("ImGui Initialized.\n");
 }
 
-//Todo: Organize this properly
-namespace rfg
-{
-    //game_state __cdecl gameseq_set_state(game_state state, bool uninterruptible)
-    using F_GameseqGetState = game_state(__cdecl*)();
-    F_GameseqGetState GameseqGetState;
 
-    //void __cdecl gameseq_set_state(game_state state, bool uninterruptible)
-    using F_GameseqSetState = void(__cdecl*)(game_state state, bool uninterruptible);
-    F_GameseqSetState GameseqSetState;
-}
-
-//Todo: Organize this properly
-template<typename T>
-void RegisterFunction(T& Function, DWORD RelativeAddress)
-{
-    Function = reinterpret_cast<T>(ModuleBase + RelativeAddress);
-}
-
-void WaitForValidGameState()
-{
-    game_state RFGRState = rfg::GameseqGetState();
-    auto StartTime = std::chrono::steady_clock::now();
-    auto EndTime = std::chrono::steady_clock::now();
-    long long TimeElapsed = 0LL;
-    do
-    {
-        TimeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(EndTime - StartTime).count();
-        if (TimeElapsed > 1000LL) //Todo: Figure out if casting 1000 as a long long is necessary in this case or ever.
-        {
-            RFGRState = rfg::GameseqGetState();
-            StartTime = EndTime;
-            printf("Current RFGR State: %d\n", (u32)RFGRState);
-            //Logger::Log("Current RFGR State: {}\n", magic_enum::enum_name(RFGRState));
-        }
-        EndTime = std::chrono::steady_clock::now();
-    } while (RFGRState < 0 || RFGRState > 63);
-}
-
-HWND GetTopWindowHandle()
-{
-    std::pair<HWND, DWORD> params = { nullptr, GetCurrentProcessId() };
-
-    // Enumerate the windows using a lambda to process each window
-    const BOOL bResult = EnumWindows([](const HWND hwnd, LPARAM lParam) -> BOOL
-        {
-            const auto pParams = reinterpret_cast<std::pair<HWND, DWORD>*>(lParam);
-
-            DWORD processId;
-            if (GetWindowThreadProcessId(hwnd, &processId) && processId == pParams->second)
-            {
-                // Stop enumerating
-                SetLastError(-1);
-                pParams->first = hwnd;
-                return FALSE;
-            }
-
-            // Continue enumerating
-            return TRUE;
-        }, reinterpret_cast<LPARAM>(&params));
-
-    if (!bResult && GetLastError() == -1 && params.first)
-    {
-        return params.first;
-    }
-
-    return nullptr;
-}
+//Todo: Write basic gui test + gui toggling + mouse & keyboard input
+//Todo: Organize this code into separate files in a reasonable way
 
 //Need to use extern "C" to avoid C++ export name mangling. Lets us use the exact name RSL2_XXXX with GetProcAddress in the host
 extern "C"
@@ -416,8 +410,6 @@ extern "C"
         //Todo: Wait for valid game state then get window handle
         RegisterFunction(rfg::GameseqGetState, 0x003BFC70);
         RegisterFunction(rfg::GameseqSetState, 0x003D8730);
-        //WaitForValidGameState();
-        gGameWindowHandle = GetTopWindowHandle();
 
         //D3D11 hooks
         D3D11_ResizeBuffersHook.SetAddr(kiero::getMethodsTable()[13]);

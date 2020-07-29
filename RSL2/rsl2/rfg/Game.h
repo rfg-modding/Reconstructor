@@ -1,6 +1,6 @@
 #pragma once
 
-enum game_state
+enum game_state : unsigned int
 {
     GS_NONE = 0xFFFFFFFF,
     GS_MAINMENU = 0x0,
