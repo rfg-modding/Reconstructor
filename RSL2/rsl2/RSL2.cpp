@@ -8,6 +8,7 @@
 //Todo: Have common lib with RFG types instead of tossing them everywhere
 #include "rfg/Player.h"
 #include "rfg/keen/GraphicsSystem.h"
+#include "rfg/Game.h"
 
 #include <imgui/imgui.h>
 #include <imgui/examples/imgui_impl_win32.h>
@@ -39,6 +40,8 @@ RECT gWindowRect = { 0, 0, 0, 0 };
 
 bool ReadyForD3D11Init();
 void InitImGuiD3D11();
+void WaitForValidGameState();
+HWND GetTopWindowHandle();
 
 namespace fs = std::filesystem;
 
@@ -105,17 +108,79 @@ FunHook<void*(keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwa
     }
 };
 
-//Todo: Write D3D11_ResizeBuffers hook. Need to use separate function and probably expand FunHook with a __stdcall specialization (__fastcall might work for this)
-//FunHook<HRESULT __stdcall (IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)> D3D11_ResizeBuffersHook
-//{
-//    0x0,
-//    [](IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags) -> HRESULT
-//    {
-//
-//    }
-//};
+using D3D11_ResizeBuffersHook_Type = HRESULT __stdcall(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+extern FunHook<D3D11_ResizeBuffersHook_Type> D3D11_ResizeBuffersHook;
+HRESULT __stdcall D3D11_ResizeBuffersHookFunc(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
+{
+    //Todo: Write this
+    bool ShouldReInit = false;
+    if (gMainRenderTargetView)
+    {
+        gMainRenderTargetView->Release();
+        gMainRenderTargetView = nullptr;
+        ShouldReInit = true;
+    }
 
-//Todo: Write D3D11_Present hook
+    HRESULT Result = D3D11_ResizeBuffersHook.CallTarget(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+#ifdef DEBUG
+    Logger::Log("[D3D11_ResizeBuffersHook]:: BufferCount: {}, Width: {}, Height: {}, NewFormat: {}, SwapChainFlags: {} .... Result: {:#x}\n", BufferCount, Width, Height, NewFormat, SwapChainFlags, (uint)Result);
+#endif
+
+    if (ShouldReInit)
+    {
+        gD3D11Device = gGraphicsSystem->pDevice;
+        gD3D11Context = gGraphicsSystem->pImmediateContext;
+        gD3D11Swapchain = gGraphicsSystem->pDefaultSwapChain->pSwapChain;
+
+        ID3D11Texture2D* BackBuffer;
+        Result = gD3D11Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<LPVOID*>(&BackBuffer));
+        if (Result != S_OK)
+            printf("GetBuffer() failed, return value: %d\n", Result);
+            //Logger::LogFatalError("GetBuffer() failed, return value: {}\n", Result);
+
+        D3D11_RENDER_TARGET_VIEW_DESC desc = {};
+        memset(&desc, 0, sizeof(desc));
+        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; //Required to avoid rendering issue with overlay. Without this the proper rgb values will not be displayed.
+        desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+        Result = gD3D11Device->CreateRenderTargetView(BackBuffer, &desc, &gMainRenderTargetView);
+        if (Result != S_OK)
+            printf("CreateRenderTargetView() failed, return value: %d\n", Result);
+            //Logger::LogFatalError("CreateRenderTargetView() failed, return value: {}\n", Result);
+
+        BackBuffer->Release();
+    }
+    return Result;
+}
+FunHook<D3D11_ResizeBuffersHook_Type> D3D11_ResizeBuffersHook{ 0x0, D3D11_ResizeBuffersHookFunc };
+
+using D3D11_PresentHook_Type = HRESULT __stdcall(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
+extern FunHook<D3D11_PresentHook_Type> D3D11_PresentHook;
+HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+{
+    if (!ImGuiInitialized)
+        return D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
+    //if (ScriptLoaderCloseRequested)
+    //    return D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
+
+    //static auto Gui = IocContainer->resolve<IGuiManager>();
+    //if (Gui && Gui->Ready())
+    {
+        ImGui_ImplDX11_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
+
+        //Gui->Draw();
+        gD3D11Context->OMSetRenderTargets(1, &gMainRenderTargetView, nullptr);
+        ImGui::Render();
+        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    }
+    return D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
+}
+FunHook<D3D11_PresentHook_Type> D3D11_PresentHook{ 0x0, D3D11_PresentHookFunc };
+
+
 //Todo: Write basic gui test + gui toggling + mouse & keyboard input
 //Todo: Organize this code into separate files in a reasonable way
 
@@ -256,6 +321,75 @@ void InitImGuiD3D11()
     printf("ImGui Initialized.\n");
 }
 
+//Todo: Organize this properly
+namespace rfg
+{
+    //game_state __cdecl gameseq_set_state(game_state state, bool uninterruptible)
+    using F_GameseqGetState = game_state(__cdecl*)();
+    F_GameseqGetState GameseqGetState;
+
+    //void __cdecl gameseq_set_state(game_state state, bool uninterruptible)
+    using F_GameseqSetState = void(__cdecl*)(game_state state, bool uninterruptible);
+    F_GameseqSetState GameseqSetState;
+}
+
+//Todo: Organize this properly
+template<typename T>
+void RegisterFunction(T& Function, DWORD RelativeAddress)
+{
+    Function = reinterpret_cast<T>(ModuleBase + RelativeAddress);
+}
+
+void WaitForValidGameState()
+{
+    game_state RFGRState = rfg::GameseqGetState();
+    auto StartTime = std::chrono::steady_clock::now();
+    auto EndTime = std::chrono::steady_clock::now();
+    long long TimeElapsed = 0LL;
+    do
+    {
+        TimeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(EndTime - StartTime).count();
+        if (TimeElapsed > 1000LL) //Todo: Figure out if casting 1000 as a long long is necessary in this case or ever.
+        {
+            RFGRState = rfg::GameseqGetState();
+            StartTime = EndTime;
+            printf("Current RFGR State: %d\n", (u32)RFGRState);
+            //Logger::Log("Current RFGR State: {}\n", magic_enum::enum_name(RFGRState));
+        }
+        EndTime = std::chrono::steady_clock::now();
+    } while (RFGRState < 0 || RFGRState > 63);
+}
+
+HWND GetTopWindowHandle()
+{
+    std::pair<HWND, DWORD> params = { nullptr, GetCurrentProcessId() };
+
+    // Enumerate the windows using a lambda to process each window
+    const BOOL bResult = EnumWindows([](const HWND hwnd, LPARAM lParam) -> BOOL
+        {
+            const auto pParams = reinterpret_cast<std::pair<HWND, DWORD>*>(lParam);
+
+            DWORD processId;
+            if (GetWindowThreadProcessId(hwnd, &processId) && processId == pParams->second)
+            {
+                // Stop enumerating
+                SetLastError(-1);
+                pParams->first = hwnd;
+                return FALSE;
+            }
+
+            // Continue enumerating
+            return TRUE;
+        }, reinterpret_cast<LPARAM>(&params));
+
+    if (!bResult && GetLastError() == -1 && params.first)
+    {
+        return params.first;
+    }
+
+    return nullptr;
+}
+
 //Need to use extern "C" to avoid C++ export name mangling. Lets us use the exact name RSL2_XXXX with GetProcAddress in the host
 extern "C"
 {
@@ -279,7 +413,17 @@ extern "C"
         keen_graphics_beginFrame.SetAddr(ModuleBase + 0x0086A8A0);
         keen_graphics_beginFrame.Install();
 
-        //oEndScene = (EndScene)kiero::getMethodsTable()[42];
+        //Todo: Wait for valid game state then get window handle
+        RegisterFunction(rfg::GameseqGetState, 0x003BFC70);
+        RegisterFunction(rfg::GameseqSetState, 0x003D8730);
+        //WaitForValidGameState();
+        gGameWindowHandle = GetTopWindowHandle();
+
+        //D3D11 hooks
+        D3D11_ResizeBuffersHook.SetAddr(kiero::getMethodsTable()[13]);
+        D3D11_ResizeBuffersHook.Install();
+        D3D11_PresentHook.SetAddr(kiero::getMethodsTable()[8]);
+        D3D11_PresentHook.Install();
 
         return true;
     }

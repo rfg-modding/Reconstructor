@@ -298,6 +298,14 @@ namespace keen
         char* pMappedBufferData;
     };
 
+    struct SkinnedGeometryInstance
+    {
+        ID3D11Buffer* pVertexBuffer;
+        char* pMappedData;
+        unsigned int skinBufferOffset;
+    };
+
+
     struct SkinningD3D11
     {
         ID3D11Buffer* m_pSkinningBuffer;

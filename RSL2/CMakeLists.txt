@@ -17,7 +17,15 @@ file(GLOB_RECURSE SOURCES
 
 # Add source to this project's DLL
 add_library(RSL2 SHARED ${SOURCES}
-            ${CMAKE_SOURCE_DIR}/Dependencies/subhook/subhook.c)
+            ${CMAKE_SOURCE_DIR}/Dependencies/subhook/subhook.c
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_demo.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_draw.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_widgets.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_dx11.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_win32.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/kiero/kiero.cpp
+            )
 
 target_link_libraries(RSL2 PRIVATE subhook)
 
@@ -31,6 +39,7 @@ target_include_directories(RSL2 SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
     ${CMAKE_SOURCE_DIR}/RSL2/
     ${CMAKE_SOURCE_DIR}/dependencies/
+    ${CMAKE_SOURCE_DIR}/dependencies/imgui/
 )
 
 add_compile_definitions(TRACY_IMPORTS)
