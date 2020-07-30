@@ -53,10 +53,13 @@ static const std::vector<string> PluginIgnoreList =
     "Host"
 };
 
+//Todo: Make this work for release builds without needing to manually edit the path
 //Todo: Stick this in a file that's loaded at runtime
 //Path to look for plugin dlls. Special value in debug builds for convenience
 #ifdef DEBUG_BUILD
 string pluginsPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\out\\build\\x86-Debug\\bin\\";
+#elif defined DEBUG_BUILD_OPTIMIZED
+string pluginsPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\out\\build\\x86-Release\\bin\\";
 #else
 string pluginsPath = "./RSL2/Plugins/";
 #endif
@@ -81,7 +84,7 @@ DWORD WINAPI HostThread(HMODULE hModule)
     ResumeRfgMainThread(hModule);
 
     //Loop through plugins periodically and reload any that need to be reloaded
-    printf("RFG main thread resumed. Host thread will now perform period plugin change checks and reload them when necessary.\n");
+    printf("RFG main thread resumed. Host thread will now perform periodic plugin change checks and reload them when necessary.\n");
     u32 pluginChangeCheckDelayMs = 1000u; //Time between plugin reload checks in ms (1000ms = 1s)
     Timer pluginChangeTimer;
     while (true)

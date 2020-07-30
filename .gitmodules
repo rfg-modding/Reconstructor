@@ -7,3 +7,12 @@
 [submodule "Dependencies/imgui"]
 	path = Dependencies/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "Dependencies/kiero"]
+	path = Dependencies/kiero
+	url = https://github.com/rsl-dev/kiero.git
+[submodule "Dependencies/IconFontCppHeaders"]
+	path = Dependencies/IconFontCppHeaders
+	url = https://github.com/juliettef/IconFontCppHeaders.git
+[submodule "Dependencies/RSL2-Dependencies"]
+	path = Dependencies/RSL2-Dependencies
+	url = https://github.com/rsl-dev/RSL2-Dependencies.git
