@@ -3,7 +3,13 @@ cmake_minimum_required (VERSION 3.8)
 project (RSL2Solution)
 
 # Whether or not to compile in tracy profiler
-set(COMPILE_IN_PROFILER TRUE)
+set(COMPILE_IN_PROFILER FALSE)
+if(COMPILE_IN_PROFILER)
+    add_compile_definitions(COMPILE_IN_PROFILER)
+endif()
+
+# TODO: Make this toggleable with COMPILE_IN_PROFILER 
+add_compile_definitions(TRACY_ENABLE)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # using Visual Studio C++

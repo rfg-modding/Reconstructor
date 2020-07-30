@@ -28,4 +28,6 @@ target_include_directories(Profiler SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Profiler/
 )
 
+target_link_libraries(Profiler PRIVATE Common)
+
 add_compile_definitions(TRACY_EXPORTS)

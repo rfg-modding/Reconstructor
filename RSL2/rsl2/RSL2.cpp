@@ -7,6 +7,9 @@
 #include "common/Typedefs.h"
 #include "common/Common.h"
 #include "hooks/WndProc.h"
+#ifdef COMPILE_IN_PROFILER
+#include "tracy/Tracy.hpp"
+#endif
 #include <kiero/kiero.h>
 #include <cstdio>
 

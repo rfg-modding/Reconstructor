@@ -28,6 +28,7 @@ add_library(RSL2 SHARED ${SOURCES}
             )
 
 target_link_libraries(RSL2 PRIVATE subhook)
+target_link_libraries(RSL2 PRIVATE Common)
 
 # Compile in profiler if it's flag is set
 if(COMPILE_IN_PROFILER)

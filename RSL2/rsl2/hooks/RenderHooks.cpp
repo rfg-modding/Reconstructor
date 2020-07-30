@@ -14,6 +14,9 @@
 #include <imgui/examples/imgui_impl_dx11.h>
 #include <IconFontCppHeaders/IconsFontAwesome5.h>
 #include <filesystem>
+#ifdef COMPILE_IN_PROFILER
+#include "tracy/Tracy.hpp"
+#endif
 
 //Only used by render hooks
 keen::GraphicsSystem* gGraphicsSystem = nullptr;
@@ -195,7 +198,12 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     }
-    return D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
+
+    HRESULT result = D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
+#ifdef COMPILE_IN_PROFILER
+    FrameMark;
+#endif
+    return result;
 }
 
 bool ReadyForD3D11Init()
