@@ -1,4 +1,5 @@
 #pragma once
+#include "common/Typedefs.h"
 
 //Target windows 7 with win10 sdk
 #include <winsdkver.h>
