@@ -10,3 +10,5 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <Psapi.h>
+
+std::string GetLastWin32ErrorAsString();

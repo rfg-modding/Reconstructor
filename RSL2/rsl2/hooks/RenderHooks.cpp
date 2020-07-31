@@ -18,6 +18,12 @@
 #include "tracy/Tracy.hpp"
 #endif
 
+#include "rsl2/rfg/Player.h"
+#include "rsl2/rfg/Human.h"
+#include "rsl2/rfg/Object.h"
+#include "rsl2/rfg/Camera.h"
+#include "rsl2/rfg/World.h"
+
 //Only used by render hooks
 keen::GraphicsSystem* gGraphicsSystem = nullptr;
 keen::RenderSwapChain* gSwapChain = nullptr;
@@ -36,26 +42,6 @@ namespace gui
 
 void ShowExampleAppSimpleOverlay(bool* p_open);
 void InitImGuiD3D11();
-
-//Todo: Move into helper namespace/file
-std::string GetLastWin32ErrorAsString()
-{
-    //Get the error message, if any.
-    DWORD errorMessageID = ::GetLastError();
-    if (errorMessageID == 0)
-        return std::string(); //No error message has been recorded
-
-    LPSTR messageBuffer = nullptr;
-    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
-
-    std::string message(messageBuffer, size);
-
-    //Free the buffer.
-    LocalFree(messageBuffer);
-
-    return message;
-}
 
 HRESULT __stdcall D3D11_ResizeBuffersHookFunc(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
@@ -203,6 +189,7 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
 #ifdef COMPILE_IN_PROFILER
     FrameMark;
 #endif
+
     return result;
 }
 
@@ -242,23 +229,27 @@ void ShowExampleAppSimpleOverlay(bool* p_open)
         ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImVec2 work_area_pos = viewport->GetWorkPos();   // Instead of using viewport->Pos we use GetWorkPos() to avoid menu bars, if any!
         ImVec2 work_area_size = viewport->GetWorkSize();
-        ImVec2 window_pos = ImVec2((corner & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (corner & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
+        ImVec2 window_pos = ImVec2((corner & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : 
+            (work_area_pos.x + DISTANCE), (corner & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
         ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
         ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
         ImGui::SetNextWindowViewport(viewport->ID);
     }
-    ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    ImGui::SetNextWindowBgAlpha(0.5f); // Transparent background
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize 
+                                    | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
     if (corner != -1)
         window_flags |= ImGuiWindowFlags_NoMove;
+
     if (ImGui::Begin("Example: Simple overlay", p_open, window_flags))
     {
-        ImGui::Text("Simple overlay\n" "in the corner of the screen.\n" "(right-click to change position)");
+        ImGui::Text("FPS: %.2f", io.Framerate);
         ImGui::Separator();
-        if (ImGui::IsMousePosValid())
-            ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+        if (globalState->Player)
+            ImGui::Text("Player Position: (%.2f,%.2f, %.2f)", globalState->Player->pos.x, globalState->Player->pos.y, globalState->Player->pos.z);
         else
-            ImGui::Text("Mouse Position: <invalid>");
+            ImGui::Text("Player Position: <invalid>");
+
         if (ImGui::BeginPopupContextWindow())
         {
             if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;
@@ -402,3 +393,102 @@ void InitImGuiD3D11()
     //Hooks::UpdateD3D11Pointers = false;
     printf("ImGui Initialized.\n");
 }
+
+
+void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer* thisPtr)
+{
+    static RSL2_GlobalState* globalState = GetGlobalState();
+    primitive_renderer_begin_deferredHook.CallTarget(thisPtr);
+
+    if (!globalState->ImGuiInitialized)
+        return;
+
+    //Todo: Add helpers to make this easier + less restrictive. Should have some class that keeps a list of primitive render commands and then runs them all here
+    //Do all primitive rendering stuff here
+
+    if (!globalState || !globalState->Player || !globalState->MainCamera || !globalState->World)
+        return;
+
+    //Test out rfg primitive rendering code
+    static gr_state renderState;
+    static bool firstRun = true;
+    if (firstRun)
+    {
+        rfg::gr_state_constructor(&renderState, nullptr, ALPHA_BLEND_ADDITIVE, CLAMP_MODE_CLAMP, ZBUF_NONE, STENCIL_NONE, 0, CULL_MODE_CULL, TNL_CLIP_MODE_NONE, TNL_LIGHT_MODE_NONE);
+        firstRun = false;
+    }
+    //if (globalState->Player)
+    {
+
+        //String over masons head
+        //vector stringPos = (globalState->Player->last_known_bmin + ((globalState->Player->last_known_bmax - globalState->Player->last_known_bmin).Scale(0.5f))) + vector(0.0f, 1.5f, 0.0f);
+        vector stringPos = globalState->Player->pos;// -(globalState->MainCamera->real_orient.rvec.Magnitude() * 5.0f);
+        stringPos += vector(0.0f, 2.0f, 0.0f);
+        vector stringOffset = (globalState->Player->last_known_bmax - globalState->Player->last_known_bmin).Scale(-0.5f);;
+        stringPos.x += stringOffset.x;
+        stringPos.z += stringOffset.z;
+        matrix stringOrient = globalState->MainCamera->real_orient;
+        
+        //stringOrient.fvec.y = 0.0f;
+        //stringOrient.rvec.y = 0.0f;
+        //stringPos += globalState->MainCamera->real_orient.fvec * 2.5f;
+        //vector stringOffset = (globalState->MainCamera->real_orient.rvec.UnitVector() * -3.0f);
+        //stringPos.x += stringOffset.x;
+        //stringPos.z += stringOffset.z;
+        string positionString = globalState->Player->pos.GetDataString(true, false);
+        int fontNum = 0;
+
+        //rfg::gr_bbox_aligned(&globalState->Player->last_known_bmin, &globalState->Player->last_known_bmax, &renderState);
+        //Todo: Use camera orientation instead
+        rfg::gr_3d_string(&stringPos, &stringOrient, 0.002f, positionString.c_str(), fontNum, &renderState);
+    }
+    //if (globalState->World)
+    {
+        //Todo: Fix range based iterators for base_array<T>
+        for (u32 i = 0; i < globalState->World->all_objects.Size(); i++)
+        {
+            Object* object = globalState->World->all_objects[i];
+
+            if (!object || object->obj_type != OT_HUMAN || object == globalState->Player)
+                continue;
+
+            Human* human = reinterpret_cast<Human*>(object);
+
+            float maxDrawDistance = 100.0f;
+            vector distance = object->pos - globalState->MainCamera->real_pos;
+            if (distance.Magnitude() <= maxDrawDistance)
+            {
+                //Draw string over humans head + draw their bounding box
+                vector stringPos = object->pos;// -(globalState->MainCamera->real_orient.rvec.Magnitude() * 5.0f);
+                stringPos += vector(0.0f, 2.0f, 0.0f);
+                vector stringOffset = (object->last_known_bmax - object->last_known_bmin).Scale(-0.5f);;
+                stringPos.x += stringOffset.x;
+                stringPos.z += stringOffset.z;
+                matrix stringOrient = globalState->MainCamera->real_orient;
+
+                string positionString = "Health: " + std::to_string(human->hit_points) + "/" + std::to_string(human->max_hit_points);
+                int fontNum = 0;
+
+                rfg::gr_bbox_aligned(&object->last_known_bmin, &object->last_known_bmax, &renderState);
+                rfg::gr_3d_string(&stringPos, &stringOrient, 0.003f, positionString.c_str(), fontNum, &renderState);
+
+                u32 maxPathNodeCount = 30;
+                //Draw pathfinding line of human
+                if (human->pf.path)
+                {
+                    path_node* curNode = human->pf.path;
+                    path_node* nextNode = curNode->next;
+                    u32 nodeCount = 1;
+                    while (nextNode && nodeCount < maxPathNodeCount)
+                    {
+                        rfg::gr_3d_line(&curNode->pos, &nextNode->pos, &renderState);
+                        curNode = nextNode;
+                        nextNode = curNode->next;
+                        nodeCount++;
+                    }
+                }
+            }
+        }
+    }
+}
+FunHook<primitive_renderer_begin_deferredHook_Type> primitive_renderer_begin_deferredHook { 0x0, primitive_renderer_begin_deferredHook_Func };

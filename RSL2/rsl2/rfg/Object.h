@@ -1,6 +1,83 @@
 #pragma once
+#include "common/Typedefs.h"
 #include "Vector.h"
 #include "Matrix.h"
+
+enum object_type : u8
+{
+    OT_UNDEFINED = 0xFFFFFFFF,
+    OT_HUMAN = 0x0,
+    OT_ITEM = 0x1,
+    OT_MOVER = 0x2,
+    OT_VEHICLE = 0x3,
+    OT_EFFECT = 0x4,
+    OT_DEBRIS = 0x5,
+    OT_TURRET = 0x6,
+    OT_LIGHT = 0x7,
+    OT_PLAYER_START = 0x8,
+    OT_COVER_NODE = 0x9,
+    OT_NAVPOINT = 0xA,
+    OT_SQUAD = 0xB,
+    OT_CONVOY = 0xC,
+    OT_CONVOY_END = 0xD,
+    OT_PATROL = 0xE,
+    OT_GUARD_NODE = 0xF,
+    OT_SKYBOX = 0x10,
+    OT_LADDER = 0x11,
+    OT_CONSTRAINT = 0x12,
+    OT_ZONE = 0x13,
+    OT_TRIGGER_REGION = 0x14,
+    OT_MARAUDER_AMBUSH_REGION = 0x15,
+    OT_RESTRICTED_AREA = 0x16,
+    OT_SPAWN_REGION = 0x17,
+    OT_AMBIENT_SPAWN_REGION = 0x18,
+    OT_VEHICLE_SPAWN_NODE = 0x19,
+    OT_NPC_SPAWN_NODE = 0x1A,
+    OT_TURRET_SPAWN_NODE = 0x1B,
+    OT_ACTION_NODE = 0x1C,
+    OT_SQUAD_SPAWN_NODE = 0x1D,
+    OT_ROADBLOCK_NODE = 0x1E,
+    OT_SHAPE_CUTTER = 0x1F,
+    OT_DISTRICT = 0x20,
+    OT_MULTI_MARKER = 0x21,
+    OT_PATH_ROAD = 0x22,
+    OT_LIGHT_PARAMS = 0x23,
+    OT_DUMMY = 0x24,
+    OT_ACTIVITY_SPAWN = 0x25,
+    OT_RAID_NODE = 0x26,
+    OT_SUBZONE = 0x27,
+    OT_HOUSE_ARREST_NODE = 0x28,
+    OT_DEMOLITIONS_MASTER_NODE = 0x29,
+    OT_RIDING_SHOTGUN_NODE = 0x2A,
+    OT_DELIVERY_NODE = 0x2B,
+    OT_BOUNDING_BOX = 0x2C,
+    OT_MISSION_START_NODE = 0x2D,
+    OT_COURIER = 0x2E,
+    OT_COURIER_END = 0x2F,
+    OT_SAFEHOUSE = 0x30,
+    OT_BFTP_NODE = 0x31,
+    OT_AIR_STRIKE_DEFENSE_NODE = 0x32,
+    OT_UPGRADE_NODE = 0x33,
+    OT_AREA_DEFENSE_NODE = 0x34,
+    NUM_OBJECT_TYPES = 0x35,
+};
+
+enum object_sub_type : u8
+{
+    OT_SUB_UNDEFINED = 0xFFFFFFFF,
+    OT_SUB_MOVER_GENERAL = 0x0,
+    OT_SUB_MOVER_RFG = 0x1,
+    OT_SUB_HUMAN_NPC = 0x2,
+    OT_SUB_HUMAN_PLAYER = 0x3,
+    OT_SUB_VEHICLE_AUTO = 0x4,
+    OT_SUB_VEHICLE_FLYER = 0x5,
+    OT_SUB_VEHICLE_WALKER = 0x6,
+    OT_SUB_ITEM_WEAPON = 0x7,
+    OT_SUB_ITEM_PROJECTILE = 0x8,
+    OT_SUB_ITEM_MULTI_FLAG = 0x9,
+    OT_SUB_ITEM_MULTI_BACKPACK = 0xA,
+    NUM_OBJECT_SUB_TYPES = 0xB,
+};
 
 struct ContactNode //16
 {
@@ -84,9 +161,11 @@ struct Object
     unsigned __int16 all_index;
     unsigned __int16 type_index;
     unsigned __int16 subtype_index;
-    char obj_type;
-    char sub_type;
+    object_type obj_type;
+    object_sub_type sub_type;
     vector last_known_bmin;
     vector last_known_bmax;
     unsigned int srid;
 };
+
+static_assert(sizeof(Object) == 156, "Object failed the static size check!");

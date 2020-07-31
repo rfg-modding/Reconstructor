@@ -59,6 +59,10 @@ public:
 		fvec = B.fvec;
 		return *this;
 	}
+	matrix Abs()
+	{
+		return matrix(rvec.Abs(), uvec.Abs(), fvec.Abs());
+	}
 	matrix SetAll(float Value)
 	{
 		rvec.SetAll(Value);

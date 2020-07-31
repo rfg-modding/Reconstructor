@@ -4,6 +4,9 @@
 #include "rsl2/patching/SnippetManager.h"
 
 struct ImFont;
+struct Player;
+struct rfg_camera;
+struct world;
 
 //Todo: Try to eliminate this and if not possible reduce it's usage as much as possible. A big file with tons of global data was a design flaw of RSL1
 class RSL2_GlobalState
@@ -32,6 +35,10 @@ public:
     //Addresses of some locations that are patched to control mouse movement + visibility
     DWORD MouseGenericPollMouseVisibleAddress = 0;
     DWORD CenterMouseCursorCallAddress = 0;
+
+    Player* Player = nullptr;
+    rfg_camera* MainCamera = nullptr;
+    world* World = nullptr;
 };
 
 extern RSL2_GlobalState* GetGlobalState();

@@ -122,6 +122,10 @@ public:
 		NewPos.z = this->z + parameter * (B.z - this->z);
 		return NewPos;
 	}
+	vector Abs()
+	{
+		return vector(abs(x), abs(y), abs(z));
+	}
 	std::string GetDataString(bool Parentheses, bool Labels)
 	{
 		std::string String;
