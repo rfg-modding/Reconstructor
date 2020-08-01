@@ -1,5 +1,9 @@
 #include "WndProc.h"
+#include "common/Typedefs.h"
 #include "rsl2/misc/GlobalState.h"
+#include "RFGR_Types/rfg/Camera.h"
+#include "rsl2/hooks/Camera.h"
+#include "rsl2/functions/Functions.h"
 
 //Functions for locking / unlocking the games auto-centering and hiding of the mouse. For imgui interaction with game running
 bool MouseUnlocked = false;
@@ -62,6 +66,8 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
     if (!globalState->ImGuiInitialized)
         return 0;
 
+    f32 camSpeed = 5.0f;
+
     if (msg == WM_KEYDOWN)
     {
         switch (wParam)
@@ -76,6 +82,16 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
             break;
         case VK_F2:
             globalState->OverlayActive = !globalState->OverlayActive;
+        
+        case VK_NUMPAD1:
+            ToggleHud();
+            break;
+        case VK_NUMPAD2:
+            ToggleFog();
+            break;
         }
     }
+
+    //Pass input to camera code
+    CameraProcessInput(hwnd, msg, wParam, lParam);
 }

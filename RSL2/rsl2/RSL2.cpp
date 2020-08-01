@@ -9,6 +9,7 @@
 #include "common/Typedefs.h"
 #include "common/Common.h"
 #include "rsl2/patching/Offset.h"
+#include "rsl2/hooks/Camera.h"
 #ifdef COMPILE_IN_PROFILER
 #include "tracy/Tracy.hpp"
 #endif
@@ -51,6 +52,7 @@ extern "C"
 
         //Setup pointers to game functions
         InitFunctionPointers();
+        InitCameraPatches();
 
         //D3D11 hooks
         D3D11_ResizeBuffersHook.SetAddr(kiero::getMethodsTable()[13]);
@@ -110,8 +112,10 @@ extern "C"
         grd_bbox_oriented_hook.Remove();
         primitive_renderer_begin_deferredHook.Remove();
 
-        //Relock mouse so game has full control of it
+
+        //Relock mouse and camera so game has full control of them and patches are removed
         LockMouse();
+        LockCamera();
 
         //Remove custom WndProc
         SetWindowLongPtr(globalState->gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(globalState->RfgWndProc));

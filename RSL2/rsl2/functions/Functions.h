@@ -4,6 +4,10 @@
 #include "RFGR_Types/rfg/Matrix.h"
 #include "RFGR_Types/rfg/DrawData.h"
 #include "RFGR_Types/rfg/Memory.h"
+#include "RFGR_Types/rfg/Camera.h"
+
+//Forward declarations
+struct Human;
 
 //Todo: Organize this properly
 namespace rfg
@@ -121,6 +125,26 @@ namespace rfg
 
     //void __cdecl hud_bm_res_independent(int bitmap_id, int cx, int cy, float scale, gr_state state) //0x00441CA0
     //void __cdecl hud_bm_pos_res_independent(int bitmap_id, int cx, int cy, float scale, gr_state state) //0x00441EF0
+
+    //void __cdecl camera_push_mode(camera_mode m) //0x002C9240
+    using F_camera_push_mode = void(__cdecl*)(camera_mode mode);
+    extern F_camera_push_mode camera_push_mode;
+
+    //void __cdecl camera_pop_mode(camera_mode m) //0x002C92D0
+    using F_camera_pop_mode = void(__cdecl*)(camera_mode mode);
+    extern F_camera_pop_mode camera_pop_mode;
+
+    //void __cdecl human_teleport_unsafe(human *hp, vector pos, matrix orient) //0x0067C290
+    using F_human_teleport_unsafe = void(__cdecl*)(Human* hp, vector pos, matrix orient);
+    extern F_human_teleport_unsafe human_teleport_unsafe;
+
+    //void __cdecl hud_hide(bool hide) //0x00441AE0
+    using F_hud_hide = void(__cdecl*)(bool hide);
+    extern F_hud_hide hud_hide;
+
+    //void __cdecl game_render_set_fog_enabled(bool enabled) //0x003C2C50
+    using F_game_render_set_fog_enabled = void(__cdecl*)(bool hide);
+    extern F_game_render_set_fog_enabled game_render_set_fog_enabled;
 }
 
 //Todo: Organize this properly
@@ -132,3 +156,11 @@ void RegisterFunction(T& Function, unsigned long RelativeAddress)
 }
 
 extern void InitFunctionPointers();
+
+//Helpers for showing/hiding the hud and fog
+extern void ShowHud();
+extern void HideHud();
+extern void ToggleHud();
+extern void ShowFog();
+extern void HideFog();
+extern void ToggleFog();

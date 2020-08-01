@@ -407,14 +407,6 @@ void DrawMemManagerInfo(split_memmgr& manager)
 void DrawDebugGui()
 {
     static RSL2_GlobalState* globalState = GetGlobalState();
-
-    ////int __cdecl memmgr_debug_render(split_memmgr *mgr, int sy) //0x003D25D0
-    //struct split_memmgr;
-    //using F_memmgr_debug_render = bool(__cdecl*)(split_memmgr* mgr, int sy);
-    //extern F_memmgr_debug_render memmgr_debug_render;
-    ////.data:0195FB28 ; split_memmgr Level_memmgr
-    //rfg::memmgr_debug_render((rfg::split_memmgr*)(globalState->ModuleBase + 0x0195FB28), 0);
-
     if (!globalState || !globalState->Player || !globalState->MainCamera || !globalState->World)
         return;
 
@@ -439,6 +431,170 @@ void DrawDebugGui()
     if (ImGui::CollapsingHeader("rl_destroyable mem manager"))
     {
         DrawMemManagerInfo(*RlDestroyableInstanceMemManager);
+    }
+
+    ImGui::Separator();
+    ImGui::PushFont(globalState->FontLarge);
+    ImGui::Text(ICON_FA_CAMERA " Camera");
+    ImGui::PopFont();
+    ImGui::Separator();
+
+    ImGui::Text("Push/Pop camera modes:");
+
+    ImGui::Text("CAMERA_FREE_MODE: ");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_FREE_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_FREE_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_FREE_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_FREE_MODE);
+    }
+
+    ImGui::Text("CAMERA_SLEW_MODE: ");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_SLEW_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_SLEW_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_SLEW_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_SLEW_MODE);
+    }
+
+    ImGui::Text("CAMERA_CURSOR_MODE: ");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_CURSOR_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_CURSOR_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_CURSOR_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_CURSOR_MODE);
+    }
+
+    ImGui::Text("CAMERA_MINI_SCRIPT_MODE");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_MINI_SCRIPT_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_MINI_SCRIPT_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_MINI_SCRIPT_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_MINI_SCRIPT_MODE);
+    }
+
+    ImGui::Text("CAMERA_CUTSCENE_SCRIPT_MODE");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_CUTSCENE_SCRIPT_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_CUTSCENE_SCRIPT_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_CUTSCENE_SCRIPT_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_CUTSCENE_SCRIPT_MODE);
+    }
+
+    ImGui::Text("CAMERA_DUMB_MODE");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_DUMB_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_DUMB_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_DUMB_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_DUMB_MODE);
+    }
+
+    ImGui::Text("CAMERA_DEATH_MODE");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_DEATH_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_DEATH_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_DEATH_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_DEATH_MODE);
+    }
+
+    ImGui::Text("CAMERA_LOOKAROUND_MODE");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_LOOKAROUND_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_LOOKAROUND_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_LOOKAROUND_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_LOOKAROUND_MODE);
+    }
+
+    ImGui::Text("CAMERA_FIRST_PERSON_MODE");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_FIRST_PERSON_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_FIRST_PERSON_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_FIRST_PERSON_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_FIRST_PERSON_MODE);
+    }
+
+    ImGui::Text("CAMERA_TURRET_MODE");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_TURRET_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_TURRET_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_TURRET_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_TURRET_MODE);
+    }
+
+    ImGui::Text("CAMERA_THIRD_PERSON_MODE");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_THIRD_PERSON_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_THIRD_PERSON_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_THIRD_PERSON_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_THIRD_PERSON_MODE);
+    }
+
+    ImGui::Text("CAMERA_TEST_SUITE_MODE");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_TEST_SUITE_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_TEST_SUITE_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_TEST_SUITE_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_TEST_SUITE_MODE);
+    }
+
+    ImGui::Text("CAMERA_SATELLITE_MODE");
+    ImGui::SameLine();
+    if (ImGui::Button("Push##CAMERA_SATELLITE_MODE"))
+    {
+        rfg::camera_push_mode(CAMERA_SATELLITE_MODE);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop##CAMERA_SATELLITE_MODE"))
+    {
+        rfg::camera_pop_mode(CAMERA_SATELLITE_MODE);
     }
 
     ImGui::End();
@@ -541,7 +697,7 @@ void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer
     }
 
     static split_memmgr* LevelMemManager = OffsetPtr<split_memmgr*>(0x0195FB28);
-    rfg::memmgr_debug_render(LevelMemManager, 200);
-    rfg::memmgr_debug_render_tiny(LevelMemManager, 500);
+    //rfg::memmgr_debug_render(LevelMemManager, 200);
+    //rfg::memmgr_debug_render_tiny(LevelMemManager, 500);
 }
 FunHook<primitive_renderer_begin_deferredHook_Type> primitive_renderer_begin_deferredHook { 0x0, primitive_renderer_begin_deferredHook_Func };

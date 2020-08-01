@@ -21,14 +21,22 @@ namespace rfg
     F_gr_sphere gr_sphere = nullptr;
     F_gr_bbox_oriented gr_bbox_oriented = nullptr;
     F_gr_rect gr_rect = nullptr;
+
+    F_camera_push_mode camera_push_mode = nullptr;
+    F_camera_pop_mode camera_pop_mode = nullptr;
+    F_human_teleport_unsafe human_teleport_unsafe = nullptr;
+    F_hud_hide hud_hide;
+    F_game_render_set_fog_enabled game_render_set_fog_enabled;
 }
 
 void InitFunctionPointers()
 {
     RegisterFunction(rfg::GameseqGetState, 0x003BFC70);
     RegisterFunction(rfg::GameseqSetState, 0x003D8730);
+
     RegisterFunction(rfg::memmgr_debug_render, 0x003D25D0);
     RegisterFunction(rfg::memmgr_debug_render_tiny, 0x003E56A0);
+
     RegisterFunction(rfg::gr_state_constructor, 0x000B8C90);
     RegisterFunction(rfg::gr_bbox_aligned, 0x0015E3A0);
     RegisterFunction(rfg::gr_3d_string, 0x00155540);
@@ -41,4 +49,48 @@ void InitFunctionPointers()
     RegisterFunction(rfg::gr_sphere, 0x0015E160);
     RegisterFunction(rfg::gr_bbox_oriented, 0x0015E520);
     RegisterFunction(rfg::gr_rect, 0x00154BC0);
+
+    RegisterFunction(rfg::camera_push_mode, 0x002C9240);
+    RegisterFunction(rfg::camera_pop_mode, 0x002C92D0);
+    RegisterFunction(rfg::human_teleport_unsafe, 0x0067C290);
+    RegisterFunction(rfg::hud_hide, 0x00441AE0);
+    RegisterFunction(rfg::game_render_set_fog_enabled, 0x003C2C50);
+}
+
+bool HudVisible = true;
+void ShowHud()
+{
+    rfg::hud_hide(false);
+    HudVisible = true;
+}
+void HideHud()
+{
+    rfg::hud_hide(true);
+    HudVisible = false;
+}
+void ToggleHud()
+{
+    if (HudVisible)
+        HideHud();
+    else
+        ShowHud();
+}
+
+bool FogVisible = true;
+void ShowFog()
+{
+    rfg::game_render_set_fog_enabled(true);
+    FogVisible = true;
+}
+void HideFog()
+{
+    rfg::game_render_set_fog_enabled(false);
+    FogVisible = false;
+}
+void ToggleFog()
+{
+    if (FogVisible)
+        HideFog();
+    else
+        ShowFog();
 }
