@@ -16,13 +16,8 @@
 
 //Todo: Have common lib with RFG types instead of tossing them everywhere
 
-BOOL WINAPI DllMain(HINSTANCE handle, DWORD reason, LPVOID reserved)
-{
-    return TRUE;
-}
-
 //Todo: Move these into another file
-//Hook all grd_ functions so they call their gr_ equivalents. Necessary since the grd_ functions are empty in public builds by gr_ functions aren't
+//Hook all grd_ functions so they call their gr_ equivalents. Necessary since the grd_ functions are empty in public builds but gr_ functions aren't
 //Lets us use the games built in debug rendering things which were broken because grd_ functions were removed.
 //Note: Only really hooked the ones with xrefs in IDA to save time
 FunHook<void(int sx, int sy, const char* s, gr_state* state)> grd_string_hook
@@ -129,7 +124,7 @@ extern "C"
     //Called when the host dll loads this plugin
     DLLEXPORT bool __cdecl RSL2_PluginInit()
     {
-        printf("RSL2.dll ffRSL2_PluginInidddddddt() d called!!\n");
+        printf("RSL2.dll RSL2_PluginInit() called!!\n");
         RSL2_GlobalState* globalState = GetGlobalState();
 
         globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
@@ -209,7 +204,7 @@ extern "C"
     //Called when the host dll unloads this plugin
     DLLEXPORT bool __cdecl RSL2_PluginUnload()
     {
-        printf("RSL2.dll RSL2_PluginUnload1() called!\n");
+        printf("RSL2.dll RSL2_PluginUnload() called!\n");
         RSL2_GlobalState* globalState = GetGlobalState();
 
         kiero::shutdown();
