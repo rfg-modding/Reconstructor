@@ -2,7 +2,7 @@
 #include "rsl2/misc/GlobalState.h"
 #include "rsl2/hooks/WndProc.h"
 #include "rsl2/functions/Functions.h"
-#include "rsl2/Offset.h"
+#include "rsl2/patching/Offset.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -18,14 +18,14 @@
 #include "tracy/Tracy.hpp"
 #endif
 
-#include "rsl2/rfg/keen/GraphicsSystem.h"
-#include "rsl2/rfg/Game.h"
-#include "rsl2/rfg/Player.h"
-#include "rsl2/rfg/Human.h"
-#include "rsl2/rfg/Object.h"
-#include "rsl2/rfg/Camera.h"
-#include "rsl2/rfg/World.h"
-#include "rsl2/rfg/Memory.h"
+#include "RFGR_Types/rfg/keen/GraphicsSystem.h"
+#include "RFGR_Types/rfg/Game.h"
+#include "RFGR_Types/rfg/Player.h"
+#include "RFGR_Types/rfg/Human.h"
+#include "RFGR_Types/rfg/Object.h"
+#include "RFGR_Types/rfg/Camera.h"
+#include "RFGR_Types/rfg/World.h"
+#include "RFGR_Types/rfg/Memory.h"
 
 //Only used by render hooks
 keen::GraphicsSystem* gGraphicsSystem = nullptr;
@@ -515,7 +515,7 @@ void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer
                 stringPos.z += stringOffset.z;
                 matrix stringOrient = globalState->MainCamera->real_orient;
 
-                string positionString = "Hefalth: " + std::to_string(human->hit_points) + "/" + std::to_string(human->max_hit_points);
+                string positionString = "Health: " + std::to_string(human->hit_points) + "/" + std::to_string(human->max_hit_points);
                 int fontNum = 0;
 
                 rfg::gr_bbox_aligned(&object->last_known_bmin, &object->last_known_bmax, &renderState);

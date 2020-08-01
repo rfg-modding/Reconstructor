@@ -28,6 +28,7 @@ add_library(RSL2 SHARED ${SOURCES}
             )
 
 target_link_libraries(RSL2 PRIVATE subhook)
+target_link_libraries(RSL2 PRIVATE RFGR_Types)
 target_link_libraries(RSL2 PRIVATE Common)
 
 # Compile in profiler if it's flag is set
@@ -41,6 +42,7 @@ target_include_directories(RSL2 SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/RSL2/
     ${CMAKE_SOURCE_DIR}/dependencies/
     ${CMAKE_SOURCE_DIR}/dependencies/imgui/
+    ${CMAKE_SOURCE_DIR}/dependencies/RFGR_Types/
 )
 
 add_compile_definitions(TRACY_IMPORTS)

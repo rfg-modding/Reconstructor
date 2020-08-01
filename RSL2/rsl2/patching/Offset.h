@@ -1,5 +1,5 @@
 #pragma once
-#include "misc/GlobalState.h"
+#include "rsl2/misc/GlobalState.h"
 
 template<class T>
 T OffsetPtr(unsigned long Offset)

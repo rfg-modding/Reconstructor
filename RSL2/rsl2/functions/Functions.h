@@ -1,9 +1,9 @@
 #pragma once
-#include "rsl2/rfg/Game.h"
-#include "rsl2/rfg/Vector.h"
-#include "rsl2/rfg/Matrix.h"
-#include "rsl2/rfg/DrawData.h"
-#include "rsl2/rfg/Memory.h"
+#include "RFGR_Types/rfg/Game.h"
+#include "RFGR_Types/rfg/Vector.h"
+#include "RFGR_Types/rfg/Matrix.h"
+#include "RFGR_Types/rfg/DrawData.h"
+#include "RFGR_Types/rfg/Memory.h"
 
 //Todo: Organize this properly
 namespace rfg
