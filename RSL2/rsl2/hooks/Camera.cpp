@@ -219,39 +219,6 @@ void UpdateCameraInput()
         CameraSpeed -= 0.02f;
     if (e_down)
         CameraSpeed += 0.02f;
-
-    //switch (wParam)
-    //{
-    //    //If camera is unlocked then pass input to it. Currently the free cam is enabled automatically if the camera is unlocked.
-    //    //The plan is to separate them eventually so other custom cameras can be added more easily.
-    //case VK_NUMPAD3:
-    //    ToggleCameraLock(); //Todo: This currently toggles the lock and the free cam. Separate these
-    //    break;
-    //case 0x57: //w key
-    //    if (!CameraLocked) { CameraMove(Forward); }
-    //    break;
-    //case 0x53: //s key
-    //    if (!CameraLocked) { CameraMove(Back); }
-    //    break;
-    //case 0x44: //d key
-    //    if (!CameraLocked) { CameraMove(Right); }
-    //    break;
-    //case 0x41: //a key
-    //    if (!CameraLocked) { CameraMove(Left); }
-    //    break;
-    //case 0x5A: //z
-    //    if (!CameraLocked) { CameraMove(Down); }
-    //    break;
-    //case 0x58: //x
-    //    if (!CameraLocked) { CameraMove(Up); }
-    //    break;
-    //case 0x51: //q
-    //    CameraSpeed -= 0.02f;
-    //    break;
-    //case 0x45: //e
-    //    CameraSpeed += 0.02f;
-    //    break;
-    //}
 }
 
 void CameraUpdate()
