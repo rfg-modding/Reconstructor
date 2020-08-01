@@ -40,7 +40,6 @@ extern "C"
             return false;
         }
 
-        //Todo: Find the offset needed for these patches so this old technique can be removedd
         globalState->MouseGenericPollMouseVisibleAddress = globalState->ModuleBase + 0x001B88DC;
         globalState->CenterMouseCursorCallAddress = globalState->ModuleBase + 0x878D90;
 
@@ -50,23 +49,8 @@ extern "C"
         keen_graphics_beginFrame.SetAddr(globalState->ModuleBase + 0x0086A8A0);
         keen_graphics_beginFrame.Install();
 
-        //Todo: Wait for valid game state then get window handle
-        RegisterFunction(rfg::GameseqGetState, 0x003BFC70);
-        RegisterFunction(rfg::GameseqSetState, 0x003D8730);
-        RegisterFunction(rfg::memmgr_debug_render, 0x003D25D0);
-        RegisterFunction(rfg::memmgr_debug_render_tiny, 0x003E56A0);
-        RegisterFunction(rfg::gr_state_constructor, 0x000B8C90);
-        RegisterFunction(rfg::gr_bbox_aligned, 0x0015E3A0);
-        RegisterFunction(rfg::gr_3d_string, 0x00155540);
-        RegisterFunction(rfg::gr_3d_line, 0x0015E000);
-        RegisterFunction(rfg::gr_string, 0x0015EC80);
-        RegisterFunction(rfg::gr_get_string_size, 0x000B9DE0);
-        RegisterFunction(rfg::gr_get_font_height, 0x000B9E40);
-        RegisterFunction(rfg::gr_set_color, 0x001090C0);
-        RegisterFunction(rfg::gr_line, 0x00154DB0);
-        RegisterFunction(rfg::gr_sphere, 0x0015E160);
-        RegisterFunction(rfg::gr_bbox_oriented, 0x0015E520);
-        RegisterFunction(rfg::gr_rect, 0x00154BC0);
+        //Setup pointers to game functions
+        InitFunctionPointers();
 
         //D3D11 hooks
         D3D11_ResizeBuffersHook.SetAddr(kiero::getMethodsTable()[13]);

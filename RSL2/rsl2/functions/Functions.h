@@ -130,3 +130,5 @@ void RegisterFunction(T& Function, unsigned long RelativeAddress)
     static RSL2_GlobalState* state = GetGlobalState();
     Function = reinterpret_cast<T>(state->ModuleBase + RelativeAddress);
 }
+
+extern void InitFunctionPointers();
