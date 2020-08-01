@@ -22,3 +22,9 @@ extern HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT 
 extern FunHook<D3D11_PresentHook_Type> D3D11_PresentHook;
 
 extern bool ReadyForD3D11Init();
+
+//Todo: Add this struct
+struct rl_primitive_renderer;
+using primitive_renderer_begin_deferredHook_Type = void __fastcall(rl_primitive_renderer* thisPtr);
+extern void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer* thisPtr);
+extern FunHook<primitive_renderer_begin_deferredHook_Type> primitive_renderer_begin_deferredHook;
