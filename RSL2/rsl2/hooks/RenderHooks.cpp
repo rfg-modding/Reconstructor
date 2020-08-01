@@ -2,8 +2,8 @@
 #include "rsl2/misc/GlobalState.h"
 #include "rsl2/hooks/WndProc.h"
 #include "rsl2/functions/Functions.h"
-#include "rsl2/rfg/keen/GraphicsSystem.h"
-#include "rsl2/rfg/Game.h"
+#include "rsl2/Offset.h"
+
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxguid.lib")
@@ -12,17 +12,20 @@
 #include <imgui/imgui.h>
 #include <imgui/examples/imgui_impl_win32.h>
 #include <imgui/examples/imgui_impl_dx11.h>
-#include <IconFontCppHeaders/IconsFontAwesome5.h>
+#include <IconFontCppHeaders/IconsFontAwesome5_c.h>
 #include <filesystem>
 #ifdef COMPILE_IN_PROFILER
 #include "tracy/Tracy.hpp"
 #endif
 
+#include "rsl2/rfg/keen/GraphicsSystem.h"
+#include "rsl2/rfg/Game.h"
 #include "rsl2/rfg/Player.h"
 #include "rsl2/rfg/Human.h"
 #include "rsl2/rfg/Object.h"
 #include "rsl2/rfg/Camera.h"
 #include "rsl2/rfg/World.h"
+#include "rsl2/rfg/Memory.h"
 
 //Only used by render hooks
 keen::GraphicsSystem* gGraphicsSystem = nullptr;
@@ -42,6 +45,7 @@ namespace gui
 
 void ShowExampleAppSimpleOverlay(bool* p_open);
 void InitImGuiD3D11();
+void DrawDebugGui();
 
 HRESULT __stdcall D3D11_ResizeBuffersHookFunc(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
@@ -172,6 +176,7 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
         if (globalState->GuiActive)
         {
             ImGui::ShowDemoWindow();
+            DrawDebugGui();
         }
         //Overlay code here, non input blocking
         if (globalState->OverlayActive)
@@ -394,6 +399,50 @@ void InitImGuiD3D11()
     printf("ImGui Initialized.\n");
 }
 
+void DrawMemManagerInfo(split_memmgr& manager)
+{
+
+}
+
+void DrawDebugGui()
+{
+    static RSL2_GlobalState* globalState = GetGlobalState();
+
+    ////int __cdecl memmgr_debug_render(split_memmgr *mgr, int sy) //0x003D25D0
+    //struct split_memmgr;
+    //using F_memmgr_debug_render = bool(__cdecl*)(split_memmgr* mgr, int sy);
+    //extern F_memmgr_debug_render memmgr_debug_render;
+    ////.data:0195FB28 ; split_memmgr Level_memmgr
+    //rfg::memmgr_debug_render((rfg::split_memmgr*)(globalState->ModuleBase + 0x0195FB28), 0);
+
+    if (!globalState || !globalState->Player || !globalState->MainCamera || !globalState->World)
+        return;
+
+    static split_memmgr* LevelMemManager = OffsetPtr<split_memmgr*>(0x0195FB28);
+    static split_memmgr* RlDestroyableInstanceMemManager = OffsetPtr<split_memmgr*>(0x0177AC70);
+
+    if (!ImGui::Begin("Debug gui"))
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::PushFont(globalState->FontLarge);
+    ImGui::Text(ICON_FA_BUG " Debug");
+    ImGui::PopFont();
+    ImGui::Separator();
+
+    if (ImGui::CollapsingHeader("Level mem manager"))
+    {
+        DrawMemManagerInfo(*LevelMemManager);
+    }
+    if (ImGui::CollapsingHeader("rl_destroyable mem manager"))
+    {
+        DrawMemManagerInfo(*RlDestroyableInstanceMemManager);
+    }
+
+    ImGui::End();
+}
 
 void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer* thisPtr)
 {
@@ -466,13 +515,13 @@ void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer
                 stringPos.z += stringOffset.z;
                 matrix stringOrient = globalState->MainCamera->real_orient;
 
-                string positionString = "Health: " + std::to_string(human->hit_points) + "/" + std::to_string(human->max_hit_points);
+                string positionString = "Hefalth: " + std::to_string(human->hit_points) + "/" + std::to_string(human->max_hit_points);
                 int fontNum = 0;
 
                 rfg::gr_bbox_aligned(&object->last_known_bmin, &object->last_known_bmax, &renderState);
                 rfg::gr_3d_string(&stringPos, &stringOrient, 0.003f, positionString.c_str(), fontNum, &renderState);
 
-                u32 maxPathNodeCount = 30;
+                u32 maxPathNodeCount = 100;
                 //Draw pathfinding line of human
                 if (human->pf.path)
                 {
@@ -490,5 +539,9 @@ void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer
             }
         }
     }
+
+    static split_memmgr* LevelMemManager = OffsetPtr<split_memmgr*>(0x0195FB28);
+    rfg::memmgr_debug_render(LevelMemManager, 200);
+    rfg::memmgr_debug_render_tiny(LevelMemManager, 500);
 }
 FunHook<primitive_renderer_begin_deferredHook_Type> primitive_renderer_begin_deferredHook { 0x0, primitive_renderer_begin_deferredHook_Func };
