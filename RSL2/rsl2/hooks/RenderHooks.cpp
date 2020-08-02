@@ -3,6 +3,7 @@
 #include "rsl2/hooks/WndProc.h"
 #include "rsl2/functions/Functions.h"
 #include "rsl2/patching/Offset.h"
+#include "common/filesystem/Path.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -399,9 +400,117 @@ void InitImGuiD3D11()
     printf("ImGui Initialized.\n");
 }
 
+//Todo: Move this value and func into a gui helper namespace
+const ImVec4 SecondaryTextColor(0.2f, 0.7f, 1.0f, 1.00f); //Light blue;
+static void LabelAndValue(const std::string& Label, const std::string& Value)
+{
+    ImGui::Text(Label.c_str());
+    ImGui::SameLine();
+    ImGui::TextColored(SecondaryTextColor, Value.c_str());
+}
+
 void DrawMemManagerInfo(split_memmgr& manager)
 {
+    static RSL2_GlobalState* globalState = GetGlobalState();
 
+    ImGui::PushFont(globalState->FontBig);
+    ImGui::Text("Main pool");
+    ImGui::PopFont();
+    ImGui::Separator();
+    {
+        f32 MemoryBlockRectScaleFactor = 5.0f; //Rect width is multiplied by this. Hack/fix so the memory strip covers more of the window
+        f32 MemoryStripHeight = 30.0f;
+        f32 PreStripCursorX = ImGui::GetCursorPosX();
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+        ImVec2 windowPos = ImGui::GetWindowPos();
+        split_memblk* currentNode = manager.tree_root;
+        u32 bytesWasted = 0;
+
+        while (currentNode)
+        {
+            //Todo: Check if this is necessary. Just a precaution to avoid a crash
+            if (!currentNode)
+                break;
+
+            bytesWasted += currentNode->info.size - currentNode->info.usable_size;
+            ImVec2 rectMin = ImGui::GetCursorScreenPos();
+            ImVec2 rectMax = ImGui::GetCursorScreenPos();
+            ImVec4 rectColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+            f32 rectWidth = (f32)currentNode->info.size / (f32)manager.mem_size;
+            rectWidth *= MemoryBlockRectScaleFactor;
+            if (rectWidth < 1.0f)
+                rectWidth = 1.0f;
+            rectMax.x += rectWidth;
+            rectMax.y += MemoryStripHeight;
+            const char* nodeName = currentNode->unknown_union.track;
+            
+            if (nodeName)
+            {
+                string nodeNameExt = Path::GetExtension(string(nodeName));
+                if (nodeNameExt == ".cvbm_pc")
+                    rectColor = { 1.0f, 1.0f, 1.0f, 1.0f }; //white
+                else if (nodeNameExt == ".cchk_pc")
+                    rectColor = { 0.0f, 0.0f, 1.0f, 1.0f }; //blue
+                else if (nodeNameExt == ".cterrain_pc")
+                    rectColor = { 1.0f, 1.0f, 0.0f, 1.0f }; //yellow
+                else if (nodeNameExt == ".ctmesh_pc")
+                    rectColor = { 0.43f, 0.0f, 1.0f, 1.0f }; //purple
+                else if (nodeNameExt == ".cefct_pc")
+                    rectColor = { 1.0f, 0.0f, 0.0f, 1.0f }; //red
+                else if (nodeNameExt == ".rfgzone_pc")
+                    rectColor = { 0.0f, 1.0f, 0.0f, 1.0f }; //green
+                else
+                {
+                    //Todo: De-hardcode this
+                    rectColor = { 0.46f, 0.46f, 0.46f, 1.0f }; //Mid-greyMid-grey
+                    printf("Unsupported file extension in DrawMemManagerInfo(): %\n", nodeNameExt.c_str());
+                }
+            }
+            else
+            {
+                rectColor = { 0.46f, 0.46f, 0.46f, 1.0f }; //Mid-grey
+            }
+
+            //if (rectMax.x - rectMin.x >= 0.1f)
+            {
+                drawList->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectColor));
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + rectWidth);
+            }
+            currentNode = currentNode->next;
+        }
+
+        //Draw free space at end of memory display
+        ImVec2 rectMin = ImGui::GetCursorScreenPos();
+        ImVec2 rectMax = ImGui::GetCursorScreenPos();
+        //Todo: De-hardcode this
+        ImVec4 rectColor = { 0.05f, 0.05f, 0.05f, 1.0f }; //Dark grey / black
+
+        f32 rectWidth = (f32)(manager.mem_size - manager.mem_used) / (f32)manager.mem_size;
+        rectWidth *= MemoryBlockRectScaleFactor;
+        if (rectWidth < 1.0f)
+            rectWidth = 1.0f;
+
+        rectMax.x += rectWidth;
+        rectMax.y += MemoryStripHeight;
+        drawList->AddRectFilled(rectMin, rectMax, ImGui::ColorConvertFloat4ToU32(rectColor));
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + rectWidth);
+
+        //Increment cursor y pos after done drawing the memory usaged strip
+        ImGui::SetCursorPosX(PreStripCursorX);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + MemoryStripHeight + 5.0f);
+        
+
+        //Draw other memory usage info
+        LabelAndValue("Bytes used:", std::to_string(manager.mem_used));
+        LabelAndValue("Bytes available:", std::to_string(manager.mem_size - manager.mem_used));
+        LabelAndValue("Bytes wasted:", std::to_string(bytesWasted));
+    }
+
+    //ImGui::PushFont(globalState->FontBig);
+    //ImGui::Text("Buckets");
+    //ImGui::PopFont();
+    //ImGui::Separator();
 }
 
 void DrawDebugGui()
