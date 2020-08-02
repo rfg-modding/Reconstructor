@@ -39,6 +39,11 @@ public:
     Player* Player = nullptr;
     rfg_camera* MainCamera = nullptr;
     world* World = nullptr;
+
+    //Whether or not to draw the games built in memory tracking overlay
+    bool DrawRfgMemoryTracker = false;
+    //Whether or not to draw the RSL debug overlay
+    bool DrawRSLDebugOverlay = true;
 };
 
 extern RSL2_GlobalState* GetGlobalState();

@@ -399,19 +399,11 @@ void InitImGuiD3D11()
     printf("ImGui Initialized.\n");
 }
 
-void DrawMemManagerInfo(split_memmgr& manager)
-{
-
-}
-
 void DrawDebugGui()
 {
     static RSL2_GlobalState* globalState = GetGlobalState();
     if (!globalState || !globalState->Player || !globalState->MainCamera || !globalState->World)
         return;
-
-    static split_memmgr* LevelMemManager = OffsetPtr<split_memmgr*>(0x0195FB28);
-    static split_memmgr* RlDestroyableInstanceMemManager = OffsetPtr<split_memmgr*>(0x0177AC70);
 
     if (!ImGui::Begin("Debug gui"))
     {
@@ -424,10 +416,7 @@ void DrawDebugGui()
     ImGui::PopFont();
     ImGui::Separator();
 
-    if (ImGui::CollapsingHeader("Level mem manager"))
-    {
-        DrawMemManagerInfo(*LevelMemManager);
-    }
+
 
     ImGui::End();
 }
@@ -454,33 +443,25 @@ void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer
         rfg::gr_state_constructor(&renderState, nullptr, ALPHA_BLEND_ADDITIVE, CLAMP_MODE_CLAMP, ZBUF_NONE, STENCIL_NONE, 0, CULL_MODE_CULL, TNL_CLIP_MODE_NONE, TNL_LIGHT_MODE_NONE);
         firstRun = false;
     }
-    //if (globalState->Player)
-    {
 
+    //RSL2 debug overlay
+    if (globalState->DrawRSLDebugOverlay)
+    {
         //String over masons head
-        //vector stringPos = (globalState->Player->last_known_bmin + ((globalState->Player->last_known_bmax - globalState->Player->last_known_bmin).Scale(0.5f))) + vector(0.0f, 1.5f, 0.0f);
         vector stringPos = globalState->Player->pos;// -(globalState->MainCamera->real_orient.rvec.Magnitude() * 5.0f);
         stringPos += vector(0.0f, 2.0f, 0.0f);
         vector stringOffset = (globalState->Player->last_known_bmax - globalState->Player->last_known_bmin).Scale(-0.5f);;
         stringPos.x += stringOffset.x;
         stringPos.z += stringOffset.z;
         matrix stringOrient = globalState->MainCamera->real_orient;
-        
-        //stringOrient.fvec.y = 0.0f;
-        //stringOrient.rvec.y = 0.0f;
-        //stringPos += globalState->MainCamera->real_orient.fvec * 2.5f;
-        //vector stringOffset = (globalState->MainCamera->real_orient.rvec.UnitVector() * -3.0f);
-        //stringPos.x += stringOffset.x;
-        //stringPos.z += stringOffset.z;
+
         string positionString = globalState->Player->pos.GetDataString(true, false);
         int fontNum = 0;
 
         //rfg::gr_bbox_aligned(&globalState->Player->last_known_bmin, &globalState->Player->last_known_bmax, &renderState);
         //Todo: Use camera orientation instead
         rfg::gr_3d_string(&stringPos, &stringOrient, 0.002f, positionString.c_str(), fontNum, &renderState);
-    }
-    //if (globalState->World)
-    {
+
         //Todo: Fix range based iterators for base_array<T>
         for (u32 i = 0; i < globalState->World->all_objects.Size(); i++)
         {
@@ -527,9 +508,13 @@ void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer
             }
         }
     }
-
+    
+    //RFGR memory overlay, fixed and re-enabled by RSL2
     static split_memmgr* LevelMemManager = OffsetPtr<split_memmgr*>(0x0195FB28);
-    //rfg::memmgr_debug_render(LevelMemManager, 200);
-    //rfg::memmgr_debug_render_tiny(LevelMemManager, 500);
+    if (globalState->DrawRfgMemoryTracker)
+    {
+        rfg::memmgr_debug_render(LevelMemManager, 150);
+        rfg::memmgr_debug_render_tiny(LevelMemManager, 300);
+    }
 }
 FunHook<primitive_renderer_begin_deferredHook_Type> primitive_renderer_begin_deferredHook { 0x0, primitive_renderer_begin_deferredHook_Func };

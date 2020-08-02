@@ -82,6 +82,10 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
             break;
         case VK_F2:
             globalState->OverlayActive = !globalState->OverlayActive;
+        case VK_F3:
+            globalState->DrawRfgMemoryTracker = !globalState->DrawRfgMemoryTracker;
+        case VK_F4:
+            globalState->DrawRSLDebugOverlay = !globalState->DrawRSLDebugOverlay;
         
         case VK_NUMPAD1:
             ToggleHud();
