@@ -50,3 +50,4 @@ add_subdirectory(Profiler) # Profiler DLL included by other DLLs / applications 
 add_subdirectory(Launcher) # Launcher that starts RFGR and injects the host DLL into it
 add_subdirectory(Host) # Host DLL which is injected into RFGR and manages loading and reloading plugin DLLs
 add_subdirectory (RSL2) # Main plugin DLL of RSL2 with function hooks and patches
+add_subdirectory (GuiBase) # Base gui and overlays which are included with RSL2

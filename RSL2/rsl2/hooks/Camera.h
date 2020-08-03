@@ -9,6 +9,8 @@
 */
 
 //Todo: Provide an easy way to jump between custom cameras without needing to know which, if any are currently active
+//Todo: Consider moving this into a class whose functions are implementation of a ICamera abstract class. Then could pass the ICamera interface to other plugins
+//Todo: While I prefer the functional approach in the case of a single DLL the ICamera virtual interface approach would work nicely for cross-plugin interaction
 
 //Directions for easy camera movement
 enum MoveDirection

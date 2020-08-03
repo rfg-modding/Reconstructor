@@ -2,6 +2,7 @@
 #include "common/Typedefs.h"
 #include "common/windows/WindowsWrapper.h"
 #include "rsl2/patching/SnippetManager.h"
+#include "common/plugins/IHost.h"
 
 struct ImFont;
 struct Player;
@@ -12,6 +13,8 @@ struct world;
 class RSL2_GlobalState
 {
 public:
+    IHost* Host = nullptr;
+
     uintptr_t ModuleBase = 0;
     ImFont* FontNormal = nullptr;
     ImFont* FontBig = nullptr;

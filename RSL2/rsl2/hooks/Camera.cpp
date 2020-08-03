@@ -1,6 +1,6 @@
 #include "Camera.h"
 #include "rsl2/misc/GlobalState.h"
-#include "rsl2/functions/Functions.h"
+#include "rsl2/functions/FunctionsInternal.h"
 #include "rsl2/math/Math.h"
 #include "RFGR_Types/rfg/Camera.h"
 #include "RFGR_Types/rfg/Player.h"
@@ -223,13 +223,13 @@ void UpdateCameraInput()
 
 void CameraUpdate()
 {
-    if (CameraLocked || !globalState || !globalState->Player || !rfg::human_teleport_unsafe)
+    if (CameraLocked || !globalState || !globalState->Player || !rfg::Functions.human_teleport_unsafe)
         return;
 
     UpdateCameraInput();
 
     if (TeleportPlayerToFreeCam)
-        rfg::human_teleport_unsafe(globalState->Player, globalState->MainCamera->real_pos + vector(0.0f, 1.5f, 0.0f), globalState->Player->orient);
+        rfg::Functions.human_teleport_unsafe(globalState->Player, globalState->MainCamera->real_pos + vector(0.0f, 1.5f, 0.0f), globalState->Player->orient);
 
     //Set flags so AI ignores player and doesn't kill them while they're in the free cam
     globalState->Player->hflags.ai_ignore = true;
@@ -257,5 +257,5 @@ void OnFreeCamDisable()
     globalState->Player->hit_points = globalState->Player->max_hit_points;
 
     if (FreeCamRememberPlayerPosition)
-        rfg::human_teleport_unsafe(globalState->Player, preFreeCamActivationsPlayerPosition, globalState->Player->orient);
+        rfg::Functions.human_teleport_unsafe(globalState->Player, preFreeCamActivationsPlayerPosition, globalState->Player->orient);
 }

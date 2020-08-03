@@ -3,7 +3,7 @@
 #include "rsl2/misc/GlobalState.h"
 #include "RFGR_Types/rfg/Camera.h"
 #include "rsl2/hooks/Camera.h"
-#include "rsl2/functions/Functions.h"
+#include "rsl2/functions/FunctionsInternal.h"
 
 //Functions for locking / unlocking the games auto-centering and hiding of the mouse. For imgui interaction with game running
 bool MouseUnlocked = false;

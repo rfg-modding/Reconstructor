@@ -1,7 +1,9 @@
 ﻿#include "common/windows/WindowsWrapper.h"
 #include "common/patching/FunHook.h"
+#include "common/plugins/Plugin.h"
+#include "common/plugins/IHost.h"
 #include "hooks/PlayerDoFrame.h"
-#include "functions/Functions.h"
+#include "functions/FunctionsInternal.h"
 #include "hooks/GrdRenderHooks.h"
 #include "hooks/RenderHooks.h"
 #include "hooks/WndProc.h"
@@ -22,8 +24,21 @@
 //Need to use extern "C" to avoid C++ export name mangling. Lets us use the exact name RSL2_XXXX with GetProcAddress in the host
 extern "C"
 {
+    //Called when a plugin this one depends on is loaded/unloaded. This one has no dependencies so they'll never be called
+    DLLEXPORT void __cdecl RSL2_OnDependencyUnload(const string& dependencyName) { } //Called immediately before dependency shutdown + unload
+    DLLEXPORT void __cdecl RSL2_OnDependencyLoad(const string& dependencyName) { } //Called immediately after dependency load + init
+
+    //Called before init. Returns info like a dependencies list used to determine plugin load order
+    DLLEXPORT PluginInfo __cdecl RSL2_PluginInfo()
+    {
+        return PluginInfo
+        {
+            .Dependencies = {}
+        };
+    }
+
     //Called when the host dll loads this plugin
-    DLLEXPORT bool __cdecl RSL2_PluginInit()
+    DLLEXPORT bool __cdecl RSL2_PluginInit(IHost* host, std::vector<PluginFunction>& exportedFunctions)
     {
         printf("RSL2.dll RSL2_PluginInit() called!!\n");
         RSL2_GlobalState* globalState = GetGlobalState();
@@ -31,6 +46,7 @@ extern "C"
         globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
         printf("ModuleBase: %d\n", globalState->ModuleBase);
 
+        //Set global pointers
         globalState->World = OffsetPtr<world*>(0x02B97490);
         globalState->MainCamera = OffsetPtr<rfg_camera*>(0x019E3B50);
 
@@ -84,13 +100,25 @@ extern "C"
         primitive_renderer_begin_deferredHook.SetAddr(globalState->ModuleBase + 0x000F0E50);
         primitive_renderer_begin_deferredHook.Install();
 
+        //Set export functions for this plugin
+        exportedFunctions.push_back({ &GetGlobalState, "GetGlobalState" });
+        exportedFunctions.push_back({ &GetRfgFunctions, "GetRfgFunctions" });
+        exportedFunctions.push_back({ &GetImGuiContext, "GetImGuiContext" });
+        //Todo: Add callbacks for overlays
+        exportedFunctions.push_back({ &RegisterImGuiCallback, "RegisterImGuiCallback" });
+        exportedFunctions.push_back({ &RemoveImGuiCallback, "RemoveImGuiCallback" });
+        exportedFunctions.push_back({ &RegisterOverlayCallback, "RegisterOverlayCallback" });
+        exportedFunctions.push_back({ &RemoveOverlayCallback, "RemoveOverlayCallback" });
+        exportedFunctions.push_back({ &RegisterPrimitiveDrawCallback, "RegisterPrimitiveDrawCallback" });
+        exportedFunctions.push_back({ &RemovePrimitiveDrawCallback, "RemovePrimitiveDrawCallback" });
+
         return true;
     }
 
     //Called when the host dll unloads this plugin
-    DLLEXPORT bool __cdecl RSL2_PluginUnload()
+    DLLEXPORT bool __cdecl RSL2_PluginShutdown()
     {
-        printf("RSL2.dll RSL2_PluginUnload() called!\n");
+        printf("RSL2.dll RSL2_PluginShutdown() called!\n");
         RSL2_GlobalState* globalState = GetGlobalState();
 
         kiero::shutdown();

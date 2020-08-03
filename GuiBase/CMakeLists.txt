@@ -16,7 +16,17 @@ file(GLOB_RECURSE SOURCES
 )
 
 # Add source to this project's DLL
-add_library(GuiBase SHARED ${SOURCES})
+add_library(GuiBase SHARED ${SOURCES}
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_demo.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_draw.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_widgets.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_win32.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_dx11.cpp
+            )
+
+target_link_libraries(GuiBase PRIVATE RFGR_Types)
+target_link_libraries(GuiBase PRIVATE Common)
 
 # Compile in profiler if it's flag is set
 if(COMPILE_IN_PROFILER)
@@ -27,6 +37,10 @@ endif()
 target_include_directories(GuiBase SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
     ${CMAKE_SOURCE_DIR}/GuiBase/
+    ${CMAKE_SOURCE_DIR}/RSL2/
+    ${CMAKE_SOURCE_DIR}/dependencies/
+    ${CMAKE_SOURCE_DIR}/dependencies/imgui/
+    ${CMAKE_SOURCE_DIR}/dependencies/RFGR_Types/
     ${CMAKE_SOURCE_DIR}/dependencies/
 )
 

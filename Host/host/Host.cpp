@@ -1,84 +1,17 @@
 #include "common/windows/WindowsWrapper.h"
-#include "common/plugins/Plugin.h"
 #include "common/filesystem/Path.h"
 #include "common/timing/Timer.h"
 #include <cstdio>
-#include <vector>
 #include <filesystem>
 #include <TlHelp32.h>
+#include "Host.h"
 
-DWORD WINAPI HostThread(HMODULE hModule);
-void LoadPlugins();
-void ResumeRfgMainThread(HMODULE hModule);
-bool OnIgnoreList(const string& dllNameNoExt);
-void OpenConsoleWindow();
-void CloseConsoleWindow();
-
-BOOL WINAPI DllMain(HINSTANCE dllHandle, DWORD reason, LPVOID reserved)
-{
-    //Reminder for later use if needed
-    switch (reason)
-    {
-    case DLL_PROCESS_ATTACH:
-        OpenConsoleWindow();
-        CreateThread(0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(HostThread), dllHandle, 0, 0);
-        break;
-    case DLL_PROCESS_DETACH:
-        CloseConsoleWindow();
-        break;
-    default:
-        break;
-    }
-
-    return TRUE;
-}
-
-//Holds plugins loaded by the host dll
-static std::vector<Plugin> Plugins;
-//Dll names that the host won't try to load as plugins 
-static const std::vector<string> PluginIgnoreList =
-{
-    //DLLs included with RFGR 
-    "binkw32",
-    "discord-rpc",
-    "Galaxy",
-    "GalaxyPeer",
-    "GfeSDK",
-    "libeay32",
-    "ssleay32",
-    "sw_api",
-
-    //Non-plugin RSL2 DLLs
-    "Profiler",
-    "Host"
-};
-
-//Todo: Make this work for release builds without needing to manually edit the path
-//Todo: Stick this in a file that's loaded at runtime
-//Path to look for plugin dlls. Special value in debug builds for convenience
-#ifdef DEBUG_BUILD
-string pluginsPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\out\\build\\x86-Debug\\bin\\";
-#elif defined DEBUG_BUILD_OPTIMIZED
-string pluginsPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\out\\build\\x86-Release\\bin\\";
-#else
-string pluginsPath = "./RSL2/Plugins/";
-#endif
-
-//Todo: Provide host interface for plugins to interact with. Uses:
-//Todo:     - Query for list of plugins and info about them
-//Todo:     - Grab functions exported from other plugins
-//Todo:     - Trigger reload of self or other plugins
-//Todo:     - Maybe save persistent state between reloads by allocating it on the heap and giving the host a pointer to that data temporarily
-
-//Todo: (Maybe. Might need to do this for DLLs like Dx11 to load into rfg.exe. Necessary for patching D3D11Present) Patch tmain entrypoint to infinite loop so we can patch in piece.
-
-DWORD WINAPI HostThread(HMODULE hModule)
+void Host::Run(HINSTANCE hModule)
 {
     //Todo: Use an actual logger
     printf("Host thread started.\n");
-
     printf("Loading plugin dlls...\n");
-    LoadPlugins();
+    InitialPluginLoad();
 
     printf("Done loading plugin dlls. Resuming RFGR main thread...\n");
     ResumeRfgMainThread(hModule);
@@ -89,15 +22,17 @@ DWORD WINAPI HostThread(HMODULE hModule)
     Timer pluginChangeTimer;
     while (true)
     {
+        //Timer for plugin reload checks
         if (pluginChangeTimer.ElapsedMilliseconds() < pluginChangeCheckDelayMs)
             continue;
 
+        //Loop through each plugin, reload if necessary
         auto pluginIterator = Plugins.begin();
-        while(pluginIterator != Plugins.end())
+        while (pluginIterator != Plugins.end())
         {
             if (pluginIterator->NeedsReload())
             {
-                bool reloadResult = pluginIterator->Reload();
+                bool reloadResult = ReloadPlugin(*pluginIterator);
                 if (reloadResult)
                 {
                     printf("Reloaded %s!\n", Path::GetFileName(pluginIterator->Path()).c_str());
@@ -120,9 +55,26 @@ DWORD WINAPI HostThread(HMODULE hModule)
     FreeLibraryAndExitThread(hModule, 0);
 }
 
-void LoadPlugins()
+void* Host::GetPluginFunction(const string& pluginName, const string& functionName)
 {
-    //Loop through DLLs in working directory. Attempt to load them as plugins
+    for (auto& plugin : Plugins)
+    {
+        if (plugin.Name() != pluginName)
+            continue;
+
+        for (auto& pluginFunc : plugin.ExportedFunctions)
+        {
+            if (pluginFunc.Name == functionName)
+                return pluginFunc.Ptr;
+        }
+    }
+
+    return nullptr;
+}
+
+void Host::InitialPluginLoad()
+{
+    //Load all plugin DLLs and get their dependency info, but don't initialize them yet
     for (const auto& entry : std::filesystem::directory_iterator(pluginsPath))
     {
         //Skip folders and non .dll files
@@ -134,57 +86,28 @@ void LoadPlugins()
             continue;
 
         //Create plugin. Load it. Add to Plugins if it loads correctly
-        Plugin plugin(entry.path().string());
+        Plugin plugin(entry.path().string(), this);
         if (plugin.Load())
             Plugins.push_back(plugin);
     }
-}
 
-void ResumeRfgMainThread(HMODULE hModule)
-{
-    //Find main thread of rfg.exe and resume it so the game runs
-    DWORD PID = GetCurrentProcessId();
-    const DWORD hostThreadId = GetThreadId(hModule);
-    HANDLE h = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
-    if (h != INVALID_HANDLE_VALUE)
+    //Todo: See if using a graph would simplify the dependency handling code
+    //Initialize all plugins and their dependencies
+    for (auto& plugin : Plugins)
+        InitializePluginAndDependencies(plugin);
+
+    //Remove plugins that failed to load
+    auto pluginIter = Plugins.begin();
+    while (pluginIter != Plugins.end())
     {
-        THREADENTRY32 te;
-        te.dwSize = sizeof(te);
-        if (Thread32First(h, &te))
-        {
-            do
-            {
-                if (te.dwSize >= FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) + sizeof(te.th32OwnerProcessID))
-                {
-                    if (te.th32OwnerProcessID == PID)
-                    {
-                        if (te.th32ThreadID != hostThreadId)
-                        {
-                            HANDLE ThreadHandle = OpenThread(THREAD_ALL_ACCESS, FALSE, te.th32ThreadID);
-                            if (ThreadHandle)
-                            {
-                                ResumeThread(ThreadHandle);
-                            }
-                        }
-                        //printf("Process 0x%04x Thread 0x%04x\n", te.th32OwnerProcessID, te.th32ThreadID);
-                        //if(te.th32ThreadID == LauncherThreadID)
-                        //{
-                        //    printf("^^^That's the launcher thread!\n");
-                        //}
-                    }
-                }
-                te.dwSize = sizeof(te);
-            } while (Thread32Next(h, &te));
-        }
-        CloseHandle(h);
-    }
-    else
-    {
-        printf("Failed to get toolhelp 32 snapshot!\n");
+        if (pluginIter->Remove)
+            pluginIter = Plugins.erase(pluginIter);
+
+        pluginIter++;
     }
 }
 
-bool OnIgnoreList(const string& dllNameNoExt)
+bool Host::OnIgnoreList(const string& dllNameNoExt)
 {
     //Ignore dlls that contain the substring "copy"
     if (dllNameNoExt.find("copy") != string::npos) //Todo: Make into helper functions in String:: namespace
@@ -200,14 +123,133 @@ bool OnIgnoreList(const string& dllNameNoExt)
     return false;
 }
 
-void OpenConsoleWindow()
+Plugin* Host::GetPlugin(const string& name)
 {
-    AllocConsole();
-    FILE* pFile = NULL;
-    freopen_s(&pFile, "CONOUT$", "r+", stdout);
+    for (auto& plugin : Plugins)
+    {
+        if (plugin.Name() == name)
+            return &plugin;
+    }
+
+    return nullptr;
 }
 
-void CloseConsoleWindow()
+bool Host::InitializePluginAndDependencies(Plugin& target)
 {
-    FreeConsole();
+    //If plugin has no dependencies, initialize it
+    if (target.Dependencies.size() == 0)
+    {
+        if (target.Active)
+            return true;
+        else
+            return target.Init();
+    }
+
+    //Otherwise we have to make sure it's dependencies are initialized first
+    for (string& dependencyName : target.Dependencies)
+    {
+        //Make sure the dependency is present in the plugins folder
+        Plugin* dependency = GetPlugin(dependencyName);
+        if (!dependency)
+        {
+            printf("Error! Failed to find dependency \"%s\" for plugin \"%s\"\n", dependencyName.c_str(), target.Name().c_str());
+            return false;
+        }
+
+        //Init dependency if not already done
+        if (!dependency->Active)
+        {
+            //This will initialize the dependencies of this dependency if it has any
+            bool dependencyInitResult = InitializePluginAndDependencies(*dependency);
+            if (!dependencyInitResult)
+                return false;
+        }
+    }
+
+    //Dependencies are initialized, init our target
+    bool targetInitResult = target.Init();
+    if (!targetInitResult)
+    {
+        printf("Error! Failed to init plugin \"%s\"\n", target.Name().c_str());
+        target.Remove = true;
+    }
+    return targetInitResult;
+}
+
+bool Host::ReloadPlugin(Plugin& target)
+{
+    //Find all plugins which depend on this one. We'll need to notify them when it's unloaded and then loaded
+    std::vector<Plugin*> dependentPlugins;
+    for (auto& plugin : Plugins)
+        if (plugin.DependsOn(target.Name()))
+            dependentPlugins.push_back(&plugin);
+
+    //Notify all plugins who depend on this one that it's being unloaded
+    for (auto* dependent : dependentPlugins)
+        dependent->OnDependencyUnload(target.Name());
+
+    //Reload the target
+    bool reloadResult = target.Reload();
+    //If the target fails to reload then unload all of it's dependents
+    if (!reloadResult)
+    {
+        printf("Error! Failed to reload plugin \"%s\". Unloading it and it's dependents.\n", target.Name().c_str());
+        UnloadPluginAndDependents(target);
+    }
+    //Else notify all dependent plugins that the target been loaded
+    for (auto* dependent : dependentPlugins)
+        dependent->OnDependencyLoad(target.Name());
+
+    return true;
+}
+
+void Host::UnloadPluginAndDependents(Plugin& target)
+{
+    //Find all plugins which depend on this one
+    std::vector<Plugin*> dependentPlugins;
+    for (auto& plugin : Plugins)
+        if (plugin.DependsOn(target.Name()))
+            dependentPlugins.push_back(&plugin);
+
+    //Unload plugins which depend on the target
+    for (auto* dependent : dependentPlugins)
+        UnloadPluginAndDependents(*dependent);
+
+    //Unload the target
+    target.Shutdown();
+    target.Unload();
+}
+
+void Host::ResumeRfgMainThread(HINSTANCE hModule)
+{
+    //Find main thread of rfg.exe and resume it so the game runs
+    DWORD PID = GetCurrentProcessId();
+    const DWORD hostThreadId = GetThreadId(hModule);
+    HANDLE h = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+    if (h != INVALID_HANDLE_VALUE)
+    {
+        THREADENTRY32 te;
+        te.dwSize = sizeof(te);
+        if (Thread32First(h, &te))
+        {
+            do
+            {
+                if (te.dwSize >= FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) + sizeof(te.th32OwnerProcessID))
+                {
+                    if (te.th32OwnerProcessID == PID && te.th32ThreadID != hostThreadId)
+                    {
+                        HANDLE ThreadHandle = OpenThread(THREAD_ALL_ACCESS, FALSE, te.th32ThreadID);
+                        if (ThreadHandle)
+                            ResumeThread(ThreadHandle);
+                    }
+                }
+                te.dwSize = sizeof(te);
+            } while (Thread32Next(h, &te));
+        }
+        CloseHandle(h);
+    }
+    else
+    {
+        printf("Failed to get toolhelp 32 snapshot!\n");
+    }
 }
