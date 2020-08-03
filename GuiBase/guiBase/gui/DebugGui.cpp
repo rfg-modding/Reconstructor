@@ -20,7 +20,6 @@ void DebugGui_DoFrame()
     ImGui::Text(ICON_FA_BUG " Debug");
     ImGui::PopFont();
     ImGui::Separator();
-    ImGui::Text("Text test");
 
     ImGui::End();
 }
