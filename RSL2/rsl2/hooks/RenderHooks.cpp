@@ -162,7 +162,7 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
 {
     static RSL2_GlobalState* globalState = GetGlobalState();
 
-    if (!globalState->ImGuiInitialized)
+    if (!globalState->ImGuiInitialized || globalState->Host->PerformingReload)
         return D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
 
     if (globalState->OverlayActive || globalState->GuiActive)
@@ -181,8 +181,9 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
         //Overlay code here, non input blocking
         if (globalState->OverlayActive)
         {
-            //Todo: Put overlay callbacks here
             //Run overlay callbacks
+            for (OverlayCallbackFunc callback : OverlayCallbacks)
+                callback();
         }
 
         //Gui->Draw();
@@ -357,7 +358,7 @@ void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer
     static RSL2_GlobalState* globalState = GetGlobalState();
     primitive_renderer_begin_deferredHook.CallTarget(thisPtr);
 
-    if (!globalState->ImGuiInitialized)
+    if (!globalState->ImGuiInitialized || globalState->Host->PerformingReload)
         return;
 
     //Todo: Add helpers to make this easier + less restrictive. Should have some class that keeps a list of primitive render commands and then runs them all here

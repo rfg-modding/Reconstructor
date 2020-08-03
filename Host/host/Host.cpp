@@ -32,7 +32,9 @@ void Host::Run(HINSTANCE hModule)
         {
             if (pluginIterator->NeedsReload())
             {
+                PerformingReload = true;
                 bool reloadResult = ReloadPlugin(*pluginIterator);
+                PerformingReload = false;
                 if (reloadResult)
                 {
                     printf("Reloaded %s!\n", Path::GetFileName(pluginIterator->Path()).c_str());

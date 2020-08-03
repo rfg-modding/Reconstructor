@@ -116,11 +116,6 @@ extern "C"
     //Called immediately after dependency load + init
     DLLEXPORT void __cdecl RSL2_OnDependencyLoad(const string& dependencyName)
     { 
-        //Register callbacks
-        ext_RegisterImGuiCallback(&ImGuiCallback);
-        ext_RegisterOverlayCallback(&OverlayCallback);
-        ext_RegisterPrimitiveDrawCallback(&PrimitiveDrawCallback);
-
         //Re-import external functions from dependency
         ext_GetGlobalState = (F_ext_GetGlobalState)host_->GetPluginFunction("RSL2", "GetGlobalState");
         ext_GetRfgFunctions = (F_ext_GetRfgFunctions)host_->GetPluginFunction("RSL2", "GetRfgFunctions");
@@ -131,6 +126,11 @@ extern "C"
         ext_RemoveOverlayCallback = (F_ext_RemoveOverlayCallback)host_->GetPluginFunction("RSL2", "RemoveOverlayCallback");
         ext_RegisterPrimitiveDrawCallback = (F_ext_RegisterPrimitiveDrawCallback)host_->GetPluginFunction("RSL2", "RegisterPrimitiveDrawCallback");
         ext_RemovePrimitiveDrawCallback = (F_ext_RemovePrimitiveDrawCallback)host_->GetPluginFunction("RSL2", "RemovePrimitiveDrawCallback");
+
+        //Register callbacks
+        ext_RegisterImGuiCallback(&ImGuiCallback);
+        ext_RegisterOverlayCallback(&OverlayCallback);
+        ext_RegisterPrimitiveDrawCallback(&PrimitiveDrawCallback);
     }
 }
 

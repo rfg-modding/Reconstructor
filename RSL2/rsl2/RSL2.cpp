@@ -40,9 +40,10 @@ extern "C"
     //Called when the host dll loads this plugin
     DLLEXPORT bool __cdecl RSL2_PluginInit(IHost* host, std::vector<PluginFunction>& exportedFunctions)
     {
-        printf("RSL2.dll RSL2_PluginInit() called!!\n");
+        printf("RSL2.dll RSL2_PluginInit() called!\n");
         RSL2_GlobalState* globalState = GetGlobalState();
 
+        globalState->Host = host;
         globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
         printf("ModuleBase: %d\n", globalState->ModuleBase);
 
