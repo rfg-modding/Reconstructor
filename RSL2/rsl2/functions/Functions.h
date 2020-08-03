@@ -1,6 +1,7 @@
 #pragma once
 #include "RFGR_Types/rfg/Game.h"
 #include "RFGR_Types/rfg/Vector.h"
+#include "RFGR_Types/rfg/Plane.h"
 #include "RFGR_Types/rfg/Matrix.h"
 #include "RFGR_Types/rfg/DrawData.h"
 #include "RFGR_Types/rfg/Memory.h"
@@ -64,46 +65,109 @@ namespace rfg
 
     //Todo: Setup all of these function pointers. Some gr_ functions not included as I don't have immediate use for them
     //void __cdecl gr_set_color(float r, float g, float b, float a) //0x00109160
+    using F_gr_set_color2 = void(__cdecl*)(float r, float g, float b, float a);
+    
     //void __cdecl gr_set_alpha(int a) //0x001092B0
+    using F_gr_set_alpha = void(__cdecl*)(int a);
+
     //void __cdecl gr_start_instance(vector *pos, matrix *orient, matrix *scale) //0x00109320
+    using F_gr_start_instance = void(__cdecl*)(vector* pos, matrix* orient, matrix* scale);
+
     //void __cdecl gr_stop_instance() //0x001093E0
-    //bool __cdecl gr_screen_coords_from_world_coords(vector *world_pos, float *screen_x, float *screen_y, float *screen_z, int allow_off_edges) //0x00109570
-
-    //void __cdecl gr_rect_outline(int x, int y, int w, int h, int t, gr_state *state) //0x00154B00
-    //void __cdecl gr_rect(float x, float y, float w, float h, gr_state *state) //0x00154C70
-    //void __cdecl gr_line(float x1, float y1, float x2, float y2, gr_state *state, bool __formal) //0x00154D20
-
-    //void __cdecl gr_bitmap(int bitmap_id, int x, int y, gr_state *state) //0x00154E50
-    //void __cdecl gr_bitmap_scaled(int bitmap_id, int x, int y, int w, int h, gr_state *state) //0x00154ED0
-    //void __cdecl gr_bitmap_scaled(int bitmap_id, float x, float y, float w, float h, gr_state *state) //0x00154FB0
-    //void __cdecl gr_bitmap_centered(int bitmap_id, int cx, int cy, gr_state *state) //0x00155080
-    //void __cdecl gr_bitmap_ex(int bitmap_id, int x, int y, int w, int h, int sx, int sy, int sw, int sh, bool flip_x, bool flip_y, gr_state *state) //0x00155100
-    //void __cdecl gr_bitmap_rotated_scale(int bitmap_id, float x, float y, float angle, float scalew, float scaleh, gr_state *state) //0x001551F0
-    //void __cdecl gr_bitmap_rotated(int bitmap_id, float x, float y, float angle, float scale, gr_state *state) //0x001552D0
-
-    //void __cdecl gr_circle(int x, int y, int radius, gr_state *state) //0x00155370
-    //void __cdecl gr_string_scale(int sx, int sy, const char *s, float scale, int fontnum, gr_state *state) //0x00155400
-    //void __cdecl gr_3d_bitmap(int bitmap_id, vector *pnt, matrix *orient, float radius, gr_state *state) //0x0015DF80
-
-    //void __cdecl gr_3d_arrow(vector *v1, vector *v2, float arrowhead_pct, gr_state *state) //0x0015E0C0
-    //bool __cdecl gr_sphere_solid(vector *center, float radius, int __formal, gr_state *state) //0x0015E1F0
-    //bool __cdecl gr_cone(vector *cone_point_pos, matrix *orient, float radius, float height, gr_state *state) //0x0015E280
-    //bool __cdecl gr_box(vector *center, matrix *orient, vector *size, gr_state *state) //0x0015E320
-    //void __cdecl gr_bbox_solid(vector *bmin, vector *bmax, gr_state *state) //0x0015E710
-    //void __cdecl gr_cylinder(vector *center, matrix *orient, float radius, float height, gr_state *state) //0x0015E790
-    //void __cdecl gr_plane(vector *pt, matrix *orient, float w, float h, gr_state *state) //0x0015E830
-    //void __cdecl gr_plane_solid(plane *pl, gr_state *state) //0x0015E8D0
-    //void __cdecl gr_axis(vector *pos, matrix *orient, float scale, gr_state *state) //0x0015E9C0
-    //bool __cdecl gr_circle(vector *center, float radius, vector axis, int __formal, gr_state *state) //0x0015EA50
-    //void __cdecl gr_circle_xz(vector *center, float radius, gr_state *state) //0x0015EB20
-    //void __cdecl gr_arc_xz(vector *center, vector *start, float angle, gr_state *state) //0x0015EBF0
-    //void __cdecl gr_string(int sx, int sy, const char *s, int fontnum, gr_state *state) //0x0015EC80
-    //void __cdecl gr_string(int sx, int sy, const wchar_t *s, int fontnum, gr_state *state) //0x0015ED30
-    //void __cdecl gr_frustum_solid(vector *eye_pos, plane *planes, int nplanes, gr_state *state) //0x00161B50
-    //void __cdecl gr_frustum(vector *eye_pos, plane *planes, int nplanes, gr_state *state) //0x00161BD0
+    using F_gr_stop_instance = void(__cdecl*)();
 
     //void __cdecl hud_bm_res_independent(int bitmap_id, int cx, int cy, float scale, gr_state state) //0x00441CA0
+    using F_hud_bm_res_independent = void(__cdecl*)(int bitmap_id, int cx, int cy, float scale, gr_state state);
+
     //void __cdecl hud_bm_pos_res_independent(int bitmap_id, int cx, int cy, float scale, gr_state state) //0x00441EF0
+    using F_hud_bm_pos_res_independent = void(__cdecl*)(int bitmap_id, int cx, int cy, float scale, gr_state state);
+
+    //void __cdecl gr_rect_outline(int x, int y, int w, int h, int t, gr_state *state) //0x00154B00
+    using F_gr_rect_outline = void(__cdecl*)(int x, int y, int w, int h, int t, gr_state* state);
+
+    //void __cdecl gr_rect(float x, float y, float w, float h, gr_state *state) //0x00154C70
+    using F_gr_rect2 = void(__cdecl*)(float x, float y, float w, float h, gr_state* state);
+
+    //void __cdecl gr_line2(float x1, float y1, float x2, float y2, gr_state *state, bool __formal) //0x00154D20
+    using F_gr_line2 = void(__cdecl*)(float x1, float y1, float x2, float y2, gr_state* state, bool __formal);
+
+    //void __cdecl gr_bitmap(int bitmap_id, int x, int y, gr_state *state) //0x00154E50
+    using F_gr_bitmap = void(__cdecl*)(int bitmap_id, int x, int y, gr_state* state);
+
+    //void __cdecl gr_bitmap_scaled(int bitmap_id, int x, int y, int w, int h, gr_state *state) //0x00154ED0
+    using F_gr_bitmap_scaled = void(__cdecl*)(int bitmap_id, int x, int y, int w, int h, gr_state* state);
+
+    //void __cdecl gr_bitmap_scaled(int bitmap_id, float x, float y, float w, float h, gr_state *state) //0x00154FB0
+    using F_gr_bitmap_scaled2 = void(__cdecl*)(int bitmap_id, float x, float y, float w, float h, gr_state* state);
+
+    //void __cdecl gr_bitmap_centered(int bitmap_id, int cx, int cy, gr_state *state) //0x00155080
+    using F_gr_bitmap_centered = void(__cdecl*)(int bitmap_id, int cx, int cy, gr_state* state);
+
+    //void __cdecl gr_bitmap_ex(int bitmap_id, int x, int y, int w, int h, int sx, int sy, int sw, int sh, bool flip_x, bool flip_y, gr_state *state) //0x00155100
+    using F_gr_bitmap_ex = void(__cdecl*)(int bitmap_id, int x, int y, int w, int h, int sx, int sy, int sw, int sh, bool flip_x, bool flip_y, gr_state* state);
+
+    //void __cdecl gr_bitmap_rotated_scale(int bitmap_id, float x, float y, float angle, float scalew, float scaleh, gr_state *state) //0x001551F0
+    using F_gr_bitmap_rotated_scale = void(__cdecl*)(int bitmap_id, float x, float y, float angle, float scalew, float scaleh, gr_state* state);
+
+    //void __cdecl gr_bitmap_rotated(int bitmap_id, float x, float y, float angle, float scale, gr_state *state) //0x001552D0
+    using F_gr_bitmap_rotated = void(__cdecl*)(int bitmap_id, float x, float y, float angle, float scale, gr_state* state);
+
+    //void __cdecl gr_circle(int x, int y, int radius, gr_state *state) //0x00155370
+    using F_gr_circle = void(__cdecl*)(int x, int y, int radius, gr_state* state);
+
+    //void __cdecl gr_string_scale(int sx, int sy, const char *s, float scale, int fontnum, gr_state *state) //0x00155400
+    using F_gr_string_scale = void(__cdecl*)(int sx, int sy, const char* s, float scale, int fontnum, gr_state* state);
+
+    //void __cdecl gr_3d_bitmap(int bitmap_id, vector *pnt, matrix *orient, float radius, gr_state *state) //0x0015DF80
+    using F_gr_3d_bitmap = void(__cdecl*)(int bitmap_id, vector* pnt, matrix* orient, float radius, gr_state* state);
+
+    //void __cdecl gr_bbox_solid(vector *bmin, vector *bmax, gr_state *state) //0x0015E710
+    using F_gr_bbox_solid = void(__cdecl*)(vector* bmin, vector* bmax, gr_state* state);
+
+    //void __cdecl gr_cylinder(vector *center, matrix *orient, float radius, float height, gr_state *state) //0x0015E790
+    using F_gr_cylinder = void(__cdecl*)(vector* center, matrix* orient, float radius, float height, gr_state* state);
+
+    //void __cdecl gr_plane(vector *pt, matrix *orient, float w, float h, gr_state *state) //0x0015E830
+    using F_gr_plane = void(__cdecl*)(vector* pt, matrix* orient, float w, float h, gr_state* state);
+
+    //void __cdecl gr_plane_solid(plane *pl, gr_state *state) //0x0015E8D0
+    using F_gr_plane_solid = void(__cdecl*)(plane* pl, gr_state* state);
+
+    //void __cdecl gr_axis(vector *pos, matrix *orient, float scale, gr_state *state) //0x0015E9C0
+    using F_gr_axis = void(__cdecl*)(vector* pos, matrix* orient, float scale, gr_state* state);
+
+    //void __cdecl gr_3d_arrow(vector *v1, vector *v2, float arrowhead_pct, gr_state *state) //0x0015E0C0
+    using F_gr_3d_arrow = void(__cdecl*)(vector* v1, vector* v2, float arrowhead_pct, gr_state* state);
+
+    //void __cdecl gr_circle_xz(vector *center, float radius, gr_state *state) //0x0015EB20
+    using F_gr_circle_xz = void(__cdecl*)(vector* center, float radius, gr_state* state);
+
+    //void __cdecl gr_arc_xz(vector *center, vector *start, float angle, gr_state *state) //0x0015EBF0
+    using F_gr_arc_xz = void(__cdecl*)(vector* center, vector* start, float angle, gr_state* state);
+
+    //void __cdecl gr_string(int sx, int sy, const wchar_t *s, int fontnum, gr_state *state) //0x0015ED30
+    using F_gr_string2 = void(__cdecl*)(int sx, int sy, const wchar_t* s, int fontnum, gr_state* state);
+
+    //void __cdecl gr_frustum_solid(vector *eye_pos, plane *planes, int nplanes, gr_state *state) //0x00161B50
+    using F_gr_frustum_solid = void(__cdecl*)(vector* eye_pos, plane* planes, int nplanes, gr_state* state);
+
+    //void __cdecl gr_frustum(vector *eye_pos, plane *planes, int nplanes, gr_state *state) //0x00161BD0
+    using F_gr_frustum = void(__cdecl*)(vector* eye_pos, plane* planes, int nplanes, gr_state* state);
+
+    //bool __cdecl gr_screen_coords_from_world_coords(vector *world_pos, float *screen_x, float *screen_y, float *screen_z, int allow_off_edges) //0x00109570
+    using F_gr_screen_coords_from_world_coords = bool(__cdecl*)(vector* world_pos, float* screen_x, float* screen_y, float* screen_z, int allow_off_edges);
+
+    //bool __cdecl gr_sphere_solid(vector *center, float radius, int __formal, gr_state *state) //0x0015E1F0
+    using F_gr_sphere_solid = bool(__cdecl*)(vector* center, float radius, int __formal, gr_state* state);
+
+    //bool __cdecl gr_cone(vector *cone_point_pos, matrix *orient, float radius, float height, gr_state *state) //0x0015E280
+    using F_gr_cone = bool(__cdecl*)(vector* cone_point_pos, matrix* orient, float radius, float height, gr_state* state);
+
+    //bool __cdecl gr_box(vector *center, matrix *orient, vector *size, gr_state *state) //0x0015E320
+    using F_gr_box = bool(__cdecl*)(vector* center, matrix* orient, vector* size, gr_state* state);
+
+    //bool __cdecl gr_3d_circle(vector *center, float radius, vector axis, int __formal, gr_state *state) //0x0015EA50
+    using F_gr_3d_circle = bool(__cdecl*)(vector* center, float radius, vector axis, int __formal, gr_state* state);
 
     //void __cdecl camera_push_mode(camera_mode m) //0x002C9240
     using F_camera_push_mode = void(__cdecl*)(camera_mode mode);
@@ -129,6 +193,7 @@ namespace rfg
         F_memmgr_debug_render memmgr_debug_render = nullptr;
         F_memmgr_debug_render_tiny memmgr_debug_render_tiny = nullptr;
 
+        //Primitive rendering helpers
         F_gr_state_constructor gr_state_constructor = nullptr;
         F_gr_bbox_aligned gr_bbox_aligned = nullptr;
         F_gr_3d_string gr_3d_string = nullptr;
@@ -141,6 +206,43 @@ namespace rfg
         F_gr_sphere gr_sphere = nullptr;
         F_gr_bbox_oriented gr_bbox_oriented = nullptr;
         F_gr_rect gr_rect = nullptr;
+        F_gr_set_color2 gr_set_color2 = nullptr;
+        F_gr_set_alpha gr_set_alpha = nullptr;
+        F_gr_start_instance gr_start_instance = nullptr;
+        F_gr_stop_instance gr_stop_instance = nullptr;
+        F_hud_bm_res_independent hud_bm_res_independent = nullptr;
+        F_hud_bm_pos_res_independent hud_bm_pos_res_independent = nullptr;
+        F_gr_rect_outline gr_rect_outline = nullptr;
+        F_gr_rect2 gr_rect2 = nullptr;
+        F_gr_line2 gr_line2 = nullptr;
+        F_gr_circle gr_circle = nullptr;
+        F_gr_string_scale gr_string_scale = nullptr;
+        F_gr_bbox_solid gr_bbox_solid = nullptr;
+        F_gr_cylinder gr_cylinder = nullptr;
+        F_gr_plane gr_plane = nullptr;
+        F_gr_plane_solid gr_plane_solid = nullptr;
+        F_gr_axis gr_axis = nullptr;
+        F_gr_circle_xz gr_circle_xz = nullptr;
+        F_gr_arc_xz gr_arc_xz = nullptr;
+        F_gr_string2 gr_string2 = nullptr;
+        F_gr_frustum_solid gr_frustum_solid = nullptr;
+        F_gr_frustum gr_frustum = nullptr;
+        F_gr_screen_coords_from_world_coords gr_screen_coords_from_world_coords = nullptr;
+        F_gr_sphere_solid gr_sphere_solid = nullptr;
+        F_gr_cone gr_cone = nullptr;
+        F_gr_box gr_box = nullptr;
+        F_gr_3d_circle gr_3d_circle = nullptr;
+        //Todo: Fix primitive rendering helpers that don't work / cause crashes below
+        F_gr_3d_bitmap gr_3d_bitmap = nullptr;
+        //Ones which cause crashes
+        //F_gr_3d_arrow gr_3d_arrow = nullptr;
+        //F_gr_bitmap gr_bitmap = nullptr;
+        //F_gr_bitmap_scaled gr_bitmap_scaled = nullptr;
+        //F_gr_bitmap_scaled2 gr_bitmap_scaled2 = nullptr;
+        //F_gr_bitmap_centered gr_bitmap_centered = nullptr;
+        //F_gr_bitmap_ex gr_bitmap_ex = nullptr;
+        //F_gr_bitmap_rotated_scale gr_bitmap_rotated_scale = nullptr;
+        //F_gr_bitmap_rotated gr_bitmap_rotated = nullptr;
 
         F_camera_push_mode camera_push_mode = nullptr;
         F_camera_pop_mode camera_pop_mode = nullptr;
