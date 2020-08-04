@@ -232,6 +232,7 @@ void InitImGuiD3D11()
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
     ImGui::StyleColorsDark();
 
     ImGui_ImplDX11_Init(gD3D11Device, gD3D11Context);

@@ -5,7 +5,7 @@
 #include "common/plugins/IHost.h"
 
 struct ImFont;
-struct Player;
+struct player;
 struct rfg_camera;
 struct world;
 
@@ -39,7 +39,7 @@ public:
     DWORD MouseGenericPollMouseVisibleAddress = 0;
     DWORD CenterMouseCursorCallAddress = 0;
 
-    Player* Player = nullptr;
+    player* Player = nullptr;
     rfg_camera* MainCamera = nullptr;
     world* World = nullptr;
 

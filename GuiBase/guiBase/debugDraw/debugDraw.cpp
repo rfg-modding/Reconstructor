@@ -78,14 +78,15 @@ void GeneralDebugDraw_DoFrame()
         }
 
         //Todo: Fix range based iterators for base_array<T>
+        Functions->gr_set_color(255, 255, 255, 255);
         for (u32 i = 0; i < globalState->World->all_objects.Size(); i++)
         {
-            Object* object = globalState->World->all_objects[i];
+            object* object = globalState->World->all_objects[i];
 
             if (!object || object->obj_type != OT_HUMAN || object == globalState->Player)
                 continue;
 
-            Human* human = reinterpret_cast<Human*>(object);
+            human* curHuman = reinterpret_cast<human*>(object);
 
             float maxDrawDistance = 100.0f;
             vector distance = object->pos - globalState->MainCamera->real_pos;
@@ -99,21 +100,26 @@ void GeneralDebugDraw_DoFrame()
                 stringPos.z += stringOffset.z;
                 matrix stringOrient = globalState->MainCamera->real_orient;
 
-                string positionString = "Health: " + std::to_string(human->hit_points) + "/" + std::to_string(human->max_hit_points);
+                string positionString = "Health: " + std::to_string(curHuman->hit_points) + "/" + std::to_string(curHuman->max_hit_points);
                 int fontNum = 0;
 
                 Functions->gr_bbox_aligned(&object->last_known_bmin, &object->last_known_bmax, &renderState);
                 Functions->gr_3d_string(&stringPos, &stringOrient, 0.003f, positionString.c_str(), fontNum, &renderState);
 
-                u32 maxPathNodeCount = 100;
+                u32 maxPathNodeCount = 30;
                 //Draw pathfinding line of human
-                if (human->pf.path)
+                if (curHuman->pf.path)
                 {
-                    path_node* curNode = human->pf.path;
+                    path_node* curNode = curHuman->pf.path;
                     path_node* nextNode = curNode->next;
                     u32 nodeCount = 1;
                     while (nextNode && nodeCount < maxPathNodeCount)
                     {
+                        //Functions->gr_sphere_solid(&curNode->pos, 1.0f, true, &renderState);
+                        vector temp1 = curNode->pos + vector(0.1f, 0.1f, 0.1f);
+                        Functions->gr_set_color(255, 0, 0, 255);
+                        Functions->gr_bbox_solid(&curNode->pos, &temp1, &renderState);
+                        Functions->gr_set_color(255, 255, 255, 255);
                         Functions->gr_3d_line(&curNode->pos, &nextNode->pos, &renderState);
                         curNode = nextNode;
                         nextNode = curNode->next;

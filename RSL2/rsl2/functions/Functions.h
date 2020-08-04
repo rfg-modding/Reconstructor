@@ -8,7 +8,7 @@
 #include "RFGR_Types/rfg/Camera.h"
 
 //Forward declarations
-struct Human;
+struct human;
 
 //Todo: Organize this properly
 namespace rfg
@@ -176,7 +176,7 @@ namespace rfg
     using F_camera_pop_mode = void(__cdecl*)(camera_mode mode);
 
     //void __cdecl human_teleport_unsafe(human *hp, vector pos, matrix orient) //0x0067C290
-    using F_human_teleport_unsafe = void(__cdecl*)(Human* hp, vector pos, matrix orient);
+    using F_human_teleport_unsafe = void(__cdecl*)(human* hp, vector pos, matrix orient);
 
     //void __cdecl hud_hide(bool hide) //0x00441AE0
     using F_hud_hide = void(__cdecl*)(bool hide);

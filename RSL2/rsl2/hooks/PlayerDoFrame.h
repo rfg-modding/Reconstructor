@@ -9,10 +9,10 @@
 #include "tracy/Tracy.hpp"
 #endif
 
-FunHook<void(Player*)> PlayerDoFrame_hook
+FunHook<void(player*)> PlayerDoFrame_hook
 {
     0x6E6290, //__cdecl
-    [](Player* player)
+    [](player* player)
     {
         if (!GetGlobalState()->Player)
         {
@@ -23,7 +23,7 @@ FunHook<void(Player*)> PlayerDoFrame_hook
 #ifdef COMPILE_IN_PROFILER
         ZoneScopedN("PlayerDoFrame");
 #endif
-        Object* playerObj = reinterpret_cast<Object*>(player);
+        object* playerObj = reinterpret_cast<object*>(player);
 
         //Todo: Provide a per-frame callback that stuff like CameraUpdate can be ran via. Sticking everything in this hook isn't sustainable
         //Update camera
