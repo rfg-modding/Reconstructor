@@ -7,6 +7,7 @@
 #include "hooks/GrdRenderHooks.h"
 #include "hooks/RenderHooks.h"
 #include "hooks/WndProc.h"
+#include "hooks/ChunkLoading.h"
 #include "misc/GlobalState.h"
 #include "common/Typedefs.h"
 #include "common/Common.h"
@@ -97,9 +98,11 @@ extern "C"
         grd_bbox_aligned_hook.Install();
         grd_bbox_oriented_hook.SetAddr(globalState->ModuleBase + 0x000B8F20);
         grd_bbox_oriented_hook.Install();
-
         primitive_renderer_begin_deferredHook.SetAddr(globalState->ModuleBase + 0x000F0E50);
         primitive_renderer_begin_deferredHook.Install();
+        ChunkBaseLoadInternalHook.SetAddr(globalState->ModuleBase + 0x00535F80);
+        ChunkBaseLoadInternalHook.Install();
+
 
         //Set export functions for this plugin
         exportedFunctions.push_back({ &GetGlobalState, "GetGlobalState" });
@@ -140,7 +143,7 @@ extern "C"
         grd_bbox_aligned_hook.Remove();
         grd_bbox_oriented_hook.Remove();
         primitive_renderer_begin_deferredHook.Remove();
-
+        ChunkBaseLoadInternalHook.Remove();
 
         //Relock mouse and camera so game has full control of them and patches are removed
         LockMouse();
