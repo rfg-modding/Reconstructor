@@ -4,6 +4,18 @@
 #include "RFGR_Types/rfg/Player.h"
 #include <IconFontCppHeaders/IconsFontAwesome5_c.h>
 
+//Todo: Make version of this that works in all plugins
+template<class T>
+T OffsetPtr(unsigned long Offset)
+{
+    static RSL2_GlobalState* globalState = ext_GetGlobalState();
+    if (globalState->ModuleBase == 0)
+    {
+        globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
+    }
+    return reinterpret_cast<T>(globalState->ModuleBase + Offset);
+}
+
 void DebugGui_DoFrame()
 {
     static RSL2_GlobalState* globalState = ext_GetGlobalState();
@@ -27,6 +39,7 @@ void DebugGui_DoFrame()
 void DebugOverlay_DoFrame()
 {
     static RSL2_GlobalState* globalState = ext_GetGlobalState();
+    static rfg::RfgFunctions* Functions = ext_GetRfgFunctions();
     static bool p_open = true;
 
     // FIXME-VIEWPORT: Select a default viewport
@@ -70,5 +83,6 @@ void DebugOverlay_DoFrame()
             ImGui::EndPopup();
         }
     }
+
     ImGui::End();
 }

@@ -6,6 +6,7 @@
 #include "RFGR_Types/rfg/DrawData.h"
 #include "RFGR_Types/rfg/Memory.h"
 #include "RFGR_Types/rfg/Camera.h"
+#include "RFGR_Types/rfg/Xml.h"
 
 //Forward declarations
 struct human;
@@ -184,6 +185,10 @@ namespace rfg
     //void __cdecl game_render_set_fog_enabled(bool enabled) //0x003C2C50
     using F_game_render_set_fog_enabled = void(__cdecl*)(bool hide);
 
+    //xml_element *__cdecl xml_parse(const char *filename, mempool_base *dest) //0x001CD2F0
+    using F_xml_parse = xml_element*(__cdecl*)(const char* filename, void* dest);
+
+
     class RfgFunctions
     {
     public:
@@ -249,5 +254,7 @@ namespace rfg
         F_human_teleport_unsafe human_teleport_unsafe = nullptr;
         F_hud_hide hud_hide = nullptr;
         F_game_render_set_fog_enabled game_render_set_fog_enabled = nullptr;
+        
+        F_xml_parse xml_parse = nullptr;
     };
 }

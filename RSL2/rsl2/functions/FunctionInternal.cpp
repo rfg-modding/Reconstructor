@@ -67,6 +67,7 @@ void InitFunctionPointers()
     RegisterFunction(rfg::Functions.human_teleport_unsafe, 0x0067C290);
     RegisterFunction(rfg::Functions.hud_hide, 0x00441AE0);
     RegisterFunction(rfg::Functions.game_render_set_fog_enabled, 0x003C2C50);
+    RegisterFunction(rfg::Functions.xml_parse, 0x001CD2F0);
 }
 
 rfg::RfgFunctions* GetRfgFunctions()

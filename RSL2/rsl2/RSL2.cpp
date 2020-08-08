@@ -6,6 +6,7 @@
 #include "functions/FunctionsInternal.h"
 #include "hooks/GrdRenderHooks.h"
 #include "hooks/RenderHooks.h"
+#include "hooks/Xml.h"
 #include "hooks/WndProc.h"
 #include "misc/GlobalState.h"
 #include "common/Typedefs.h"
@@ -97,7 +98,14 @@ extern "C"
         grd_bbox_aligned_hook.Install();
         grd_bbox_oriented_hook.SetAddr(globalState->ModuleBase + 0x000B8F20);
         grd_bbox_oriented_hook.Install();
-
+        //XmlParseHook.SetAddr(globalState->ModuleBase + 0x001CD2F0);
+        //XmlParseHook.Install();
+        //CfOpenHook0.SetAddr(globalState->ModuleBase + 0x001B5BB0);
+        //CfOpenHook0.Install();
+        //CfOpenHook1.SetAddr(globalState->ModuleBase + 0x001C2700);
+        //CfOpenHook1.Install();
+        //KeenCfOpenFileHook.SetAddr(globalState->ModuleBase + 0x001B6790);
+        //KeenCfOpenFileHook.Install();
         primitive_renderer_begin_deferredHook.SetAddr(globalState->ModuleBase + 0x000F0E50);
         primitive_renderer_begin_deferredHook.Install();
 
@@ -139,6 +147,10 @@ extern "C"
         grd_sphere_hook.Remove();
         grd_bbox_aligned_hook.Remove();
         grd_bbox_oriented_hook.Remove();
+        //XmlParseHook.Remove();
+        //CfOpenHook0.Remove();
+        //CfOpenHook1.Remove();
+        //KeenCfOpenFileHook.Remove();
         primitive_renderer_begin_deferredHook.Remove();
 
 
