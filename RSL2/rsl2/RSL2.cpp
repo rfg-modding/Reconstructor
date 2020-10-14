@@ -3,6 +3,7 @@
 #include "common/plugins/Plugin.h"
 #include "common/plugins/IHost.h"
 #include "hooks/PlayerDoFrame.h"
+#include "hooks/MiscHooks.h"
 #include "functions/FunctionsInternal.h"
 #include "hooks/GrdRenderHooks.h"
 #include "hooks/RenderHooks.h"
@@ -101,6 +102,9 @@ extern "C"
         primitive_renderer_begin_deferredHook.SetAddr(globalState->ModuleBase + 0x000F0E50);
         primitive_renderer_begin_deferredHook.Install();
 
+        keen_getBuildVersionString_hook.SetAddr(globalState->ModuleBase + 0x00058740);
+        keen_getBuildVersionString_hook.Install();
+
         //Set export functions for this plugin
         exportedFunctions.push_back({ &GetGlobalState, "GetGlobalState" });
         exportedFunctions.push_back({ &GetRfgFunctions, "GetRfgFunctions" });
@@ -140,6 +144,7 @@ extern "C"
         grd_bbox_aligned_hook.Remove();
         grd_bbox_oriented_hook.Remove();
         primitive_renderer_begin_deferredHook.Remove();
+        keen_getBuildVersionString_hook.Remove();
 
 
         //Relock mouse and camera so game has full control of them and patches are removed
