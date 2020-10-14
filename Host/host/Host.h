@@ -25,6 +25,8 @@ private:
     bool ReloadPlugin(Plugin& target);
     void UnloadPluginAndDependents(Plugin& target);
     void ResumeRfgMainThread(HINSTANCE hModule);
+    std::vector<HANDLE> PauseAllThreadsExceptCurrent();
+    void ResumeThreads(const std::vector<HANDLE>& threads);
 
     //Holds plugins loaded by the host dll
     std::vector<Plugin> Plugins;

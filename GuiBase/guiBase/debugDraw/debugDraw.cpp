@@ -11,11 +11,11 @@ gr_state renderState;
 
 void GeneralDebugDraw_DoFrame()
 {
-    static RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = ext_GetGlobalState();
     if (!globalState || !globalState->Player || !globalState->MainCamera || !globalState->World)
         return;
 
-    static rfg::RfgFunctions* Functions = ext_GetRfgFunctions();
+    rfg::RfgFunctions* Functions = ext_GetRfgFunctions();
 
     //RSL2 debug overlay
     if (globalState->DrawRSLDebugOverlay)
@@ -135,7 +135,7 @@ void GeneralDebugDraw_DoFrame()
 template<class T>
 T OffsetPtr(unsigned long Offset)
 {
-    static RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = ext_GetGlobalState();
     if (globalState->ModuleBase == 0)
     {
         globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
@@ -145,11 +145,11 @@ T OffsetPtr(unsigned long Offset)
 
 void RfgOldMemoryOverlay_DoFrame()
 {
-    static RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = ext_GetGlobalState();
     if (!globalState)
         return;
 
-    static rfg::RfgFunctions* Functions = ext_GetRfgFunctions();
+    rfg::RfgFunctions* Functions = ext_GetRfgFunctions();
 
     //RFGR memory overlay, fixed and re-enabled by RSL2
     static split_memmgr* LevelMemManager = OffsetPtr<split_memmgr*>(0x0195FB28);

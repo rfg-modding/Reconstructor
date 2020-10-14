@@ -6,7 +6,7 @@
 
 void DebugGui_DoFrame()
 {
-    static RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = ext_GetGlobalState();
     if (!globalState || !globalState->Player || !globalState->MainCamera || !globalState->World)
         return;
 
@@ -26,7 +26,7 @@ void DebugGui_DoFrame()
 
 void DebugOverlay_DoFrame()
 {
-    static RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = ext_GetGlobalState();
     static bool p_open = true;
 
     // FIXME-VIEWPORT: Select a default viewport

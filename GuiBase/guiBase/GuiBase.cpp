@@ -136,7 +136,7 @@ extern "C"
 
 void ImGuiCallback()
 {
-    static RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = ext_GetGlobalState();
     if (!ImGuiContextInitialized)
     {
         if (globalState->ImGuiInitialized)
@@ -156,7 +156,7 @@ void ImGuiCallback()
 
 void OverlayCallback()
 {
-    static RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = ext_GetGlobalState();
     if (!ImGuiContextInitialized)
         return; //Don't bother repeating the imgui init code here since GUI callbacks are ran first
 
@@ -165,13 +165,13 @@ void OverlayCallback()
 
 void PrimitiveDrawCallback()
 {
-    static RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = ext_GetGlobalState();
     //Wait until ImGui hooks are initialized. It's a decent sign that all renderer hooks are in place and ready for use
     if (!globalState->ImGuiInitialized)
         return; 
 
     //Initialize default render state used by all primitive draw funcs
-    static rfg::RfgFunctions* Functions = ext_GetRfgFunctions();
+    rfg::RfgFunctions* Functions = ext_GetRfgFunctions();
     static bool firstRun = true;
     if (firstRun)
     {

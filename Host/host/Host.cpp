@@ -33,7 +33,9 @@ void Host::Run(HINSTANCE hModule)
             if (pluginIterator->NeedsReload())
             {
                 PerformingReload = true;
+                std::vector<HANDLE> pausedThreads = PauseAllThreadsExceptCurrent();
                 bool reloadResult = ReloadPlugin(*pluginIterator);
+                ResumeThreads(pausedThreads);
                 PerformingReload = false;
                 if (reloadResult)
                 {
@@ -253,5 +255,48 @@ void Host::ResumeRfgMainThread(HINSTANCE hModule)
     else
     {
         printf("Failed to get toolhelp 32 snapshot!\n");
+    }
+}
+
+std::vector<HANDLE> Host::PauseAllThreadsExceptCurrent()
+{
+    const DWORD currentThreadId = GetCurrentThreadId();
+    const DWORD PID = GetProcessId(NULL);
+    std::vector<HANDLE> pausedThreads = {};
+
+    HANDLE h = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+    if (h == INVALID_HANDLE_VALUE)
+        return {};
+
+    THREADENTRY32 te;
+    te.dwSize = sizeof(te);
+    if (Thread32First(h, &te))
+    {
+        do
+        {
+            if (te.dwSize >= FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) + sizeof(te.th32OwnerProcessID))
+            {
+                if (te.th32OwnerProcessID == PID && te.th32ThreadID != currentThreadId)
+                {
+                    HANDLE threadHandle = OpenThread(THREAD_ALL_ACCESS, FALSE, te.th32ThreadID);
+                    if (threadHandle)
+                    {
+                        pausedThreads.push_back(threadHandle);
+                        SuspendThread(threadHandle);
+                    }
+                }
+            }
+        } while (Thread32Next(h, &te));
+    }
+    CloseHandle(h);
+    
+    return pausedThreads;
+}
+
+void Host::ResumeThreads(const std::vector<HANDLE>& threads)
+{
+    for (auto& thread : threads)
+    {
+        ResumeThread(thread);
     }
 }
