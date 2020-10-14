@@ -13,6 +13,7 @@
 #include "common/Common.h"
 #include "rsl2/patching/Offset.h"
 #include "rsl2/hooks/Camera.h"
+#include "rsl2/util/Util.h"
 #ifdef COMPILE_IN_PROFILER
 #include "tracy/Tracy.hpp"
 #endif
@@ -51,6 +52,8 @@ extern "C"
         //Set global pointers
         globalState->World = OffsetPtr<world*>(0x02B97490);
         globalState->MainCamera = OffsetPtr<rfg_camera*>(0x019E3B50);
+        globalState->RfgMenusList = OffsetPtr<farray<ui_menu*, 8>*>(0x1266698); //0x01266698, Menus
+        TryHideInvalidMainMenuOptions();
 
         if (kiero::init(kiero::RenderType::D3D11) != kiero::Status::Success)
         {

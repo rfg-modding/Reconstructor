@@ -3,6 +3,8 @@
 #include "common/windows/WindowsWrapper.h"
 #include "rsl2/patching/SnippetManager.h"
 #include "common/plugins/IHost.h"
+#include "rfg/Containers.h"
+#include "rfg/Ui.h"
 
 struct ImFont;
 struct player;
@@ -47,6 +49,9 @@ public:
     bool DrawRfgMemoryTracker = false;
     //Whether or not to draw the RSL debug overlay
     bool DrawRSLDebugOverlay = true;
+
+    //UI list used by RFG
+    farray<ui_menu*, 8>* RfgMenusList = nullptr;
 };
 
 extern RSL2_GlobalState* GetGlobalState();
