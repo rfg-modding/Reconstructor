@@ -5,8 +5,8 @@
 #include <filesystem>
 #include <vector>
 
-//Function exported by a plugin. Allows plugins to expose functions to each other easily
-class PluginFunction
+//Interface exposed by a plugin. Just a struct full of function pointers. Allows plugins to expose functions to each other easily
+class PluginInterface
 {
 public:
     void* Ptr = nullptr;
@@ -31,7 +31,7 @@ using PluginOnDependencyLoadFuncPtr = void(__cdecl*)(const string& dependencyNam
 
 //Called when the plugin is being loaded. Function hooks and patches should go here. 
 //Exported name must be RSL2_PluginInit
-using PluginInitFuncPtr = bool(__cdecl*)(IHost* host, std::vector<PluginFunction>& exportedFunctions);
+using PluginInitFuncPtr = bool(__cdecl*)(IHost* host, std::vector<PluginInterface>& exportedFunctions);
 
 //Called when the plugin is being unloaded or reloaded. Should reset hooks and patches here + deallocate anything allocated by the plugin. 
 //Exported name must be RSL2_PluginUnload
@@ -62,7 +62,7 @@ public:
     PluginInitFuncPtr InitFuncPtr = nullptr;
     PluginShutdownFuncPtr ShutdownFuncPtr = nullptr;
 
-    std::vector<PluginFunction> ExportedFunctions;
+    std::vector<PluginInterface> ExportedFunctions;
     std::vector<string> Dependencies;
 
     //True when initialized, false when shutdown

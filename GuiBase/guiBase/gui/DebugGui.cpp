@@ -1,12 +1,12 @@
 #include "DebugGui.h"
-#include "guiBase/ImportedFunctions.h"
 #include "rsl2/misc/GlobalState.h"
 #include "RFGR_Types/rfg/Player.h"
 #include <IconFontCppHeaders/IconsFontAwesome5_c.h>
+#include <imgui/imgui.h>
 
-void DebugGui_DoFrame()
+void DebugGui_DoFrame(IRSL2* rsl2)
 {
-    RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = rsl2->GetGlobalState();
     if (!globalState || !globalState->Player || !globalState->MainCamera || !globalState->World)
         return;
 
@@ -24,9 +24,9 @@ void DebugGui_DoFrame()
     ImGui::End();
 }
 
-void DebugOverlay_DoFrame()
+void DebugOverlay_DoFrame(IRSL2* rsl2)
 {
-    RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = rsl2->GetGlobalState();
     static bool p_open = true;
 
     // FIXME-VIEWPORT: Select a default viewport

@@ -15,7 +15,7 @@ class Host : IHost
 {
 public:
     void Run(HINSTANCE hModule);
-    void* GetPluginFunction(const string& pluginName, const string& functionName);
+    void* GetPluginInterface(const string& pluginName, const string& functionName);
 
 private:
     void InitialPluginLoad();

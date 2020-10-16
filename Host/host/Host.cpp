@@ -59,7 +59,7 @@ void Host::Run(HINSTANCE hModule)
     FreeLibraryAndExitThread(hModule, 0);
 }
 
-void* Host::GetPluginFunction(const string& pluginName, const string& functionName)
+void* Host::GetPluginInterface(const string& pluginName, const string& functionName)
 {
     for (auto& plugin : Plugins)
     {

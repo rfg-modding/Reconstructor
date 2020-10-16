@@ -1,6 +1,6 @@
 #include "debugDraw.h"
 #include "common/windows/WindowsWrapper.h"
-#include "guiBase/ImportedFunctions.h"
+#include "rsl2/functions/Functions.h"
 #include "rsl2/misc/GlobalState.h"
 #include "RFGR_Types/rfg/Player.h"
 #include "RFGR_Types/rfg/World.h"
@@ -9,13 +9,13 @@
 
 gr_state renderState;
 
-void GeneralDebugDraw_DoFrame()
+void GeneralDebugDraw_DoFrame(IRSL2* rsl2)
 {
-    RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = rsl2->GetGlobalState();
     if (!globalState || !globalState->Player || !globalState->MainCamera || !globalState->World)
         return;
 
-    rfg::RfgFunctions* Functions = ext_GetRfgFunctions();
+    rfg::RfgFunctions* Functions = rsl2->GetRfgFunctions();
 
     //RSL2 debug overlay
     if (globalState->DrawRSLDebugOverlay)
@@ -133,9 +133,8 @@ void GeneralDebugDraw_DoFrame()
 
 //Todo: Make a general version of this for all plugins
 template<class T>
-T OffsetPtr(unsigned long Offset)
+T OffsetPtr(RSL2_GlobalState* globalState, unsigned long Offset)
 {
-    RSL2_GlobalState* globalState = ext_GetGlobalState();
     if (globalState->ModuleBase == 0)
     {
         globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
@@ -143,16 +142,16 @@ T OffsetPtr(unsigned long Offset)
     return reinterpret_cast<T>(globalState->ModuleBase + Offset);
 }
 
-void RfgOldMemoryOverlay_DoFrame()
+void RfgOldMemoryOverlay_DoFrame(IRSL2* rsl2)
 {
-    RSL2_GlobalState* globalState = ext_GetGlobalState();
+    RSL2_GlobalState* globalState = rsl2->GetGlobalState();
     if (!globalState)
         return;
 
-    rfg::RfgFunctions* Functions = ext_GetRfgFunctions();
+    rfg::RfgFunctions* Functions = rsl2->GetRfgFunctions();
 
     //RFGR memory overlay, fixed and re-enabled by RSL2
-    static split_memmgr* LevelMemManager = OffsetPtr<split_memmgr*>(0x0195FB28);
+    static split_memmgr* LevelMemManager = OffsetPtr<split_memmgr*>(rsl2->GetGlobalState(), 0x0195FB28);
     if (globalState->DrawRfgMemoryTracker)
     {
         Functions->memmgr_debug_render(LevelMemManager, 150);

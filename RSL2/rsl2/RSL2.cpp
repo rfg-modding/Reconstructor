@@ -14,6 +14,7 @@
 #include "rsl2/patching/Offset.h"
 #include "rsl2/hooks/Camera.h"
 #include "rsl2/util/Util.h"
+#include "rsl2/IRSL2.h"
 #ifdef COMPILE_IN_PROFILER
 #include "tracy/Tracy.hpp"
 #endif
@@ -22,6 +23,9 @@
 
 //Note: When a plugin is reloaded the host calls RSL2_PluginUnload and then RSL2_PluginInit again
 //      as if it were the first time the host were loading the plugin.
+
+IRSL2 ExportInterface;
+void FillExports();
 
 //Need to use extern "C" to avoid C++ export name mangling. Lets us use the exact name RSL2_XXXX with GetProcAddress in the host
 extern "C"
@@ -40,7 +44,7 @@ extern "C"
     }
 
     //Called when the host dll loads this plugin
-    DLLEXPORT bool __cdecl RSL2_PluginInit(IHost* host, std::vector<PluginFunction>& exportedFunctions)
+    DLLEXPORT bool __cdecl RSL2_PluginInit(IHost* host, std::vector<PluginInterface>& exportedFunctions)
     {
         printf("RSL2.dll RSL2_PluginInit() called!\n");
         RSL2_GlobalState* globalState = GetGlobalState();
@@ -109,17 +113,8 @@ extern "C"
         keen_getBuildVersionString_hook.Install();
 
         //Set export functions for this plugin
-        exportedFunctions.push_back({ &GetGlobalState, "GetGlobalState" });
-        exportedFunctions.push_back({ &GetRfgFunctions, "GetRfgFunctions" });
-        exportedFunctions.push_back({ &GetImGuiContext, "GetImGuiContext" });
-        //Todo: Add callbacks for overlays
-        exportedFunctions.push_back({ &RegisterImGuiCallback, "RegisterImGuiCallback" });
-        exportedFunctions.push_back({ &RemoveImGuiCallback, "RemoveImGuiCallback" });
-        exportedFunctions.push_back({ &RegisterOverlayCallback, "RegisterOverlayCallback" });
-        exportedFunctions.push_back({ &RemoveOverlayCallback, "RemoveOverlayCallback" });
-        exportedFunctions.push_back({ &RegisterPrimitiveDrawCallback, "RegisterPrimitiveDrawCallback" });
-        exportedFunctions.push_back({ &RemovePrimitiveDrawCallback, "RemovePrimitiveDrawCallback" });
-
+        FillExports();
+        exportedFunctions.push_back({ &ExportInterface, "RSL2" });
         return true;
     }
 
@@ -158,4 +153,18 @@ extern "C"
         SetWindowLongPtr(globalState->gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(globalState->RfgWndProc));
         return true;
     }
+}
+
+//Fill IRSL2 function interface so other plugins can access functions this one exposes
+void FillExports()
+{
+    ExportInterface.GetGlobalState = &GetGlobalState;
+    ExportInterface.GetRfgFunctions = &GetRfgFunctions;
+    ExportInterface.GetImGuiContext = &GetImGuiContext;
+    ExportInterface.RegisterImGuiCallback = &RegisterImGuiCallback;
+    ExportInterface.RemoveImGuiCallback = &RemoveImGuiCallback;
+    ExportInterface.RegisterOverlayCallback = &RegisterOverlayCallback;
+    ExportInterface.RemoveOverlayCallback = &RemoveOverlayCallback;
+    ExportInterface.RegisterPrimitiveDrawCallback = &RegisterPrimitiveDrawCallback;
+    ExportInterface.RemovePrimitiveDrawCallback = &RemovePrimitiveDrawCallback;
 }
