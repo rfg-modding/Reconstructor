@@ -2,9 +2,11 @@
 #include "rsl2/misc/GlobalState.h"
 #include "RFGR_Types/rfg/Player.h"
 #include "rsl2/functions/Functions.h"
+#include "KnownCues.h"
 #include <IconFontCppHeaders/IconsFontAwesome5_c.h>
 #include <imgui/imgui.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
+#include <vector>
 
 //int __cdecl audiolib_cue_play(int cue_id, audiolib_params *passed_params, audiolib_result *error) //0x0009F100
 //audiolib_result __cdecl audiolib_cue_get_id(const char *cue_name, int *caller_cue_id) //0x0008DC20
@@ -27,12 +29,6 @@ void PlaySound(const char* name, rfg::RfgFunctions* functions)
     }
     lastSoundPlayed = playId;
 }
-
-#define SoundPresetButton(cueName) \
-if(ImGui::Button(cueName)) \
-{ \
-    PlaySound(cueName, Functions); \
-} \
 
 void DebugGui_DoFrame(IRSL2* rsl2)
 {
@@ -70,9 +66,16 @@ void DebugGui_DoFrame(IRSL2* rsl2)
         Functions->audiolib_play_fade_out(lastSoundPlayed, 100);
     }
 
-    SoundPresetButton("HUD_COMM_RANGE_IN");
-    SoundPresetButton("HUD_COMM_RANGE_OUT");
-    SoundPresetButton("OBJ_ARTILLERY_GUN_FIRE_FAR_01");
+    if (ImGui::CollapsingHeader("Known sounds"))
+    {
+        for (const char* presetName : SoundPresets)
+        {
+            if (ImGui::Button(presetName))
+            {
+                PlaySound(presetName, Functions);
+            }
+        }
+    }
 
     ImGui::End();
 }
