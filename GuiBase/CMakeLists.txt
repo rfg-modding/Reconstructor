@@ -21,6 +21,7 @@ add_library(GuiBase SHARED ${SOURCES}
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_demo.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_draw.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_widgets.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/misc/cpp/imgui_stdlib.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_win32.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_dx11.cpp
             )

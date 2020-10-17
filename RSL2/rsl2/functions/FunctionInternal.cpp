@@ -67,6 +67,10 @@ void InitFunctionPointers()
     RegisterFunction(rfg::Functions.human_teleport_unsafe, 0x0067C290);
     RegisterFunction(rfg::Functions.hud_hide, 0x00441AE0);
     RegisterFunction(rfg::Functions.game_render_set_fog_enabled, 0x003C2C50);
+
+    RegisterFunction(rfg::Functions.audiolib_cue_play, 0x0009F100);
+    RegisterFunction(rfg::Functions.audiolib_cue_get_id, 0x0008DC20);
+    RegisterFunction(rfg::Functions.audiolib_play_fade_out, 0x00094AD0);
 }
 
 rfg::RfgFunctions* GetRfgFunctions()

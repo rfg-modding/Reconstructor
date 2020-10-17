@@ -144,7 +144,6 @@ extern "C"
         primitive_renderer_begin_deferredHook.Remove();
         keen_getBuildVersionString_hook.Remove();
 
-
         //Relock mouse and camera so game has full control of them and patches are removed
         LockMouse();
         LockCamera();

@@ -1,8 +1,38 @@
 #include "DebugGui.h"
 #include "rsl2/misc/GlobalState.h"
 #include "RFGR_Types/rfg/Player.h"
+#include "rsl2/functions/Functions.h"
 #include <IconFontCppHeaders/IconsFontAwesome5_c.h>
 #include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
+
+//int __cdecl audiolib_cue_play(int cue_id, audiolib_params *passed_params, audiolib_result *error) //0x0009F100
+//audiolib_result __cdecl audiolib_cue_get_id(const char *cue_name, int *caller_cue_id) //0x0008DC20
+
+int lastSoundPlayed = 0;
+void PlaySound(const char* name, rfg::RfgFunctions* functions)
+{
+    int cue_id = 0;
+    audiolib_result result = functions->audiolib_cue_get_id(name, &cue_id);
+    if (result != AUDIOLIB_ERR_NONE)
+    {
+        printf("Error encountered in PlaySound() when trying to find cue \"%s\". Error code: %d\n", name, (int)result);
+        return;
+    }
+    int playId = (audiolib_result)functions->audiolib_cue_play(cue_id, nullptr, &result);
+    if (result != AUDIOLIB_ERR_NONE)
+    {
+        printf("Error encountered in PlaySound() when trying to play cue \"%s\". Error code: %d. Return value: %d\n", name, (int)result, (int)playId);
+        return;
+    }
+    lastSoundPlayed = playId;
+}
+
+#define SoundPresetButton(cueName) \
+if(ImGui::Button(cueName)) \
+{ \
+    PlaySound(cueName, Functions); \
+} \
 
 void DebugGui_DoFrame(IRSL2* rsl2)
 {
@@ -20,6 +50,29 @@ void DebugGui_DoFrame(IRSL2* rsl2)
     ImGui::Text(ICON_FA_BUG " Debug");
     ImGui::PopFont();
     ImGui::Separator();
+
+    ImGui::PushFont(globalState->FontLarge);
+    ImGui::Text(ICON_FA_AUDIO_DESCRIPTION " Audio");
+    ImGui::PopFont();
+    ImGui::Separator();
+
+    rfg::RfgFunctions* Functions = rsl2->GetRfgFunctions();
+    
+    static string input;
+    ImGui::InputText("Custom sound name", &input);
+    ImGui::SameLine();
+    if (ImGui::Button("Play custom sound"))
+    {
+        PlaySound(input.c_str(), Functions);
+    }
+    if (ImGui::Button("Stop last sound"))
+    {
+        Functions->audiolib_play_fade_out(lastSoundPlayed, 100);
+    }
+
+    SoundPresetButton("HUD_COMM_RANGE_IN");
+    SoundPresetButton("HUD_COMM_RANGE_OUT");
+    SoundPresetButton("OBJ_ARTILLERY_GUN_FIRE_FAR_01");
 
     ImGui::End();
 }

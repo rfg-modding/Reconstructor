@@ -6,6 +6,7 @@
 #include "RFGR_Types/rfg/DrawData.h"
 #include "RFGR_Types/rfg/Memory.h"
 #include "RFGR_Types/rfg/Camera.h"
+#include "RFGR_Types/rfg/Audiolib.h"
 
 //Forward declarations
 struct human;
@@ -184,6 +185,15 @@ namespace rfg
     //void __cdecl game_render_set_fog_enabled(bool enabled) //0x003C2C50
     using F_game_render_set_fog_enabled = void(__cdecl*)(bool hide);
 
+    //int __cdecl audiolib_cue_play(int cue_id, audiolib_params *passed_params, audiolib_result *error) //0x0009F100
+    using F_audiolib_cue_play = int(__cdecl*)(int cue_id, audiolib_params* passed_params, audiolib_result* error);
+
+    //audiolib_result __cdecl audiolib_cue_get_id(const char *cue_name, int *caller_cue_id) //0x0008DC20
+    using F_audiolib_cue_get_id = audiolib_result(__cdecl*)(const char* cue_name, int* caller_cue_id);
+
+    //audiolib_result __cdecl audiolib_play_fade_out(int play_id, const int fade_time_ms) //0x00094AD0
+    using F_audiolib_play_fade_out = audiolib_result(__cdecl*)(int play_id, const int fade_time_ms);
+
     class RfgFunctions
     {
     public:
@@ -249,5 +259,9 @@ namespace rfg
         F_human_teleport_unsafe human_teleport_unsafe = nullptr;
         F_hud_hide hud_hide = nullptr;
         F_game_render_set_fog_enabled game_render_set_fog_enabled = nullptr;
+
+        F_audiolib_cue_play audiolib_cue_play = nullptr;
+        F_audiolib_cue_get_id audiolib_cue_get_id = nullptr;
+        F_audiolib_play_fade_out audiolib_play_fade_out = nullptr;
     };
 }
