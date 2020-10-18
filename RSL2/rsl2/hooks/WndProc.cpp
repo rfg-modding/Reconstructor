@@ -86,7 +86,20 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
             globalState->DrawRfgMemoryTracker = !globalState->DrawRfgMemoryTracker;
         case VK_F4:
             globalState->DrawRSLDebugOverlay = !globalState->DrawRSLDebugOverlay;
-        
+        //case VK_F5:
+        //    *globalState->LOS_blocker_debug = !(*globalState->LOS_blocker_debug);
+        //case VK_F6:
+        //    *globalState->Air_bomb_debug = !(*globalState->Air_bomb_debug);
+        //case VK_F7:
+        //    *globalState->Activity_register_damage_debug = !(*globalState->Activity_register_damage_debug);
+        //case VK_F8:
+        //    *globalState->Tod_show_sun_path = !(*globalState->Tod_show_sun_path);
+        //case VK_F9:
+        //    *globalState->Player_hold_debug = !(*globalState->Player_hold_debug);
+        case VK_F5:
+            *globalState->Salvage_debug = !(*globalState->Salvage_debug);
+
+
         case VK_NUMPAD1:
             ToggleHud();
             break;

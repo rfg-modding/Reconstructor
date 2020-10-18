@@ -7,6 +7,7 @@
 #include "RFGR_Types/rfg/Memory.h"
 #include "RFGR_Types/rfg/Camera.h"
 #include "RFGR_Types/rfg/Audiolib.h"
+#include "RFGR_Types/rfg/Weapon.h"
 
 //Forward declarations
 struct human;
@@ -194,6 +195,33 @@ namespace rfg
     //audiolib_result __cdecl audiolib_play_fade_out(int play_id, const int fade_time_ms) //0x00094AD0
     using F_audiolib_play_fade_out = audiolib_result(__cdecl*)(int play_id, const int fade_time_ms);
 
+    //int __cdecl air_bomb_start(air_bomb_info *ab_info, unsigned int target_handle, unsigned int origin_handle, bool following) //0x0035C770
+    using F_air_bomb_start = int(__cdecl*)(air_bomb_info* ab_info, unsigned int target_handle, unsigned int origin_handle, bool following);
+
+    //void __cdecl air_bomb_stop(air_bomb_handle handle) //0x0035C810
+    using F_air_bomb_stop = void(__cdecl*)(air_bomb_handle handle);
+
+    //void __cdecl air_bomb_stop_all() //0x0035CA20
+    using F_air_bomb_stop_all = void(__cdecl*)();
+
+    //void __cdecl los_blocker_render_debug() //0x002ED680
+    using F_los_blocker_render_debug = void(__cdecl*)();
+
+    //void __cdecl air_bomb_render_debug() //0x00372970
+    using F_air_bomb_render_debug = void(__cdecl*)();
+
+    //void __cdecl activity_register_damage_render_debug() //0x00385860
+    using F_activity_register_damage_render_debug = void(__cdecl*)();
+
+    //void __cdecl game_time_of_day_render_debug() //0x003E97B0
+    using F_game_time_of_day_render_debug = void(__cdecl*)();
+
+    //void __cdecl player_hold_render_debug() //0x00611590
+    using F_player_hold_render_debug = void(__cdecl*)();
+
+    //void __cdecl salvage_render_debug() //0x00672100
+    using F_salvage_render_debug = void(__cdecl*)();
+
     class RfgFunctions
     {
     public:
@@ -263,5 +291,16 @@ namespace rfg
         F_audiolib_cue_play audiolib_cue_play = nullptr;
         F_audiolib_cue_get_id audiolib_cue_get_id = nullptr;
         F_audiolib_play_fade_out audiolib_play_fade_out = nullptr;
+
+        F_air_bomb_start air_bomb_start = nullptr;
+        F_air_bomb_stop air_bomb_stop = nullptr;
+        F_air_bomb_stop_all air_bomb_stop_all = nullptr;
+
+        F_los_blocker_render_debug los_blocker_render_debug = nullptr;
+        F_air_bomb_render_debug air_bomb_render_debug = nullptr;
+        F_activity_register_damage_render_debug activity_register_damage_render_debug = nullptr;
+        F_game_time_of_day_render_debug game_time_of_day_render_debug = nullptr;
+        F_player_hold_render_debug player_hold_render_debug = nullptr;
+        F_salvage_render_debug salvage_render_debug = nullptr;
     };
 }

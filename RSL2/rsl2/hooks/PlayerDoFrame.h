@@ -24,6 +24,9 @@ FunHook<void(player*)> PlayerDoFrame_hook
         ZoneScopedN("PlayerDoFrame");
 #endif
         object* playerObj = reinterpret_cast<object*>(player);
+        human* playerAsHuman = (human*)playerObj;
+        playerAsHuman->hflags.invulnerable = true;
+        playerAsHuman->move_speed = 50.0f;
 
         //Todo: Provide a per-frame callback that stuff like CameraUpdate can be ran via. Sticking everything in this hook isn't sustainable
         //Update camera

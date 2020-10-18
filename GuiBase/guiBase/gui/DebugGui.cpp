@@ -53,7 +53,7 @@ void DebugGui_DoFrame(IRSL2* rsl2)
     ImGui::Separator();
 
     rfg::RfgFunctions* Functions = rsl2->GetRfgFunctions();
-    
+
     static string input;
     ImGui::InputText("Custom sound name", &input);
     ImGui::SameLine();
@@ -66,6 +66,7 @@ void DebugGui_DoFrame(IRSL2* rsl2)
         Functions->audiolib_play_fade_out(lastSoundPlayed, 100);
     }
 
+    ImGui::BeginChild("##Sound presets list", ImVec2(0, 0), true);
     if (ImGui::CollapsingHeader("Known sounds"))
     {
         for (const char* presetName : SoundPresets)
@@ -76,6 +77,119 @@ void DebugGui_DoFrame(IRSL2* rsl2)
             }
         }
     }
+    ImGui::EndChild();
+    
+
+    ImGui::Separator();
+    ImGui::PushFont(globalState->FontLarge);
+    ImGui::Text(ICON_FA_PLANE_ARRIVAL " Air bombs test");
+    ImGui::PopFont();
+    ImGui::Separator();
+
+    //template<class T>
+    //T OffsetPtr(unsigned long Offset)
+    //{
+    //    static RSL2_GlobalState* globalState = GetGlobalState();
+    //    if (globalState->ModuleBase == 0)
+    //    {
+    //        globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
+    //    }
+    //    return reinterpret_cast<T>(globalState->ModuleBase + Offset);
+    //}
+
+    static air_bomb_info customAirBomb;
+    static bool firstRun = true;
+    static u32 targetObjectHandle = 0xFFFFFFFF;
+    static int lastAirBomb = -1;
+    if (firstRun)
+    {
+        //Todo: Use OffsetPtr<T> here
+        //Todo: Come up with better way of initing these things post RSL2.dll init so their values aren't null like they might be at game start
+        globalState->NumAirBombInfos = reinterpret_cast<u32*>(globalState->ModuleBase + 0x01E28610);
+        auto airBombInfosPtr = reinterpret_cast<air_bomb_info**>(globalState->ModuleBase + 0x01E2860C);
+        globalState->AirBombInfos.Init(*airBombInfosPtr, *globalState->NumAirBombInfos, *globalState->NumAirBombInfos, "AirBombInfos");
+
+        customAirBomb = globalState->AirBombInfos[0];
+        firstRun = false;
+    }
+
+    ImGui::PushItemWidth(250.0f);
+    ImGui::InputScalar("Target handle", ImGuiDataType_U32, &targetObjectHandle);
+    ImGui::SameLine();
+    if (ImGui::Button("Player aim"))
+    {
+        targetObjectHandle = globalState->Player->aim_target;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Player handle"))
+    {
+        targetObjectHandle = globalState->Player->handle;
+    }
+    if (ImGui::Button("Start air bomb"))
+    {
+        lastAirBomb = Functions->air_bomb_start(&customAirBomb, targetObjectHandle, globalState->Player->handle, false);
+    }
+    if (ImGui::Button("Stop last air bomb"))
+    {
+        if (lastAirBomb != -1)
+        {
+            Functions->air_bomb_stop((air_bomb_handle)lastAirBomb);
+        }
+    }
+    if (ImGui::Button("Stop all air bombs"))
+    {
+        Functions->air_bomb_stop_all();
+    }
+
+    if (ImGui::TreeNode("Spawn settings"))
+    {
+        ImGui::Separator();
+        ImGui::PushFont(globalState->FontLarge);
+        ImGui::Text("Air bomb info:");
+        ImGui::PopFont();
+        ImGui::Separator();
+
+        ImGui::PushItemWidth(250.0f);
+        ImGui::Text("name: %s", customAirBomb.name);
+        //Todo: Add weapon_info combo here. Presets don't use any interesting projectiles
+        //Todo: Add projectile spawner
+        ImGui::InputInt("num_projectiles", &customAirBomb.num_projectiles);
+        ImGui::InputFloat("min_spread", &customAirBomb.min_spread);
+        ImGui::InputFloat("max_spread", &customAirBomb.max_spread);
+        ImGui::InputFloat("min_projectile_delay", &customAirBomb.min_projectile_delay);
+        ImGui::InputFloat("max_projectile_delay", &customAirBomb.max_projectile_delay);
+        ImGui::InputFloat("height", &customAirBomb.height);
+        ImGui::InputFloat("radius", &customAirBomb.radius);
+        ImGui::InputFloat("veh_radius", &customAirBomb.veh_radius);
+        ImGui::InputFloat("rate_min", &customAirBomb.rate_min);
+        ImGui::InputFloat("rate_max", &customAirBomb.rate_max);
+        ImGui::InputFloat("projectile_travel_time", &customAirBomb.projectile_travel_time);
+        ImGui::InputFloat("angle_min", &customAirBomb.angle_min);
+        ImGui::InputFloat("angle_max", &customAirBomb.angle_max);
+        ImGui::InputFloat("min_player_fvec_dot_prod", &customAirBomb.min_player_fvec_dot_prod);
+
+        ImGui::TreePop();
+    }
+
+    if (globalState->AirBombInfos.Initialized() && ImGui::TreeNode("Preset air bombs"))
+    {
+        ImGui::Columns(2);
+        ImGui::SetColumnWidth(0, 260.0f);
+        for (int i = 0; i < globalState->AirBombInfos.Size(); i++)
+        {
+            ImGui::BulletText("%s", globalState->AirBombInfos[i].name);
+            ImGui::SameLine();
+            ImGui::NextColumn();
+            ImGui::SetColumnWidth(1, 180.0f);
+
+            if (ImGui::Button((string("Copy values##") + std::to_string(i)).c_str()))
+                customAirBomb = globalState->AirBombInfos[i];
+
+            ImGui::NextColumn();
+        }
+        ImGui::TreePop();
+    }
+    ImGui::Columns(1);
 
     ImGui::End();
 }

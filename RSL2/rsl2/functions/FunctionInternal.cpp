@@ -71,6 +71,17 @@ void InitFunctionPointers()
     RegisterFunction(rfg::Functions.audiolib_cue_play, 0x0009F100);
     RegisterFunction(rfg::Functions.audiolib_cue_get_id, 0x0008DC20);
     RegisterFunction(rfg::Functions.audiolib_play_fade_out, 0x00094AD0);
+
+    RegisterFunction(rfg::Functions.air_bomb_start, 0x0035C770);
+    RegisterFunction(rfg::Functions.air_bomb_stop, 0x0035C810);
+    RegisterFunction(rfg::Functions.air_bomb_stop_all, 0x0035CA20);
+
+    RegisterFunction(rfg::Functions.los_blocker_render_debug, 0x002ED680);
+    RegisterFunction(rfg::Functions.air_bomb_render_debug, 0x00372970);
+    RegisterFunction(rfg::Functions.activity_register_damage_render_debug, 0x00385860);
+    RegisterFunction(rfg::Functions.game_time_of_day_render_debug, 0x003E97B0);
+    RegisterFunction(rfg::Functions.player_hold_render_debug, 0x00611590);
+    RegisterFunction(rfg::Functions.salvage_render_debug, 0x00672100);
 }
 
 rfg::RfgFunctions* GetRfgFunctions()

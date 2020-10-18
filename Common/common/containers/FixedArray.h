@@ -24,7 +24,7 @@ public:
     {
         if (!initialized_)
         {
-            throw std::exception("Error! Tried accessing" + name_ + "before it was initialized. You can use .Initialized() to check if this container is initialized before using it.");
+            throw std::runtime_error("Error! Tried accessing" + name_ + "before it was initialized. You can use .Initialized() to check if this container is initialized before using it.");
         }
         return arrayStart_[index];
     }

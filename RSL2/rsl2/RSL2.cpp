@@ -59,6 +59,17 @@ extern "C"
         globalState->RfgMenusList = OffsetPtr<farray<ui_menu*, 8>*>(0x1266698); //0x01266698, Menus
         TryHideInvalidMainMenuOptions();
 
+        globalState->NumAirBombInfos = OffsetPtr<u32*>(0x01E28610);
+        auto airBombInfosPtr = OffsetPtr<air_bomb_info**>(0x01E2860C);
+        globalState->AirBombInfos.Init(*airBombInfosPtr, *globalState->NumAirBombInfos, *globalState->NumAirBombInfos, "AirBombInfos");
+
+        globalState->LOS_blocker_debug = OffsetPtr<bool*>(0x019ED4B7);
+        globalState->Air_bomb_debug = OffsetPtr<bool*>(0x01E28601);
+        globalState->Activity_register_damage_debug = OffsetPtr<bool*>(0x01E285C8);
+        globalState->Tod_show_sun_path = OffsetPtr<bool*>(0x02132928);
+        globalState->Player_hold_debug = OffsetPtr<bool*>(0x02C2E0D7);
+        globalState->Salvage_debug = OffsetPtr<bool*>(0x02C2E225);
+
         if (kiero::init(kiero::RenderType::D3D11) != kiero::Status::Success)
         {
             printf("Error! Failed to init kiero in RSdL2.dll!\n"); 
