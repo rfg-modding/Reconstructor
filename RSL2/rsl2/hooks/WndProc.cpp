@@ -4,6 +4,7 @@
 #include "RFGR_Types/rfg/Camera.h"
 #include "rsl2/hooks/Camera.h"
 #include "rsl2/functions/FunctionsInternal.h"
+#include "RFGR_Types/rfg/Player.h"
 
 //Functions for locking / unlocking the games auto-centering and hiding of the mouse. For imgui interaction with game running
 bool MouseUnlocked = false;
@@ -98,7 +99,13 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
         //    *globalState->Player_hold_debug = !(*globalState->Player_hold_debug);
         case VK_F5:
             *globalState->Salvage_debug = !(*globalState->Salvage_debug);
-
+        case VK_F6:
+            if (*globalState->Player_max_movement_speed_override < 49.0f)
+                *globalState->Player_max_movement_speed_override = 50.0f;
+            else
+                *globalState->Player_max_movement_speed_override = 0.0f;
+            
+            break;
 
         case VK_NUMPAD1:
             ToggleHud();

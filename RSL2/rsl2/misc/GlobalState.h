@@ -58,12 +58,17 @@ public:
     FixedArray<air_bomb_info> AirBombInfos;
     u32* NumAirBombInfos = nullptr;
 
+    FixedArray<weapon_info> WeaponInfos;
+    u32* NumWeaponInfos = nullptr;
+
     bool* LOS_blocker_debug = nullptr;
     bool* Air_bomb_debug = nullptr; //0x01E28601
     bool* Activity_register_damage_debug = nullptr; //0x01E285C8
     bool* Tod_show_sun_path = nullptr; //0x02132928
     bool* Player_hold_debug = nullptr; //0x02C2E0D7
     bool* Salvage_debug = nullptr; //0x02C2E225
+    float* Player_max_movement_speed_override = nullptr; //0x02C2E0B4
+    float* SpeedScale = nullptr; //0x0125BBD4
 };
 
 extern RSL2_GlobalState* GetGlobalState();

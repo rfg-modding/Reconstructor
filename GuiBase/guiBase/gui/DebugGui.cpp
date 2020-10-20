@@ -30,6 +30,20 @@ void PlaySound(const char* name, rfg::RfgFunctions* functions)
     lastSoundPlayed = playId;
 }
 
+int GetWeaponInfoIndex(const string& name, RSL2_GlobalState* globalState)
+{
+    if (!globalState->WeaponInfos.Initialized())
+        return 0;
+
+    for (int i = 0; i < globalState->WeaponInfos.Size(); i++)
+    {
+        if (name == globalState->WeaponInfos[i].name)
+            return i;
+    }
+
+    return 0;
+}
+
 void DebugGui_DoFrame(IRSL2* rsl2)
 {
     RSL2_GlobalState* globalState = rsl2->GetGlobalState();
@@ -101,6 +115,7 @@ void DebugGui_DoFrame(IRSL2* rsl2)
     static bool firstRun = true;
     static u32 targetObjectHandle = 0xFFFFFFFF;
     static int lastAirBomb = -1;
+    static int projectileInfoIndex = 0;
     if (firstRun)
     {
         //Todo: Use OffsetPtr<T> here
@@ -109,7 +124,12 @@ void DebugGui_DoFrame(IRSL2* rsl2)
         auto airBombInfosPtr = reinterpret_cast<air_bomb_info**>(globalState->ModuleBase + 0x01E2860C);
         globalState->AirBombInfos.Init(*airBombInfosPtr, *globalState->NumAirBombInfos, *globalState->NumAirBombInfos, "AirBombInfos");
 
+        globalState->NumWeaponInfos = reinterpret_cast<u32*>(globalState->ModuleBase + 0x03481C94);
+        auto weaponInfosPtr = reinterpret_cast<weapon_info**>(globalState->ModuleBase + 0x03481C9C);
+        globalState->WeaponInfos.Init(*weaponInfosPtr, *globalState->NumWeaponInfos, *globalState->NumWeaponInfos, "WeaponInfos");
+
         customAirBomb = globalState->AirBombInfos[0];
+        projectileInfoIndex = GetWeaponInfoIndex(globalState->AirBombInfos[0].name, globalState);
         firstRun = false;
     }
 
@@ -141,6 +161,7 @@ void DebugGui_DoFrame(IRSL2* rsl2)
         Functions->air_bomb_stop_all();
     }
 
+    //Todo: Add projectile spawner
     if (ImGui::TreeNode("Spawn settings"))
     {
         ImGui::Separator();
@@ -152,7 +173,35 @@ void DebugGui_DoFrame(IRSL2* rsl2)
         ImGui::PushItemWidth(250.0f);
         ImGui::Text("name: %s", customAirBomb.name);
         //Todo: Add weapon_info combo here. Presets don't use any interesting projectiles
-        //Todo: Add projectile spawner
+        static ImGuiComboFlags flags = 0;
+        ImGui::CheckboxFlags("ImGuiComboFlags_PopupAlignLeft", (unsigned int*)&flags, ImGuiComboFlags_PopupAlignLeft);
+        ImGui::SameLine();
+        if (ImGui::CheckboxFlags("ImGuiComboFlags_NoArrowButton", (unsigned int*)&flags, ImGuiComboFlags_NoArrowButton))
+            flags &= ~ImGuiComboFlags_NoPreview;     // Clear the other flag, as we cannot combine both
+        if (ImGui::CheckboxFlags("ImGuiComboFlags_NoPreview", (unsigned int*)&flags, ImGuiComboFlags_NoPreview))
+            flags &= ~ImGuiComboFlags_NoArrowButton; // Clear the other flag, as we cannot combine both
+
+        const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" };
+        static const char* item_current = globalState->WeaponInfos[projectileInfoIndex].name;            // Here our selection is a single pointer stored outside the object.
+        if (ImGui::BeginCombo("Projectile", item_current, flags)) // The second parameter is the label previewed before opening the combo.
+        {
+            for (int n = 0; n < globalState->WeaponInfos.Size(); n++)
+            {
+                if (globalState->WeaponInfos[n].ammo_type != WEAPON_AMMO_TYPE_PROJECTILE)
+                    continue;
+
+                bool is_selected = (item_current == globalState->WeaponInfos[n].name);
+                if (ImGui::Selectable(globalState->WeaponInfos[n].name, is_selected))
+                {
+                    customAirBomb.w_info = &globalState->WeaponInfos[n];
+                    item_current = globalState->WeaponInfos[n].name;
+                }
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+            }
+            ImGui::EndCombo();
+        }
+
         ImGui::InputInt("num_projectiles", &customAirBomb.num_projectiles);
         ImGui::InputFloat("min_spread", &customAirBomb.min_spread);
         ImGui::InputFloat("max_spread", &customAirBomb.max_spread);
@@ -183,13 +232,40 @@ void DebugGui_DoFrame(IRSL2* rsl2)
             ImGui::SetColumnWidth(1, 180.0f);
 
             if (ImGui::Button((string("Copy values##") + std::to_string(i)).c_str()))
+            {
                 customAirBomb = globalState->AirBombInfos[i];
+                projectileInfoIndex = GetWeaponInfoIndex(globalState->AirBombInfos[i].name, globalState);
+            }
 
             ImGui::NextColumn();
         }
         ImGui::TreePop();
     }
     ImGui::Columns(1);
+
+    ImGui::Separator();
+    ImGui::PushFont(globalState->FontLarge);
+    ImGui::Text(ICON_FA_WRENCH " Misc tweaks");
+    ImGui::PopFont();
+    ImGui::Separator();
+    
+    //Game speed multiplier
+    ImGui::SetNextItemWidth(230.0f);
+    ImGui::InputFloat("Game speed scale", globalState->SpeedScale);
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##ResetButtonSpeedScale"))
+        *globalState->SpeedScale = 1.0f;
+
+    if (ImGui::Button("0.01")) { *globalState->SpeedScale = 0.01f; } ImGui::SameLine();
+    if (ImGui::Button("0.1")) { *globalState->SpeedScale = 0.1f; } ImGui::SameLine();
+    if (ImGui::Button("0.5")) { *globalState->SpeedScale = 0.5f; } ImGui::SameLine();
+    if (ImGui::Button("1.0")) { *globalState->SpeedScale = 1.0f; } ImGui::SameLine();
+    if (ImGui::Button("1.5")) { *globalState->SpeedScale = 1.5f; } ImGui::SameLine();
+    if (ImGui::Button("2.0")) { *globalState->SpeedScale = 2.0f; } ImGui::SameLine();
+    if (ImGui::Button("10.0")) { *globalState->SpeedScale = 10.0f; } ImGui::SameLine();
+
+    //ImGui::SameLine();
+    //Gui::ShowHelpMarker("1.0 = vanilla, # < 1.0 = slo-mo, # > 1.0 = \"fast-mo\"");
 
     ImGui::End();
 }
@@ -220,25 +296,25 @@ void DebugOverlay_DoFrame(IRSL2* rsl2)
     if (corner != -1)
         window_flags |= ImGuiWindowFlags_NoMove;
 
-    if (ImGui::Begin("Example: Simple overlay", &p_open, window_flags))
-    {
-        ImGui::Text("FPS: %.2f", io.Framerate);
-        ImGui::Separator();
-        if (globalState->Player)
-            ImGui::Text("Player Position: (%.2f,%.2f, %.2f)", globalState->Player->pos.x, globalState->Player->pos.y, globalState->Player->pos.z);
-        else
-            ImGui::Text("Player Position: <invalid>");
+    //if (ImGui::Begin("Example: Simple overlay", &p_open, window_flags))
+    //{
+    //    ImGui::Text("FPS: %.2f", io.Framerate);
+    //    ImGui::Separator();
+    //    if (globalState->Player)
+    //        ImGui::Text("Player Position: (%.2f,%.2f, %.2f)", globalState->Player->pos.x, globalState->Player->pos.y, globalState->Player->pos.z);
+    //    else
+    //        ImGui::Text("Player Position: <invalid>");
 
-        if (ImGui::BeginPopupContextWindow())
-        {
-            if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;
-            if (ImGui::MenuItem("Top-left", NULL, corner == 0)) corner = 0;
-            if (ImGui::MenuItem("Top-right", NULL, corner == 1)) corner = 1;
-            if (ImGui::MenuItem("Bottom-left", NULL, corner == 2)) corner = 2;
-            if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
-            if (p_open && ImGui::MenuItem("Close")) p_open = false;
-            ImGui::EndPopup();
-        }
-    }
-    ImGui::End();
+    //    if (ImGui::BeginPopupContextWindow())
+    //    {
+    //        if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;
+    //        if (ImGui::MenuItem("Top-left", NULL, corner == 0)) corner = 0;
+    //        if (ImGui::MenuItem("Top-right", NULL, corner == 1)) corner = 1;
+    //        if (ImGui::MenuItem("Bottom-left", NULL, corner == 2)) corner = 2;
+    //        if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
+    //        if (p_open && ImGui::MenuItem("Close")) p_open = false;
+    //        ImGui::EndPopup();
+    //    }
+    //}
+    //ImGui::End();
 }

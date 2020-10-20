@@ -57,11 +57,15 @@ extern "C"
         globalState->World = OffsetPtr<world*>(0x02B97490);
         globalState->MainCamera = OffsetPtr<rfg_camera*>(0x019E3B50);
         globalState->RfgMenusList = OffsetPtr<farray<ui_menu*, 8>*>(0x1266698); //0x01266698, Menus
-        TryHideInvalidMainMenuOptions();
+        //TryHideInvalidMainMenuOptions();
 
         globalState->NumAirBombInfos = OffsetPtr<u32*>(0x01E28610);
         auto airBombInfosPtr = OffsetPtr<air_bomb_info**>(0x01E2860C);
         globalState->AirBombInfos.Init(*airBombInfosPtr, *globalState->NumAirBombInfos, *globalState->NumAirBombInfos, "AirBombInfos");
+
+        globalState->NumWeaponInfos = OffsetPtr<u32*>(0x03481C94);
+        auto weaponInfosPtr = OffsetPtr<weapon_info**>(0x03481C9C);
+        globalState->WeaponInfos.Init(*weaponInfosPtr, *globalState->NumWeaponInfos, *globalState->NumWeaponInfos, "WeaponInfos");
 
         globalState->LOS_blocker_debug = OffsetPtr<bool*>(0x019ED4B7);
         globalState->Air_bomb_debug = OffsetPtr<bool*>(0x01E28601);
@@ -69,6 +73,8 @@ extern "C"
         globalState->Tod_show_sun_path = OffsetPtr<bool*>(0x02132928);
         globalState->Player_hold_debug = OffsetPtr<bool*>(0x02C2E0D7);
         globalState->Salvage_debug = OffsetPtr<bool*>(0x02C2E225);
+        globalState->Player_max_movement_speed_override = OffsetPtr<float*>(0x02C2E0B4);
+        globalState->SpeedScale = OffsetPtr<float*>(0x0125BBD4);
 
         if (kiero::init(kiero::RenderType::D3D11) != kiero::Status::Success)
         {
