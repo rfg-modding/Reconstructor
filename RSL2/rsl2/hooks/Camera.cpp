@@ -83,7 +83,7 @@ bool IsCameraLocked()
     return CameraLocked;
 }
 
-void CameraMove(vector& translation)
+void CameraMove(const vector& translation)
 {
     CameraTargetPos += translation;
 }
