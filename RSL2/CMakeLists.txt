@@ -15,6 +15,8 @@ file(GLOB_RECURSE SOURCES
     ${CMAKE_SOURCE_DIR}/RSL2/rsl2/*.h
 )
 
+add_compile_definitions(IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT IMGUI_IMPL_WIN32_DISABLE_GAMEPAD)
+
 # Add source to this project's DLL
 add_library(RSL2 SHARED ${SOURCES}
             ${CMAKE_SOURCE_DIR}/Dependencies/subhook/subhook.c
@@ -22,8 +24,9 @@ add_library(RSL2 SHARED ${SOURCES}
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_demo.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_draw.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_widgets.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_win32.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_dx11.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_tables.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/backends/imgui_impl_win32.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/backends/imgui_impl_dx11.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/kiero/kiero.cpp
             )
 

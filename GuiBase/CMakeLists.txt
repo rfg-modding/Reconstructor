@@ -15,15 +15,18 @@ file(GLOB_RECURSE SOURCES
     ${CMAKE_SOURCE_DIR}/GuiBase/guiBase/*.h
 )
 
+add_compile_definitions(IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT IMGUI_IMPL_WIN32_DISABLE_GAMEPAD)
+
 # Add source to this project's DLL
 add_library(GuiBase SHARED ${SOURCES}
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_demo.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_draw.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_widgets.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_tables.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/misc/cpp/imgui_stdlib.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_win32.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/examples/imgui_impl_dx11.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/backends/imgui_impl_win32.cpp
+            ${CMAKE_SOURCE_DIR}/dependencies/imgui/backends/imgui_impl_dx11.cpp
             )
 
 target_link_libraries(GuiBase PRIVATE RFGR_Types)

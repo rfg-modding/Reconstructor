@@ -2,6 +2,8 @@
 cmake_minimum_required (VERSION 3.8)
 project (RSL2Solution)
 
+add_compile_definitions(IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT IMGUI_IMPL_WIN32_DISABLE_GAMEPAD)
+
 # Whether or not to compile in tracy profiler
 set(COMPILE_IN_PROFILER FALSE)
 if(COMPILE_IN_PROFILER)
