@@ -8,6 +8,7 @@
 #include "RFGR_Types/rfg/Camera.h"
 #include "RFGR_Types/rfg/Audiolib.h"
 #include "RFGR_Types/rfg/Weapon.h"
+#include "RFGR_Types/rfg/stream2/cfile.h"
 
 //Forward declarations
 struct human;
@@ -222,6 +223,12 @@ namespace rfg
     //void __cdecl salvage_render_debug() //0x00672100
     using F_salvage_render_debug = void(__cdecl*)();
 
+    //cfile *__cdecl cf_open(char *buf, unsigned int buf_size, const char *open_mode, vlib_platform disk_platform) //0x001B5BB0
+    using F_cf_open = cfile*(__cdecl*)(char* buf, unsigned int buf_size, const char* open_mode, vlib_platform disk_platform);
+
+    //void __cdecl scripting_system_write_help_file(const char *filename) //0x00737B50
+    using F_scripting_system_write_help_file = void(__cdecl*)(const char* filename);
+
     class RfgFunctions
     {
     public:
@@ -302,5 +309,8 @@ namespace rfg
         F_game_time_of_day_render_debug game_time_of_day_render_debug = nullptr;
         F_player_hold_render_debug player_hold_render_debug = nullptr;
         F_salvage_render_debug salvage_render_debug = nullptr;
+
+        F_cf_open cf_open = nullptr;
+        F_scripting_system_write_help_file scripting_system_write_help_file = nullptr;
     };
 }

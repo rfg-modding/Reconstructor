@@ -82,6 +82,9 @@ void InitFunctionPointers()
     RegisterFunction(rfg::Functions.game_time_of_day_render_debug, 0x003E97B0);
     RegisterFunction(rfg::Functions.player_hold_render_debug, 0x00611590);
     RegisterFunction(rfg::Functions.salvage_render_debug, 0x00672100);
+
+    RegisterFunction(rfg::Functions.cf_open, 0x001B5BB0);
+    RegisterFunction(rfg::Functions.scripting_system_write_help_file, 0x00737B50);
 }
 
 rfg::RfgFunctions* GetRfgFunctions()
