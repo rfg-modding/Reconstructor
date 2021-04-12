@@ -11,8 +11,25 @@ struct TypeIdentity
     using type = T;
 };
 
-void WriteMem(unsigned addr, const void* data, unsigned size);
-void UnprotectMem(void* ptr, unsigned len);
+void WriteMem(unsigned addr, const void* data, unsigned size)
+{
+    DWORD old_protect;
+
+    if (!VirtualProtect(reinterpret_cast<void*>(addr), size, PAGE_EXECUTE_READWRITE, &old_protect)) {
+        printf("Warning: VirtualProtect failed: addr %x size %x error %lu\n", addr, size, GetLastError());
+    }
+    std::memcpy(reinterpret_cast<void*>(addr), data, size);
+    VirtualProtect(reinterpret_cast<void*>(addr), size, old_protect, NULL);
+}
+
+void UnprotectMem(void* ptr, unsigned len)
+{
+    DWORD old_protect;
+    if (!VirtualProtect(ptr, len, PAGE_EXECUTE_READWRITE, &old_protect)) {
+        printf("Warning: VirtualProtect failed: addr %p size %x error %lu\n", ptr, len, GetLastError());
+    }
+}
+
 
 template<typename T>
 void WriteMem(uintptr_t addr, typename TypeIdentity<T>::type value)

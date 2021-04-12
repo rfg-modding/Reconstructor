@@ -53,7 +53,7 @@ public:
         m_subhook.Install(reinterpret_cast<void*>(m_addr), m_code_buf);
         void* trampoline = m_subhook.GetTrampoline();
         if (!trampoline)
-            WARN("trampoline is null for 0x%X", m_addr);
+            printf("Warning: trampoline is null for 0x%X\n", m_addr);
 
         AsmWriter asm_writter{m_code_buf};
         EmitCode(asm_writter, trampoline);

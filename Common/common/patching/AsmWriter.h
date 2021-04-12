@@ -4,7 +4,7 @@
 #pragma once
 #include "common/patching/AsmOpcodes.h"
 #include "common/patching/MemUtils.h"
-#include "common/patching/ShortTypes.h"
+#include "common/Typedefs.h"
 #include <cassert>
 #include <optional>
 

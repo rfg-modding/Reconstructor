@@ -36,7 +36,7 @@ public:
     [[nodiscard]] T* GetRawPointer() const { return arrayStart_; };
 
     T* begin() const { return arrayStart_; }
-    T* end() const { return arrayStart_ + numberOfElements_ };
+    T* end() const { return arrayStart_ + numberOfElements_; };
 
 private:
     T* arrayStart_ = nullptr;
