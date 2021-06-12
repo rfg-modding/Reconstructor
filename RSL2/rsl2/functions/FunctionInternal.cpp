@@ -76,15 +76,16 @@ void InitFunctionPointers()
     RegisterFunction(rfg::Functions.air_bomb_stop, 0x0035C810);
     RegisterFunction(rfg::Functions.air_bomb_stop_all, 0x0035CA20);
 
+    RegisterFunction(rfg::Functions.cf_open, 0x001B5BB0);
+    RegisterFunction(rfg::Functions.scripting_system_write_help_file, 0x00737B50);
+
     RegisterFunction(rfg::Functions.los_blocker_render_debug, 0x002ED680);
     RegisterFunction(rfg::Functions.air_bomb_render_debug, 0x00372970);
     RegisterFunction(rfg::Functions.activity_register_damage_render_debug, 0x00385860);
     RegisterFunction(rfg::Functions.game_time_of_day_render_debug, 0x003E97B0);
     RegisterFunction(rfg::Functions.player_hold_render_debug, 0x00611590);
     RegisterFunction(rfg::Functions.salvage_render_debug, 0x00672100);
-
-    RegisterFunction(rfg::Functions.cf_open, 0x001B5BB0);
-    RegisterFunction(rfg::Functions.scripting_system_write_help_file, 0x00737B50);
+    RegisterFunction(rfg::Functions.rfg_rbb_render_debug, 0x0031FC40);
 }
 
 rfg::RfgFunctions* GetRfgFunctions()

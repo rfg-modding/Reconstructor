@@ -12,8 +12,8 @@
 
 //Forward declarations
 struct human;
+struct rfg_rbb_node;
 
-//Todo: Organize this properly
 namespace rfg
 {
     //game_state __cdecl gameseq_set_state(game_state state, bool uninterruptible)
@@ -205,6 +205,12 @@ namespace rfg
     //void __cdecl air_bomb_stop_all() //0x0035CA20
     using F_air_bomb_stop_all = void(__cdecl*)();
 
+    //cfile *__cdecl cf_open(char *buf, unsigned int buf_size, const char *open_mode, vlib_platform disk_platform) //0x001B5BB0
+    using F_cf_open = cfile * (__cdecl*)(char* buf, unsigned int buf_size, const char* open_mode, vlib_platform disk_platform);
+
+    //void __cdecl scripting_system_write_help_file(const char *filename) //0x00737B50
+    using F_scripting_system_write_help_file = void(__cdecl*)(const char* filename);
+
     //void __cdecl los_blocker_render_debug() //0x002ED680
     using F_los_blocker_render_debug = void(__cdecl*)();
 
@@ -223,11 +229,8 @@ namespace rfg
     //void __cdecl salvage_render_debug() //0x00672100
     using F_salvage_render_debug = void(__cdecl*)();
 
-    //cfile *__cdecl cf_open(char *buf, unsigned int buf_size, const char *open_mode, vlib_platform disk_platform) //0x001B5BB0
-    using F_cf_open = cfile*(__cdecl*)(char* buf, unsigned int buf_size, const char* open_mode, vlib_platform disk_platform);
-
-    //void __cdecl scripting_system_write_help_file(const char *filename) //0x00737B50
-    using F_scripting_system_write_help_file = void(__cdecl*)(const char* filename);
+    //void __cdecl rfg_rbb_render_debug(rfg_rbb_node* tree) //0x0031FC40
+    using F_rfg_rbb_render_debug = void(__cdecl*)(rfg_rbb_node* tree);
 
     class RfgFunctions
     {
@@ -303,14 +306,29 @@ namespace rfg
         F_air_bomb_stop air_bomb_stop = nullptr;
         F_air_bomb_stop_all air_bomb_stop_all = nullptr;
 
-        F_los_blocker_render_debug los_blocker_render_debug = nullptr;
-        F_air_bomb_render_debug air_bomb_render_debug = nullptr;
-        F_activity_register_damage_render_debug activity_register_damage_render_debug = nullptr;
-        F_game_time_of_day_render_debug game_time_of_day_render_debug = nullptr;
-        F_player_hold_render_debug player_hold_render_debug = nullptr;
-        F_salvage_render_debug salvage_render_debug = nullptr;
-
         F_cf_open cf_open = nullptr;
         F_scripting_system_write_help_file scripting_system_write_help_file = nullptr;
+        
+        /*
+            Debug render functions: Only some work. Other either dont work at all or crash the game
+        */
+        //Doesn't appear to work. Shows values in bottom left corner of screen that are always 0
+        F_los_blocker_render_debug los_blocker_render_debug = nullptr;
+        //No visible effect
+        F_air_bomb_render_debug air_bomb_render_debug = nullptr;
+        //No visible effect
+        F_activity_register_damage_render_debug activity_register_damage_render_debug = nullptr;
+        //Crashes the game
+        F_game_time_of_day_render_debug game_time_of_day_render_debug = nullptr;
+        //No visible effect
+        F_player_hold_render_debug player_hold_render_debug = nullptr;
+        //Works. Shows a 3d string above each object in the world that you can collect salvage from
+        F_salvage_render_debug salvage_render_debug = nullptr;
+        //Sorta works but unusable. It seems to draw bounding boxes for some kind of collision tree buildings have.
+        //The problem is that they're rendered at the center of the world rather than relative to the object position and it's very laggy.
+        //There's a re-implementation in guiBase/debugDraw/debugDraw.cpp called DrawRfgRbbNode(). It fixes the position problem but is still laggy.
+        //At some point a tool could be added that would let you select a single building and display the bounding boxes for that to avoid perf issues.
+        //For the moment it's disabled though.
+        F_rfg_rbb_render_debug rfg_rbb_render_debug = nullptr;
     };
 }
