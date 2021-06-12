@@ -1,9 +1,10 @@
-﻿#include "common/windows/WindowsWrapper.h"
+#include "common/windows/WindowsWrapper.h"
 #include "common/patching/FunHook.h"
 #include "common/plugins/Plugin.h"
 #include "common/plugins/IHost.h"
 #include "hooks/PlayerDoFrame.h"
 #include "hooks/MiscHooks.h"
+#include "hooks/ui/MainMenuHooks.h"
 #include "functions/FunctionsInternal.h"
 #include "hooks/GrdRenderHooks.h"
 #include "hooks/RenderHooks.h"
@@ -56,8 +57,7 @@ extern "C"
         //Set global pointers
         globalState->World = OffsetPtr<world*>(0x02B97490);
         globalState->MainCamera = OffsetPtr<rfg_camera*>(0x019E3B50);
-        globalState->RfgMenusList = OffsetPtr<farray<ui_menu*, 8>*>(0x1266698); //0x01266698, Menus
-        //TryHideInvalidMainMenuOptions();
+        globalState->RfgMenusList = OffsetPtr<farray<ui_menu*, 8>*>(0x1266698);
 
         globalState->NumAirBombInfos = OffsetPtr<u32*>(0x01E28610);
         auto airBombInfosPtr = OffsetPtr<air_bomb_info**>(0x01E2860C);
@@ -129,6 +129,9 @@ extern "C"
         keen_getBuildVersionString_hook.SetAddr(globalState->ModuleBase + 0x00058740);
         keen_getBuildVersionString_hook.Install();
 
+        main_menu_process_hook.SetAddr(globalState->ModuleBase + 0x00513770);
+        main_menu_process_hook.Install();
+
         //Set export functions for this plugin
         FillExports();
         exportedFunctions.push_back({ &ExportInterface, "RSL2" });
@@ -160,6 +163,7 @@ extern "C"
         grd_bbox_oriented_hook.Remove();
         primitive_renderer_begin_deferredHook.Remove();
         keen_getBuildVersionString_hook.Remove();
+        main_menu_process_hook.Remove();
 
         //Relock mouse and camera so game has full control of them and patches are removed
         LockMouse();
