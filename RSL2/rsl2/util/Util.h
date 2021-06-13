@@ -56,11 +56,22 @@ static void ReloadXtbls()
 {
     RSL2_GlobalState* globalState = GetGlobalState();
     rfg::RfgFunctions* functions = GetRfgFunctions();
-    if (!globalState || !functions)
+    if (!globalState || !functions || !globalState->WeaponInfos.GetRawPointer())
         return;
 
+    //Reset weapon flags and explosions since weapons_read_table() doesn't
+    auto& weaponInfos = globalState->WeaponInfos;
+    for (u32 i = 0; i < weaponInfos.Size(); i++)
+    {
+        weapon_info& info = weaponInfos[i];
+        memset(&info.flags, 0, sizeof(weapon_info_flags));
+        info.m_explosion_info = nullptr;
+        info.m_ai_explosion_info = nullptr;
+    }
+    //Todo: Test all other weapon values to see if weapons_read_table() has any other it doesn't properly set
+
     functions->weapons_read_table(false, true, 0xFFFFFFFF);
-    /*Todo: Fix values that weapons_read_table doesn't update properly. Known values so far:
+}
 
 static void InitGlobals()
 {
