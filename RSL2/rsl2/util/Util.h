@@ -1,7 +1,8 @@
 #pragma once
 #include "rsl2/misc/GlobalState.h"
+#include "rsl2/functions/FunctionsInternal.h"
 
-std::string CharArrayToString(char* Array, int Size)
+static std::string CharArrayToString(char* Array, int Size)
 {
     std::string String;
     for (int i = 0; i < Size; i++)
@@ -15,13 +16,13 @@ std::string CharArrayToString(char* Array, int Size)
     return String;
 }
 
-std::string CharArrayToString(const char* Array, int Size)
+static std::string CharArrayToString(const char* Array, int Size)
 {
     return CharArrayToString(const_cast<char*>(Array), Size);
 }
 
 //Attempts to disable the main menu buttons for disabled features such as MP, LAN, and Wrecking Crew.
-void TryHideInvalidMainMenuOptions()
+static void TryHideInvalidMainMenuOptions()
 {
     RSL2_GlobalState* globalState = GetGlobalState();
     if (!globalState->RfgMenusList || !(*globalState->RfgMenusList)[0])
@@ -48,4 +49,19 @@ void TryHideInvalidMainMenuOptions()
             }
         }
     }
+}
+
+static void ReloadXtbls()
+{
+    RSL2_GlobalState* globalState = GetGlobalState();
+    rfg::RfgFunctions* functions = GetRfgFunctions();
+    if (!globalState || !functions)
+        return;
+
+    functions->weapons_read_table(false, true, 0xFFFFFFFF);
+    /*Todo: Fix values that weapons_read_table doesn't update properly. Known values so far:
+        - Weapon flags. If you remove a flag in the xtbl and reload it it's not removed from weapons in game
+        - Explosions. Removing an explosion in the xtbl doesn't remove it from weapons in game.
+        - Todo: Check other values and see if others aren't being updated properly
+    */ 
 }

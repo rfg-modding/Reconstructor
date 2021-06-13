@@ -239,6 +239,9 @@ namespace rfg
     //xml_element *__cdecl xml_parse_from_string(char *buf, mempool_base *dest, const char *filename_orig) //0x001BF870
     using F_xml_parse_from_string = xml_element*(__cdecl*)(char* buf, mempool_base* dest, const char* filename_orig);
 
+    //void __cdecl weapons_read_table(bool mp_override, bool refresh, int dlc_id) //0x007DF4D0
+    using F_weapons_read_table = void(__cdecl*)(bool mp_override, bool refresh, int dlc_id);
+
     class RfgFunctions
     {
     public:
@@ -340,5 +343,6 @@ namespace rfg
 
         F_game_enable_standard_access game_enable_standard_access = nullptr;
         F_xml_parse_from_string xml_parse_from_string = nullptr;
+        F_weapons_read_table weapons_read_table = nullptr;
     };
 }

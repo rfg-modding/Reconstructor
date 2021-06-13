@@ -89,6 +89,7 @@ void InitFunctionPointers()
 
     RegisterFunction(rfg::Functions.game_enable_standard_access, 0x001D2650);
     RegisterFunction(rfg::Functions.xml_parse_from_string, 0x001BF870);
+    RegisterFunction(rfg::Functions.weapons_read_table, 0x007DF4D0);
 }
 
 rfg::RfgFunctions* GetRfgFunctions()
