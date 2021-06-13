@@ -55,29 +55,7 @@ extern "C"
         globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
         printf("ModuleBase: %d\n", globalState->ModuleBase);
 
-        //Set global pointers
-        globalState->World = OffsetPtr<world*>(0x02B97490);
-        globalState->MainCamera = OffsetPtr<rfg_camera*>(0x019E3B50);
-        globalState->RfgMenusList = OffsetPtr<farray<ui_menu*, 8>*>(0x1266698);
-
-        globalState->NumAirBombInfos = OffsetPtr<u32*>(0x01E28610);
-        auto airBombInfosPtr = OffsetPtr<air_bomb_info**>(0x01E2860C);
-        globalState->AirBombInfos.Init(*airBombInfosPtr, *globalState->NumAirBombInfos, *globalState->NumAirBombInfos, "AirBombInfos");
-
-        globalState->NumWeaponInfos = OffsetPtr<u32*>(0x03481C94);
-        auto weaponInfosPtr = OffsetPtr<weapon_info**>(0x03481C9C);
-        globalState->WeaponInfos.Init(*weaponInfosPtr, *globalState->NumWeaponInfos, *globalState->NumWeaponInfos, "WeaponInfos");
-
-        globalState->LOS_blocker_debug = OffsetPtr<bool*>(0x019ED4B7);
-        globalState->Air_bomb_debug = OffsetPtr<bool*>(0x01E28601);
-        globalState->Activity_register_damage_debug = OffsetPtr<bool*>(0x01E285C8);
-        globalState->Tod_show_sun_path = OffsetPtr<bool*>(0x02132928);
-        globalState->Player_hold_debug = OffsetPtr<bool*>(0x02C2E0D7);
-        globalState->Salvage_debug = OffsetPtr<bool*>(0x02C2E225);
-        globalState->Player_max_movement_speed_override = OffsetPtr<float*>(0x02C2E0B4);
-        globalState->SpeedScale = OffsetPtr<float*>(0x0125BBD4);
-        globalState->Use_packfiles = OffsetPtr<bool*>(0x01958C55);
-        globalState->Xml_mempool = OffsetPtr<mempool_base**>(0x018E77DC);
+        InitGlobals();
 
         if (kiero::init(kiero::RenderType::D3D11) != kiero::Status::Success)
         {
@@ -85,9 +63,6 @@ extern "C"
             
             return false;
         }
-
-        globalState->MouseGenericPollMouseVisibleAddress = globalState->ModuleBase + 0x001B88DC;
-        globalState->CenterMouseCursorCallAddress = globalState->ModuleBase + 0x878D90;
 
         //Todo: Maybe set ModuleBase in FuncHook and provide option to offset function address from it for convenience & less mistakes
         PlayerDoFrame_hook.SetAddr(globalState->ModuleBase + 0x6E6290);
@@ -138,6 +113,9 @@ extern "C"
         xml_parse_hook.SetAddr(globalState->ModuleBase + 0x001CD2F0);
         xml_parse_hook.Install();
 
+        rfg_init_stage_2_done_hook.SetAddr(globalState->ModuleBase + 0x001D55C0);
+        rfg_init_stage_2_done_hook.Install();
+
         //Set export functions for this plugin
         FillExports();
         exportedFunctions.push_back({ &ExportInterface, "RSL2" });
@@ -171,6 +149,7 @@ extern "C"
         keen_getBuildVersionString_hook.Remove();
         main_menu_process_hook.Remove();
         xml_parse_hook.Remove();
+        rfg_init_stage_2_done_hook.Remove();
 
         //Relock mouse and camera so game has full control of them and patches are removed
         LockMouse();
