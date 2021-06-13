@@ -13,6 +13,7 @@
 //Forward declarations
 struct human;
 struct rfg_rbb_node;
+struct xml_element;
 
 namespace rfg
 {
@@ -232,6 +233,12 @@ namespace rfg
     //void __cdecl rfg_rbb_render_debug(rfg_rbb_node* tree) //0x0031FC40
     using F_rfg_rbb_render_debug = void(__cdecl*)(rfg_rbb_node* tree);
 
+    //void __cdecl game_enable_standard_access() //0x001D2650
+    using F_game_enable_standard_access = void(__cdecl*)();
+
+    //xml_element *__cdecl xml_parse_from_string(char *buf, mempool_base *dest, const char *filename_orig) //0x001BF870
+    using F_xml_parse_from_string = xml_element*(__cdecl*)(char* buf, mempool_base* dest, const char* filename_orig);
+
     class RfgFunctions
     {
     public:
@@ -330,5 +337,8 @@ namespace rfg
         //At some point a tool could be added that would let you select a single building and display the bounding boxes for that to avoid perf issues.
         //For the moment it's disabled though.
         F_rfg_rbb_render_debug rfg_rbb_render_debug = nullptr;
+
+        F_game_enable_standard_access game_enable_standard_access = nullptr;
+        F_xml_parse_from_string xml_parse_from_string = nullptr;
     };
 }

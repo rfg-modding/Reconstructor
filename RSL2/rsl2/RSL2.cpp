@@ -4,6 +4,7 @@
 #include "common/plugins/IHost.h"
 #include "hooks/PlayerDoFrame.h"
 #include "hooks/MiscHooks.h"
+#include "hooks/XmlHooks.h"
 #include "hooks/ui/MainMenuHooks.h"
 #include "functions/FunctionsInternal.h"
 #include "hooks/GrdRenderHooks.h"
@@ -75,6 +76,8 @@ extern "C"
         globalState->Salvage_debug = OffsetPtr<bool*>(0x02C2E225);
         globalState->Player_max_movement_speed_override = OffsetPtr<float*>(0x02C2E0B4);
         globalState->SpeedScale = OffsetPtr<float*>(0x0125BBD4);
+        globalState->Use_packfiles = OffsetPtr<bool*>(0x01958C55);
+        globalState->Xml_mempool = OffsetPtr<mempool_base**>(0x018E77DC);
 
         if (kiero::init(kiero::RenderType::D3D11) != kiero::Status::Success)
         {
@@ -132,6 +135,9 @@ extern "C"
         main_menu_process_hook.SetAddr(globalState->ModuleBase + 0x00513770);
         main_menu_process_hook.Install();
 
+        xml_parse_hook.SetAddr(globalState->ModuleBase + 0x001CD2F0);
+        xml_parse_hook.Install();
+
         //Set export functions for this plugin
         FillExports();
         exportedFunctions.push_back({ &ExportInterface, "RSL2" });
@@ -164,6 +170,7 @@ extern "C"
         primitive_renderer_begin_deferredHook.Remove();
         keen_getBuildVersionString_hook.Remove();
         main_menu_process_hook.Remove();
+        xml_parse_hook.Remove();
 
         //Relock mouse and camera so game has full control of them and patches are removed
         LockMouse();
