@@ -36,17 +36,17 @@ static void TryHideInvalidMainMenuOptions()
         {
             if (CharArrayToString(Menu.m_items[0]->m_caption, 128) == "MENU_NEW_GAME") //The main menu doesn't have a title, so we have to look for it's buttons
             {
-                ui_menu_item_base& WreckingCrewButton = *Menu.m_items[2];
-                WreckingCrewButton.m_enabled = false;
-                WreckingCrewButton.m_visible = false;
+                ui_menu_item_base& wreckingCrewButton = *Menu.m_items[2];
+                wreckingCrewButton.m_enabled = false;
+                wreckingCrewButton.m_visible = false;
 
-                ui_menu_item_base& MultiplayerButton = *Menu.m_items[3];
-                MultiplayerButton.m_enabled = false;
-                MultiplayerButton.m_visible = false;
+                ui_menu_item_base& multiplayerButton = *Menu.m_items[3];
+                multiplayerButton.m_enabled = false;
+                multiplayerButton.m_visible = false;
 
-                ui_menu_item_base& LanCrewButton = *Menu.m_items[5];
-                LanCrewButton.m_enabled = false;
-                LanCrewButton.m_visible = false;
+                ui_menu_item_base& lanButton = *Menu.m_items[5];
+                lanButton.m_enabled = false;
+                lanButton.m_visible = false;
             }
         }
     }
