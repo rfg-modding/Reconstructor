@@ -3,6 +3,7 @@
 #include "rsl2/misc/GlobalState.h"
 #include "RFGR_Types/rfg/Camera.h"
 #include "rsl2/hooks/Camera.h"
+#include "rsl2/util/Util.h"
 #include "rsl2/functions/FunctionsInternal.h"
 #include "RFGR_Types/rfg/Player.h"
 
@@ -71,48 +72,55 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
 
     if (msg == WM_KEYDOWN)
     {
-        switch (wParam)
+        if ((HIWORD(lParam) & KF_REPEAT) == 0) //Key not repeating. Only detects first WM_KEYDOWN signal until WM_KEYUP
         {
-        case VK_F1:
-            globalState->GuiActive = !globalState->GuiActive;
-            if (globalState->GuiActive)
-                UnlockMouse();
-            else
-                LockMouse();
+            switch (wParam)
+            {
+            case VK_F1:
+                globalState->GuiActive = !globalState->GuiActive;
+                if (globalState->GuiActive)
+                    UnlockMouse();
+                else
+                    LockMouse();
 
-            break;
-        case VK_F2:
-            globalState->OverlayActive = !globalState->OverlayActive;
-        case VK_F3:
-            globalState->DrawRfgMemoryTracker = !globalState->DrawRfgMemoryTracker;
-        case VK_F4:
-            globalState->DrawRSLDebugOverlay = !globalState->DrawRSLDebugOverlay;
-        //case VK_F5:
-        //    *globalState->LOS_blocker_debug = !(*globalState->LOS_blocker_debug);
-        //case VK_F6:
-        //    *globalState->Air_bomb_debug = !(*globalState->Air_bomb_debug);
-        //case VK_F7:
-        //    *globalState->Activity_register_damage_debug = !(*globalState->Activity_register_damage_debug);
-        //case VK_F8:
-        //    *globalState->Tod_show_sun_path = !(*globalState->Tod_show_sun_path);
-        //case VK_F9:
-        //    *globalState->Player_hold_debug = !(*globalState->Player_hold_debug);
-        case VK_F5:
-            *globalState->Salvage_debug = !(*globalState->Salvage_debug);
-        case VK_F6:
-            if (*globalState->Player_max_movement_speed_override < 49.0f)
-                *globalState->Player_max_movement_speed_override = 50.0f;
-            else
-                *globalState->Player_max_movement_speed_override = 0.0f;
-            
-            break;
+                break;
+            case VK_F2:
+                globalState->OverlayActive = !globalState->OverlayActive;
+            case VK_F3:
+                globalState->DrawRfgMemoryTracker = !globalState->DrawRfgMemoryTracker;
+            case VK_F4:
+                globalState->DrawRSLDebugOverlay = !globalState->DrawRSLDebugOverlay;
+                //case VK_F5:
+                //    *globalState->LOS_blocker_debug = !(*globalState->LOS_blocker_debug);
+                //case VK_F6:
+                //    *globalState->Air_bomb_debug = !(*globalState->Air_bomb_debug);
+                //case VK_F7:
+                //    *globalState->Activity_register_damage_debug = !(*globalState->Activity_register_damage_debug);
+                //case VK_F8:
+                //    *globalState->Tod_show_sun_path = !(*globalState->Tod_show_sun_path);
+                //case VK_F9:
+                //    *globalState->Player_hold_debug = !(*globalState->Player_hold_debug);
+            case VK_F5:
+                *globalState->Salvage_debug = !(*globalState->Salvage_debug);
+            case VK_F6:
+                if (*globalState->Player_max_movement_speed_override < 49.0f)
+                    *globalState->Player_max_movement_speed_override = 50.0f;
+                else
+                    *globalState->Player_max_movement_speed_override = 0.0f;
 
-        case VK_NUMPAD1:
-            ToggleHud();
-            break;
-        case VK_NUMPAD2:
-            ToggleFog();
-            break;
+                break;
+
+            case VK_F7:
+                ReloadXtbls();
+                break;
+
+            case VK_NUMPAD1:
+                ToggleHud();
+                break;
+            case VK_NUMPAD2:
+                ToggleFog();
+                break;
+            }
         }
     }
 

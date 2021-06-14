@@ -18,20 +18,14 @@ FunHook<void ()> main_menu_process_hook
     {
         //Hide invalid RSL main menu options (MP and WC). Done in a hook to ensure the main menu exists first.
         //Previously was done in RSL2_PluginInit and it could sometimes fail if it was done too early.
-        static bool hideInvalidOptions = false;
         static u32 mainMenuFrames = 0; //Number of frames the main menu has been alive
-        if (!hideInvalidOptions)
+        if (mainMenuFrames > 100) //Wait 100 frames to ensure the main menu has been created by the game
         {
-            //Wait 100 frames to ensure the main menu has been created by the game
-            if (mainMenuFrames > 100)
-            {
-                TryHideInvalidMainMenuOptions();
-                hideInvalidOptions = true;
-            }
-            else
-            {
-                mainMenuFrames++;
-            }
+            TryHideInvalidMainMenuOptions();
+        }
+        else
+        {
+            mainMenuFrames++;
         }
 
         main_menu_process_hook.CallTarget();

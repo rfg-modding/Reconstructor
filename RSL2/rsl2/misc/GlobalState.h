@@ -12,8 +12,10 @@ struct ImFont;
 struct player;
 struct rfg_camera;
 struct world;
+struct mempool_base;
 
-//Todo: Try to eliminate this and if not possible reduce it's usage as much as possible. A big file with tons of global data was a design flaw of RSL1
+//Todo: Try to reduce the usage of this. Though a certain amount of global usage is unavoidable because the game has many global and static variables
+//TODO: Document what each RFG global does, if anything. Some are debug/dev values that don't do much in public builds.
 class RSL2_GlobalState
 {
 public:
@@ -69,6 +71,8 @@ public:
     bool* Salvage_debug = nullptr; //0x02C2E225
     float* Player_max_movement_speed_override = nullptr; //0x02C2E0B4
     float* SpeedScale = nullptr; //0x0125BBD4
+    bool* Use_packfiles = nullptr; //0x01958C55
+    mempool_base** Xml_mempool = nullptr; //0x018E77DC
 };
 
 extern RSL2_GlobalState* GetGlobalState();
