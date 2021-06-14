@@ -66,24 +66,53 @@ static void ReloadXtbls()
     ReloadWeaponsXtbl();
 }
 
-//Reloads weapons.xtbl and patches memory so that the changes are applied
+//Reloads weapons.xtbl and aim_drift.xtbl and patches memory so that the changes are applied
 static void ReloadWeaponsXtbl()
 {
     RSL2_GlobalState* globalState = GetGlobalState();
     rfg::RfgFunctions* functions = GetRfgFunctions();
 
-    //Pre-patch weapon infos. weapons_read_table() doesn't reset them all.
+    //Clear weapon info states. weapons_read_table() doesn't reset them all.
     auto& weaponInfos = globalState->WeaponInfos;
     for (u32 i = 0; i < weaponInfos.Size(); i++)
     {
         weapon_info& info = weaponInfos[i];
+        //Reset flags
         memset(&info.flags, 0, sizeof(weapon_info_flags));
+        
+        //Reset explosions
         info.m_explosion_info = nullptr;
         info.m_ai_explosion_info = nullptr;
+        
+        //Reset effects inside <Visuals> block
+        info.muzzle_flash_effect = 0xFFFFFFFF;
+        info.muzzle_smoke_effect = 0xFFFFFFFF;
+        info.special_hit_effect = 0xFFFFFFFF;
+        info.special_effect = 0xFFFFFFFF;
+        info.secondary_special_effect = 0xFFFFFFFF;
+        info.overheated_effect = 0xFFFFFFFF;
+        info.tracer_effect = 0xFFFFFFFF;
     }
-    //Todo: Test all other weapon values to see if weapons_read_table() has any other it doesn't properly set
 
+    //Reload weapons.xtbl and aim_drift.xtbl
     functions->weapons_read_table(false, true, 0xFFFFFFFF);
+
+    //Patch weapon values not handled by weapons_read_table()
+    for (u32 i = 0; i < globalState->World->all_objects.Size(); i++)
+    {
+        object* obj = globalState->World->all_objects[i];
+        if (obj->obj_type != OT_ITEM || obj->sub_type != OT_SUB_ITEM_WEAPON)
+            continue;
+
+        weapon* weap = (weapon*)obj;
+
+        //Refill magizine and ammo reserve
+        weap->rounds_in_magazine = weap->w_info->magazine_size;
+        weap->rounds_in_reserve = weap->w_info->max_rounds - weap->rounds_in_magazine;
+    }
+
+    //Todo: Todo: Fix these issues with weapons.xtbl hot reload
+    //  - Changing <reticule_name>, <icon_name>, and <Item_3d> doesn't work
 }
 
 static void InitGlobals()
