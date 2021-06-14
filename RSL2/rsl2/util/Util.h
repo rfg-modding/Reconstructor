@@ -71,6 +71,45 @@ static void ReloadXtbls()
     //Todo: Test all other weapon values to see if weapons_read_table() has any other it doesn't properly set
 
     functions->weapons_read_table(false, true, 0xFFFFFFFF);
+
+    //Patch weapon objects. weapons_read_table() doesn't update some values. E.g. meshes
+    for (u32 i = 0; i < globalState->World->all_objects.Size(); i++)
+    {
+        object* obj = globalState->World->all_objects[i];
+        if (obj->obj_type != OT_ITEM || obj->sub_type != OT_SUB_ITEM_WEAPON)
+            continue;
+
+        //If <Item_3d> changed update the weapons mesh
+        weapon* weap = (weapon*)obj;
+        item::resource_dependent_data* itemRdd = weap->rdd.GetData();
+        if (string(weap->w_info->weapon_obj_item_info->name) != string(weap->info->name) && itemRdd)
+        {
+            //Update item_info ptr
+            weap->info = weap->w_info->weapon_obj_item_info;
+
+            //Set new static meshes
+            itemRdd->pickup_smesh = functions->static_mesh_find(weap->info->pickup_smesh_name, weap->info->srid);
+            itemRdd->smesh = functions->static_mesh_find(weap->info->cmesh_name, weap->info->high_res_srid);
+
+            //Release old mesh instances
+            if (itemRdd->pickup_smesh_instance_p)
+            {
+                itemRdd->pickup_smesh_instance_p->release();
+                itemRdd->pickup_smesh_instance_p = nullptr;
+            }
+            if (itemRdd->smesh_instance_p)
+            {
+                itemRdd->smesh_instance_p->release();
+                itemRdd->smesh_instance_p = nullptr;
+            }
+
+            //Create new mesh instance using new static meshes
+            if (itemRdd->pickup_smesh)
+                itemRdd->pickup_smesh_instance_p = functions->ui_create_static_mesh(itemRdd->pickup_smesh);
+            if (itemRdd->smesh)
+                itemRdd->smesh_instance_p = functions->ui_create_static_mesh(itemRdd->smesh);
+        }
+    }
 }
 
 static void InitGlobals()
