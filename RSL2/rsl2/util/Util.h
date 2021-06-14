@@ -2,6 +2,9 @@
 #include "rsl2/misc/GlobalState.h"
 #include "rsl2/functions/FunctionsInternal.h"
 #include "rsl2/patching/Offset.h"
+#include "RFGR_Types/rfg/World.h"
+#include "RFGR_Types/rfg/Weapon.h"
+#include "common/string/String.h"
 
 static std::string CharArrayToString(char* Array, int Size)
 {
@@ -52,6 +55,7 @@ static void TryHideInvalidMainMenuOptions()
     }
 }
 
+static void ReloadWeaponsXtbl();
 static void ReloadXtbls()
 {
     RSL2_GlobalState* globalState = GetGlobalState();
@@ -59,7 +63,16 @@ static void ReloadXtbls()
     if (!globalState || !functions || !globalState->WeaponInfos.GetRawPointer())
         return;
 
-    //Reset weapon flags and explosions since weapons_read_table() doesn't
+    ReloadWeaponsXtbl();
+}
+
+//Reloads weapons.xtbl and patches memory so that the changes are applied
+static void ReloadWeaponsXtbl()
+{
+    RSL2_GlobalState* globalState = GetGlobalState();
+    rfg::RfgFunctions* functions = GetRfgFunctions();
+
+    //Pre-patch weapon infos. weapons_read_table() doesn't reset them all.
     auto& weaponInfos = globalState->WeaponInfos;
     for (u32 i = 0; i < weaponInfos.Size(); i++)
     {

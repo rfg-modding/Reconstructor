@@ -90,6 +90,9 @@ void InitFunctionPointers()
     RegisterFunction(rfg::Functions.game_enable_standard_access, 0x001D2650);
     RegisterFunction(rfg::Functions.xml_parse_from_string, 0x001BF870);
     RegisterFunction(rfg::Functions.weapons_read_table, 0x007DF4D0);
+
+    RegisterFunction(rfg::Functions.ui_create_static_mesh, 0x004C48C0);
+    RegisterFunction(rfg::Functions.static_mesh_find, 0x004094A0);
 }
 
 rfg::RfgFunctions* GetRfgFunctions()

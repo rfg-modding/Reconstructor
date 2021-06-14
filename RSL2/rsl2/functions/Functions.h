@@ -242,6 +242,12 @@ namespace rfg
     //void __cdecl weapons_read_table(bool mp_override, bool refresh, int dlc_id) //0x007DF4D0
     using F_weapons_read_table = void(__cdecl*)(bool mp_override, bool refresh, int dlc_id);
 
+    //rl_mesh_instance *__cdecl ui_create_static_mesh(static_mesh *base_mesh) //0x004C48C0
+    using F_ui_create_static_mesh = rl_mesh_instance*(__cdecl*)(static_mesh* base_mesh);
+
+    //static_mesh *__cdecl static_mesh_find(const char *filename, unsigned int srid) //0x004094A0
+    using F_static_mesh_find = static_mesh*(__cdecl*)(const char* filename, unsigned int srid);
+
     class RfgFunctions
     {
     public:
@@ -344,5 +350,8 @@ namespace rfg
         F_game_enable_standard_access game_enable_standard_access = nullptr;
         F_xml_parse_from_string xml_parse_from_string = nullptr;
         F_weapons_read_table weapons_read_table = nullptr;
+
+        F_ui_create_static_mesh ui_create_static_mesh = nullptr;
+        F_static_mesh_find static_mesh_find = nullptr;
     };
 }
