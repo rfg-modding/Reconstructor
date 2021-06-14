@@ -1,10 +1,11 @@
-#include "common/windows/WindowsWrapper.h"
+﻿#include "common/windows/WindowsWrapper.h"
 #include "common/patching/FunHook.h"
 #include "common/plugins/Plugin.h"
 #include "common/plugins/IHost.h"
 #include "hooks/PlayerDoFrame.h"
 #include "hooks/MiscHooks.h"
 #include "hooks/XmlHooks.h"
+#include "hooks/CfileHooks.h"
 #include "hooks/ui/MainMenuHooks.h"
 #include "functions/FunctionsInternal.h"
 #include "hooks/GrdRenderHooks.h"
@@ -107,6 +108,9 @@ extern "C"
         keen_getBuildVersionString_hook.SetAddr(globalState->ModuleBase + 0x00058740);
         keen_getBuildVersionString_hook.Install();
 
+        cf_add_search_hook.SetAddr(globalState->ModuleBase + 0x00197A80);
+        cf_add_search_hook.Install();
+
         main_menu_process_hook.SetAddr(globalState->ModuleBase + 0x00513770);
         main_menu_process_hook.Install();
 
@@ -147,6 +151,7 @@ extern "C"
         grd_bbox_oriented_hook.Remove();
         primitive_renderer_begin_deferredHook.Remove();
         keen_getBuildVersionString_hook.Remove();
+        cf_add_search_hook.Remove();
         main_menu_process_hook.Remove();
         xml_parse_hook.Remove();
         rfg_init_stage_2_done_hook.Remove();
