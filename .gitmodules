@@ -16,3 +16,6 @@
 [submodule "Dependencies/RSL2-Dependencies"]
 	path = Dependencies/RSL2-Dependencies
 	url = https://github.com/rsl-dev/RSL2-Dependencies.git
+[submodule "Dependencies/pybind11"]
+	path = Dependencies/pybind11
+	url = https://github.com/pybind/pybind11.git

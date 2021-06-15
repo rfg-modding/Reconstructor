@@ -41,6 +41,10 @@ message(BinaryDir=${CMAKE_BINARY_DIR})
 # Set config specific defines
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     add_compile_definitions(DEBUG_BUILD)
+    # Manually set python debug define and library path in debug builds. Pybind has issues if we don't.
+    add_compile_definitions(Py_DEBUG)
+    # Todo: De-hardcode the library path
+    link_directories(C:/Users/moneyl/AppData/Local/Programs/Python/Python37-32/libs/)
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_definitions(DEBUG_BUILD_OPTIMIZED)
 endif()
@@ -51,5 +55,6 @@ add_subdirectory(Common) # Statically linked common lib used in multiple sub-pro
 add_subdirectory(Profiler) # Profiler DLL included by other DLLs / applications which want to use tracy profiler. Needed for multi-DLL projects
 add_subdirectory(Launcher) # Launcher that starts RFGR and injects the host DLL into it
 add_subdirectory(Host) # Host DLL which is injected into RFGR and manages loading and reloading plugin DLLs
-add_subdirectory (RSL2) # Main plugin DLL of RSL2 with function hooks and patches
-add_subdirectory (GuiBase) # Base gui and overlays which are included with RSL2
+add_subdirectory(RSL2) # Main plugin DLL of RSL2 with function hooks and patches
+add_subdirectory(GuiBase) # Base gui and overlays which are included with RSL2
+add_subdirectory(Scripting) # Scripting API
