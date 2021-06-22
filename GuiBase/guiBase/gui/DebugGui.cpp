@@ -80,9 +80,9 @@ void DebugGui_DoFrame(IRSL2* rsl2)
         Functions->audiolib_play_fade_out(lastSoundPlayed, 100);
     }
 
-    ImGui::BeginChild("##Sound presets list", ImVec2(0, 0), true);
     if (ImGui::CollapsingHeader("Known sounds"))
     {
+        ImGui::BeginChild("##Sound presets list", ImVec2(500, 300), true);
         for (const char* presetName : SoundPresets)
         {
             if (ImGui::Button(presetName))
@@ -90,8 +90,8 @@ void DebugGui_DoFrame(IRSL2* rsl2)
                 PlaySound(presetName, Functions);
             }
         }
+        ImGui::EndChild();
     }
-    ImGui::EndChild();
     
 
     ImGui::Separator();
@@ -262,7 +262,7 @@ void DebugGui_DoFrame(IRSL2* rsl2)
     if (ImGui::Button("1.0")) { *globalState->SpeedScale = 1.0f; } ImGui::SameLine();
     if (ImGui::Button("1.5")) { *globalState->SpeedScale = 1.5f; } ImGui::SameLine();
     if (ImGui::Button("2.0")) { *globalState->SpeedScale = 2.0f; } ImGui::SameLine();
-    if (ImGui::Button("10.0")) { *globalState->SpeedScale = 10.0f; } ImGui::SameLine();
+    if (ImGui::Button("10.0")) { *globalState->SpeedScale = 10.0f; }
 
     //ImGui::SameLine();
     //Gui::ShowHelpMarker("1.0 = vanilla, # < 1.0 = slo-mo, # > 1.0 = \"fast-mo\"");
