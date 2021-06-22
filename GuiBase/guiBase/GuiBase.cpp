@@ -140,10 +140,4 @@ void PrimitiveDrawCallback()
 
     GeneralDebugDraw_DoFrame(rsl2_);
     RfgOldMemoryOverlay_DoFrame(rsl2_);
-    //Functions->los_blocker_render_debug();
-    //Functions->air_bomb_render_debug();
-    //Functions->activity_register_damage_render_debug();
-    //Functions->game_time_of_day_render_debug();
-    //Functions->player_hold_render_debug();
-    Functions->salvage_render_debug();
 }

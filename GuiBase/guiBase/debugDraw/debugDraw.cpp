@@ -25,8 +25,8 @@ void GeneralDebugDraw_DoFrame(IRSL2* rsl2)
     if (globalState->DrawRSLDebugOverlay)
     {
         //Salvage debug render
+        if(*globalState->Salvage_debug)
         {
-            *globalState->Salvage_debug = true;
             Functions->salvage_render_debug();
         }
 
@@ -117,6 +117,7 @@ void GeneralDebugDraw_DoFrame(IRSL2* rsl2)
                     string positionString = "Health: " + std::to_string(curHuman->hit_points) + "/" + std::to_string(curHuman->max_hit_points);
                     int fontNum = 0;
 
+                    Functions->gr_set_color(255, 255, 255, 255);
                     Functions->gr_bbox_aligned(&object->last_known_bmin, &object->last_known_bmax, &renderState);
                     Functions->gr_3d_string(&stringPos, &stringOrient, 0.003f, positionString.c_str(), fontNum, &renderState);
 
@@ -140,6 +141,27 @@ void GeneralDebugDraw_DoFrame(IRSL2* rsl2)
                             nodeCount++;
                         }
                     }
+                }
+            }
+            else if (object->obj_type == OT_TRIGGER_REGION)
+            {
+                float maxDrawDistance = 400.0f;
+                vector distance = object->pos - globalState->MainCamera->real_pos;
+                if (distance.Magnitude() <= maxDrawDistance)
+                {
+                    Functions->gr_set_color(0, 163, 116, 255);
+                    Functions->gr_bbox_aligned(&object->last_known_bmin, &object->last_known_bmax, &renderState);
+                }
+            }
+            else if (object->obj_type == OT_RESTRICTED_AREA)
+            {
+                float maxDrawDistance = 400.0f;
+                vector distance = object->pos - globalState->MainCamera->real_pos;
+                if (distance.Magnitude() <= maxDrawDistance)
+                {
+                    Functions->gr_set_color(163, 0, 0, 255);
+                    Functions->gr_bbox_aligned(&object->last_known_bmin, &object->last_known_bmax, &renderState);
+
                 }
             }
             else if (object->obj_type == OT_MOVER && object->sub_type == OT_SUB_MOVER_GENERAL)
