@@ -73,6 +73,9 @@ public:
     float* SpeedScale = nullptr; //0x0125BBD4
     bool* Use_packfiles = nullptr; //0x01958C55
     mempool_base** Xml_mempool = nullptr; //0x018E77DC
+
+    //TODO: Remove before comitting
+    bool RunPythonTestFile = false;
 };
 
 extern RSL2_GlobalState* GetGlobalState();
