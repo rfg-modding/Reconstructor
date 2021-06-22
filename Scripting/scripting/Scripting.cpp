@@ -98,7 +98,7 @@ f32 TestFunc()
     return 2.0f;
 }
 
-PYBIND11_MODULE(rfg, m) {
+PYBIND11_EMBEDDED_MODULE(rfg, m) {
     m.doc() = "rfg module"; // optional module docstring
 
     m.def("TestFunc", &TestFunc);
