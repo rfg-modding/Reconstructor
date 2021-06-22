@@ -29,7 +29,7 @@ FunHook<xml_element*(const char* filename, mempool_base* dest)> xml_parse_hook
 
         //TODO: Give each mod a subfolder and search those instead for file overrides
         //Load override if one exists
-        string overridePath = "G:/GOG/Games/Red Faction Guerrilla Re-Mars-tered/Overrides/" + string(filename);
+        string overridePath = "G:/GOG/Games/Red Faction Guerrilla Re-Mars-tered/RSL2/Overrides/" + string(filename);
         if (std::filesystem::exists(overridePath))
         {
             printf("Found override for \"%s\"\n", filename);
