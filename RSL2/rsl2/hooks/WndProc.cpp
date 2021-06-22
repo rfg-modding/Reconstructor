@@ -86,22 +86,16 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
                 break;
             case VK_F2:
                 globalState->OverlayActive = !globalState->OverlayActive;
+                break;
             case VK_F3:
                 globalState->DrawRfgMemoryTracker = !globalState->DrawRfgMemoryTracker;
+                break;
             case VK_F4:
                 globalState->DrawRSLDebugOverlay = !globalState->DrawRSLDebugOverlay;
-                //case VK_F5:
-                //    *globalState->LOS_blocker_debug = !(*globalState->LOS_blocker_debug);
-                //case VK_F6:
-                //    *globalState->Air_bomb_debug = !(*globalState->Air_bomb_debug);
-                //case VK_F7:
-                //    *globalState->Activity_register_damage_debug = !(*globalState->Activity_register_damage_debug);
-                //case VK_F8:
-                //    *globalState->Tod_show_sun_path = !(*globalState->Tod_show_sun_path);
-                //case VK_F9:
-                //    *globalState->Player_hold_debug = !(*globalState->Player_hold_debug);
+                break;
             case VK_F5:
                 *globalState->Salvage_debug = !(*globalState->Salvage_debug);
+                break;
             case VK_F6:
                 if (*globalState->Player_max_movement_speed_override < 49.0f)
                     *globalState->Player_max_movement_speed_override = 50.0f;
@@ -112,6 +106,10 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
 
             case VK_F7:
                 ReloadXtbls();
+                break;
+
+            case VK_F8:
+                globalState->RunPythonTestFile = true;
                 break;
 
             case VK_NUMPAD1:
