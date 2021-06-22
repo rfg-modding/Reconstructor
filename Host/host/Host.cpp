@@ -24,7 +24,10 @@ void Host::Run(HINSTANCE hModule)
     {
         //Timer for plugin reload checks
         if (pluginChangeTimer.ElapsedMilliseconds() < pluginChangeCheckDelayMs)
+        {
+            Sleep(pluginChangeCheckDelayMs - pluginChangeTimer.ElapsedMilliseconds());
             continue;
+        }
 
         //Loop through each plugin, reload if necessary
         auto pluginIterator = Plugins.begin();
