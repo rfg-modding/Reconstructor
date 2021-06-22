@@ -16,3 +16,6 @@
 [submodule "Dependencies/RSL2-Dependencies"]
 	path = Dependencies/RSL2-Dependencies
 	url = https://github.com/rsl-dev/RSL2-Dependencies.git
+[submodule "Dependencies/sol2"]
+	path = Dependencies/sol2
+	url = https://github.com/ThePhD/sol2.git
