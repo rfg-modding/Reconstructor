@@ -7,6 +7,7 @@
 #include "common/filesystem/File.h"
 #include "common/timing/Timer.h"
 #include "rsl2/IRSL2.h"
+#include "modules/RfgModule.h"
 #include <filesystem>
 #include <pybind11/embed.h>
 #include <cstdio>
@@ -50,6 +51,7 @@ extern "C"
             printf("Error! Failed to import all external functions in Scripting.dll::RSL2_PluginInit.\n");
             return false;
         }
+        Scripting_GlobalState = rsl2_->GetGlobalState();
 
         return true;
     }
@@ -91,17 +93,6 @@ extern "C"
         //Register callbacks
         rsl2_->RegisterPrimitiveDrawCallback(&PrimitiveDrawCallback);
     }
-}
-
-f32 TestFunc()
-{
-    return 2.0f;
-}
-
-PYBIND11_EMBEDDED_MODULE(rfg, m) {
-    m.doc() = "rfg module"; // optional module docstring
-
-    m.def("TestFunc", &TestFunc);
 }
 
 void PybindInit()
