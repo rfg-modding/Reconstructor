@@ -7,12 +7,10 @@
 #include "common/Common.h"
 #include "rsl2/IRSL2.h"
 #include <cstdio>
+#include "misc/GlobalState.h"
 #define SOL_ALL_SAFETIES 1
 #include <sol/sol.hpp>
 #include "modules/RfgModule.h"
-
-IHost* host_ = nullptr;
-IRSL2* rsl2_ = nullptr;
 
 bool LuaInitialized = false;
 sol::state* Lua = nullptr;
@@ -38,7 +36,6 @@ extern "C"
     {
         host_ = host;
         rsl2_ = (IRSL2*)host_->GetPluginInterface("RSL2", "RSL2");
-        rsl2_scripting = rsl2_;
 
         if (!rsl2_)
         {
@@ -65,7 +62,6 @@ extern "C"
             LuaShutdown();
 
         rsl2_ = nullptr;
-        rsl2_scripting = nullptr;
         return true;
     }
 
@@ -79,7 +75,6 @@ extern "C"
             LuaShutdown();
 
         rsl2_ = nullptr;
-        rsl2_scripting = nullptr;
     }
 
     //Called immediately after dependency load + init

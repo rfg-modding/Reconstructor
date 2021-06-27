@@ -5,10 +5,9 @@
 #include "RFGR_Types/rfg/World.h"
 #include "RFGR_Types/rfg/Object.h"
 #include "rsl2/IRSL2.h"
+#include "misc/GlobalState.h"
 #define SOL_ALL_SAFETIES 1
 #include <sol/sol.hpp>
-
-IRSL2* rsl2_scripting = nullptr;
 
 void InitRfgLuaModule(sol::state& lua)
 {
@@ -36,5 +35,5 @@ void InitRfgLuaModule(sol::state& lua)
         "tech_level", &world::tech_level,
         "all_objects", sol::readonly(&world::all_objects));
 
-    lua.set_function("GetActiveWorld", []() { return rsl2_scripting->GetGlobalState()->World; });
+    lua.set_function("GetActiveWorld", []() { return rsl2_->GetGlobalState()->World; });
 }
