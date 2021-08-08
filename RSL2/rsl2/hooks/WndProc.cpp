@@ -108,10 +108,6 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
                 ReloadXtbls();
                 break;
 
-            case VK_F8:
-                globalState->RunPythonTestFile = true;
-                break;
-
             case VK_NUMPAD1:
                 ToggleHud();
                 break;
