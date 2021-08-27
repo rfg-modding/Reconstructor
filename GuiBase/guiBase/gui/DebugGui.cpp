@@ -245,6 +245,47 @@ void DebugGui_DoFrame(IRSL2* rsl2)
 
     ImGui::Separator();
     ImGui::PushFont(globalState->FontLarge);
+    ImGui::Text(ICON_FA_MOUNTAIN " Streaming");
+    ImGui::PopFont();
+    ImGui::Separator();
+
+    if (globalState->World && globalState->World->grid && globalState->World->grid->layers)
+    {
+        world* rfgWorld = globalState->World;
+        stream_grid* streamGrid = rfgWorld->grid;
+        stream_layer& levelLayer = streamGrid->layers[LAYER_LEVEL];
+        stream_layer& terrainLayer = streamGrid->layers[LAYER_TERRAIN];
+        static f32 levelStreamRadius = levelLayer.stream_radius;
+        static f32 terrainStreamRadius = terrainLayer.stream_radius;
+
+        LabelAndValue("Level stream radius:", std::to_string(levelLayer.stream_radius));
+        ImGui::InputFloat("Level stream radius", &levelStreamRadius);
+        ImGui::SameLine();
+        if (ImGui::Button("Set##SetLevelStreamRadius"))
+        {
+            Functions->stream_grid_set_stream_radius(streamGrid, nullptr, LAYER_LEVEL, levelStreamRadius);
+        }
+
+        LabelAndValue("Terrain stream radius:", std::to_string(terrainLayer.stream_radius));
+        ImGui::InputFloat("Terrain stream radius", &terrainStreamRadius);
+        ImGui::SameLine();
+        if (ImGui::Button("Set##SetTerrainStreamRadius"))
+        {
+            Functions->stream_grid_set_stream_radius(streamGrid, nullptr, LAYER_TERRAIN, terrainStreamRadius);
+        }
+
+        ImGui::InputFloat("Camera far clip", &globalState->MainCamera->m_far_clip_dist);
+        ImGui::InputFloat("Camera high log far clip", &globalState->MainCamera->m_high_lod_far_clip_dist);
+    }
+    else
+    {
+        ImGui::Text(ICON_FA_EXCLAMATION_CIRCLE " World or stream grid ptr null. Can't edit streaming settings.");
+    }
+
+
+
+    ImGui::Separator();
+    ImGui::PushFont(globalState->FontLarge);
     ImGui::Text(ICON_FA_WRENCH " Misc tweaks");
     ImGui::PopFont();
     ImGui::Separator();

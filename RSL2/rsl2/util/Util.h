@@ -79,11 +79,11 @@ static void ReloadWeaponsXtbl()
         weapon_info& info = weaponInfos[i];
         //Reset flags
         memset(&info.flags, 0, sizeof(weapon_info_flags));
-        
+
         //Reset explosions
         info.m_explosion_info = nullptr;
         info.m_ai_explosion_info = nullptr;
-        
+
         //Reset effects inside <Visuals> block
         info.muzzle_flash_effect = 0xFFFFFFFF;
         info.muzzle_smoke_effect = 0xFFFFFFFF;

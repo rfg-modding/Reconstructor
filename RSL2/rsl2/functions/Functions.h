@@ -8,6 +8,7 @@
 #include "RFGR_Types/rfg/Camera.h"
 #include "RFGR_Types/rfg/Audiolib.h"
 #include "RFGR_Types/rfg/Weapon.h"
+#include "RFGR_Types/rfg/World.h"
 #include "RFGR_Types/rfg/stream2/cfile.h"
 
 //Forward declarations
@@ -248,6 +249,9 @@ namespace rfg
     //static_mesh *__cdecl static_mesh_find(const char *filename, unsigned int srid) //0x004094A0
     using F_static_mesh_find = static_mesh*(__cdecl*)(const char* filename, unsigned int srid);
 
+    //void __thiscall stream_grid::set_stream_radius(stream_grid *this, layout_layer layer, float radius) //0x0051AD30
+    using F_stream_grid_set_stream_radius = void(__fastcall*)(stream_grid* thisPtr, void* edx, layout_layer layer, float radius);
+
     class RfgFunctions
     {
     public:
@@ -353,5 +357,7 @@ namespace rfg
 
         F_ui_create_static_mesh ui_create_static_mesh = nullptr;
         F_static_mesh_find static_mesh_find = nullptr;
+
+        F_stream_grid_set_stream_radius stream_grid_set_stream_radius = nullptr;
     };
 }

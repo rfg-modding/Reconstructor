@@ -93,6 +93,8 @@ void InitFunctionPointers()
 
     RegisterFunction(rfg::Functions.ui_create_static_mesh, 0x004C48C0);
     RegisterFunction(rfg::Functions.static_mesh_find, 0x004094A0);
+
+    RegisterFunction(rfg::Functions.stream_grid_set_stream_radius, 0x0051AD30);
 }
 
 rfg::RfgFunctions* GetRfgFunctions()
