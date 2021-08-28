@@ -1,7 +1,7 @@
 #pragma once
 #include "rsl2/misc/GlobalState.h"
 #include "rsl2/functions/FunctionsInternal.h"
-#include "rsl2/patching/Offset.h"
+#include "common/patching/Offset.h"
 #include "RFGR_Types/rfg/World.h"
 #include "RFGR_Types/rfg/Weapon.h"
 #include "common/string/String.h"
@@ -79,11 +79,11 @@ static void ReloadWeaponsXtbl()
         weapon_info& info = weaponInfos[i];
         //Reset flags
         memset(&info.flags, 0, sizeof(weapon_info_flags));
-        
+
         //Reset explosions
         info.m_explosion_info = nullptr;
         info.m_ai_explosion_info = nullptr;
-        
+
         //Reset effects inside <Visuals> block
         info.muzzle_flash_effect = 0xFFFFFFFF;
         info.muzzle_smoke_effect = 0xFFFFFFFF;

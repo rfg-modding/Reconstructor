@@ -223,7 +223,7 @@ void UpdateCameraInput()
 
 void CameraUpdate()
 {
-    if (CameraLocked || !globalState || !globalState->Player || !rfg::Functions.human_teleport_unsafe)
+    if (CameraLocked || !globalState || !globalState->Player || !rfg::Functions.human_teleport_unsafe.Initialized())
         return;
 
     UpdateCameraInput();

@@ -292,7 +292,7 @@ std::vector<HANDLE> Host::PauseAllThreadsExceptCurrent()
         } while (Thread32Next(h, &te));
     }
     CloseHandle(h);
-    
+
     return pausedThreads;
 }
 

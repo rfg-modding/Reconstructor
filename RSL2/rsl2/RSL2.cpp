@@ -13,7 +13,8 @@
 #include "misc/GlobalState.h"
 #include "common/Typedefs.h"
 #include "common/Common.h"
-#include "rsl2/patching/Offset.h"
+#include "common/patching/Config.h"
+#include "common/patching/Offset.h"
 #include "rsl2/hooks/Camera.h"
 #include "rsl2/util/Util.h"
 #include "rsl2/IRSL2.h"
@@ -48,75 +49,48 @@ extern "C"
     //Called when the host dll loads this plugin
     DLLEXPORT bool __cdecl RSL2_PluginInit(IHost* host, std::vector<PluginInterface>& exportedFunctions)
     {
-        printf("RSL2.dll RSL2_PluginInit() called!\n");
         RSL2_GlobalState* globalState = GetGlobalState();
-
         globalState->Host = host;
         globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
+        CommonLib_ModuleBase = globalState->ModuleBase;
         printf("ModuleBase: %d\n", globalState->ModuleBase);
 
         InitGlobals();
+        rfg::Functions = {}; //Initialize pointers to RFG functions
+        InitCameraPatches();
 
         if (kiero::init(kiero::RenderType::D3D11) != kiero::Status::Success)
         {
-            printf("Error! Failed to init kiero in RSdL2.dll!\n"); 
-            
+            printf("Error! Failed to init kiero in RSdL2.dll!\n");
             return false;
         }
 
-        //Todo: Maybe set ModuleBase in FuncHook and provide option to offset function address from it for convenience & less mistakes
-        PlayerDoFrame_hook.SetAddr(globalState->ModuleBase + 0x6E6290);
-        PlayerDoFrame_hook.Install();
-        keen_graphics_beginFrame.SetAddr(globalState->ModuleBase + 0x0086A8A0);
+        //Rendering hooks
         keen_graphics_beginFrame.Install();
-
-        //Setup pointers to game functions
-        InitFunctionPointers();
-        InitCameraPatches();
-
-        //D3D11 hooks
         D3D11_ResizeBuffersHook.SetAddr(kiero::getMethodsTable()[13]);
-        D3D11_ResizeBuffersHook.Install();
+        D3D11_ResizeBuffersHook.Install(false);
         D3D11_PresentHook.SetAddr(kiero::getMethodsTable()[8]);
-        D3D11_PresentHook.Install();
-
-        grd_string_hook.SetAddr(globalState->ModuleBase + 0x000B8DA0);
+        D3D11_PresentHook.Install(false);
         grd_string_hook.Install();
-        grd_3d_string_hook.SetAddr(globalState->ModuleBase + 0x000B8DE0);
         grd_3d_string_hook.Install();
-        grd_get_string_size_hook.SetAddr(globalState->ModuleBase + 0x000B8DF0);
         grd_get_string_size_hook.Install();
-        grd_get_font_height.SetAddr(globalState->ModuleBase + 0x000B8E30);
         grd_get_font_height.Install();
-        grd_rect_hook.SetAddr(globalState->ModuleBase + 0x000B8E40);
         grd_rect_hook.Install();
-        grd_set_color_hook.SetAddr(globalState->ModuleBase + 0x000B8E50);
         grd_set_color_hook.Install();
-        grd_line_hook.SetAddr(globalState->ModuleBase + 0x000B8EB0);
         grd_line_hook.Install();
-        grd_sphere_hook.SetAddr(globalState->ModuleBase + 0x000B8EC0);
         grd_sphere_hook.Install();
-        grd_bbox_aligned_hook.SetAddr(globalState->ModuleBase + 0x000B8F00);
         grd_bbox_aligned_hook.Install();
-        grd_bbox_oriented_hook.SetAddr(globalState->ModuleBase + 0x000B8F20);
         grd_bbox_oriented_hook.Install();
 
-        primitive_renderer_begin_deferredHook.SetAddr(globalState->ModuleBase + 0x000F0E50);
+        //Misc hooks
+        PlayerDoFrame_hook.Install();
         primitive_renderer_begin_deferredHook.Install();
-
-        keen_getBuildVersionString_hook.SetAddr(globalState->ModuleBase + 0x00058740);
         keen_getBuildVersionString_hook.Install();
-
-        main_menu_process_hook.SetAddr(globalState->ModuleBase + 0x00513770);
         main_menu_process_hook.Install();
-
-        xml_parse_hook.SetAddr(globalState->ModuleBase + 0x001CD2F0);
         xml_parse_hook.Install();
-
-        rfg_init_stage_2_done_hook.SetAddr(globalState->ModuleBase + 0x001D55C0);
         rfg_init_stage_2_done_hook.Install();
 
-        //Set export functions for this plugin
+        //Export functions for other plugins to use
         FillExports();
         exportedFunctions.push_back({ &ExportInterface, "RSL2" });
         return true;
@@ -125,7 +99,6 @@ extern "C"
     //Called when the host dll unloads this plugin
     DLLEXPORT bool __cdecl RSL2_PluginShutdown()
     {
-        printf("RSL2.dll RSL2_PluginShutdown() called!\n");
         RSL2_GlobalState* globalState = GetGlobalState();
 
         kiero::shutdown();

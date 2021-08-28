@@ -7,7 +7,7 @@
 #include "rsl2/misc/GlobalState.h"
 #include "rsl2/functions/Functions.h"
 #include "rsl2/util/Util.h"
-#include "rsl2/patching/Offset.h"
+#include "common/patching/Offset.h"
 #include "common/BuildConfig.h"
 #include "rsl2/functions/FunctionsInternal.h"
 #include <filesystem>

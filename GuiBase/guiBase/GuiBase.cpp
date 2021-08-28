@@ -3,6 +3,7 @@
 #include "rsl2/functions/Functions.h"
 #include "rsl2/misc/GlobalState.h"
 #include "common/Typedefs.h"
+#include "common/patching/Config.h"
 #include "common/Common.h"
 #include "gui/DebugGui.h"
 #include "debugDraw/debugDraw.h"
@@ -32,17 +33,25 @@ extern "C"
     //Called when the host dll loads this plugin
     DLLEXPORT bool __cdecl RSL2_PluginInit(IHost* host, std::vector<PluginInterface>& exportedFunctions)
     {
-        printf("GuiBase.dll RSL2_PluginInit() called!!\n");
         host_ = host;
 
         //External functions used by this plugin
         rsl2_ = (IRSL2*)host_->GetPluginInterface("RSL2", "RSL2");
-
         if (!rsl2_)
         {
             printf("Error! Failed to import all external functions in GuiBase.dll::RSL2_PluginInit.\n");
             return false;
         }
+
+        RSL2_GlobalState* globalState = rsl2_->GetGlobalState();
+        if (!globalState)
+        {
+            printf("Error! Failed to get RSL2 global state in GuiBase.dll::RSL2_PluginInit.\n");
+            return false;
+        }
+
+        //Initialize common lib
+        CommonLib_ModuleBase = globalState->ModuleBase;
 
         //Register callbacks
         rsl2_->RegisterImGuiCallback(&ImGuiCallback);
@@ -55,8 +64,6 @@ extern "C"
     //Called when the host dll unloads this plugin
     DLLEXPORT bool __cdecl RSL2_PluginShutdown()
     {
-        printf("GuiBase.dll RSL2_PluginShutdown() called!\n");
-
         //Remove callbacks
         rsl2_->RemoveImGuiCallback(&ImGuiCallback);
         rsl2_->RemoveOverlayCallback(&OverlayCallback);
@@ -82,7 +89,7 @@ extern "C"
 
     //Called immediately after dependency load + init
     DLLEXPORT void __cdecl RSL2_OnDependencyLoad(const string& dependencyName)
-    { 
+    {
         //Re-import external functions from dependency
         rsl2_ = (IRSL2*)host_->GetPluginInterface("RSL2", "RSL2");
 
@@ -127,7 +134,7 @@ void PrimitiveDrawCallback()
     RSL2_GlobalState* globalState = rsl2_->GetGlobalState();
     //Wait until ImGui hooks are initialized. It's a decent sign that all renderer hooks are in place and ready for use
     if (!globalState->ImGuiInitialized)
-        return; 
+        return;
 
     //Initialize default render state used by all primitive draw funcs
     rfg::RfgFunctions* Functions = rsl2_->GetRfgFunctions();

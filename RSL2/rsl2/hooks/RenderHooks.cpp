@@ -2,8 +2,8 @@
 #include <IconFontCppHeaders/IconsFontAwesome5_c.h>
 #include "rsl2/functions/FunctionsInternal.h"
 #include "rsl2/misc/GlobalState.h"
-#include "rsl2/patching/Offset.h"
 #include "rsl2/hooks/WndProc.h"
+#include "common/patching/Offset.h"
 
 
 #pragma comment(lib, "dxgi.lib")
@@ -389,7 +389,7 @@ void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer
     for (PrimitiveDrawCallbackFunc callback : PrimitiveDrawCallbacks)
         callback();
 }
-FunHook<primitive_renderer_begin_deferredHook_Type> primitive_renderer_begin_deferredHook { 0x0, primitive_renderer_begin_deferredHook_Func };
+FunHook<primitive_renderer_begin_deferredHook_Type> primitive_renderer_begin_deferredHook { 0x000F0E50, primitive_renderer_begin_deferredHook_Func };
 
 
 ImGuiContext* GetImGuiContext()

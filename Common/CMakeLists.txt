@@ -3,14 +3,14 @@ project (Common VERSION 1.0.0
                   DESCRIPTION "Common"
                   LANGUAGES CXX)
 
-# Make sure cmake doesn't add the build config name to the end of built DLLs 
+# Make sure cmake doesn't add the build config name to the end of built DLLs
 set(CMAKE_DEBUG_POSTFIX "")
 set(CMAKE_RELEASE_POSTFIX "")
 set(CMAKE_RELWITHDEBINFO_POSTFIX "")
 
 # Get list of source files in project src folders recursively
 # Places in SOURCES variable
-file(GLOB_RECURSE SOURCES 
+file(GLOB_RECURSE SOURCES
     ${CMAKE_SOURCE_DIR}/Common/common/*.cpp
     ${CMAKE_SOURCE_DIR}/Common/common/*.h
 )
