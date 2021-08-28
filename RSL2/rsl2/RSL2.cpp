@@ -9,6 +9,7 @@
 #include "functions/FunctionsInternal.h"
 #include "hooks/GrdRenderHooks.h"
 #include "hooks/RenderHooks.h"
+#include "hooks/GameseqHooks.h"
 #include "hooks/WndProc.h"
 #include "misc/GlobalState.h"
 #include "common/Typedefs.h"
@@ -54,13 +55,14 @@ extern "C"
         globalState->Host = host;
         globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
         printf("ModuleBase: %d\n", globalState->ModuleBase);
+        SetCustomGameStates();
 
         InitGlobals();
 
         if (kiero::init(kiero::RenderType::D3D11) != kiero::Status::Success)
         {
-            printf("Error! Failed to init kiero in RSdL2.dll!\n"); 
-            
+            printf("Error! Failed to init kiero in RSdL2.dll!\n");
+
             return false;
         }
 
@@ -115,6 +117,15 @@ extern "C"
 
         rfg_init_stage_2_done_hook.SetAddr(globalState->ModuleBase + 0x001D55C0);
         rfg_init_stage_2_done_hook.Install();
+
+        gameseq_set_state_hook.SetAddr(globalState->ModuleBase + 0x003D8730);
+        gameseq_set_state_hook.Install();
+
+        gameseq_push_state_hook.SetAddr(globalState->ModuleBase + 0x003D87E0);
+        gameseq_push_state_hook.Install();
+
+        gameseq_register_state_hook.SetAddr(globalState->ModuleBase + 0x003BFBD0);
+        gameseq_register_state_hook.Install();
 
         //Set export functions for this plugin
         FillExports();

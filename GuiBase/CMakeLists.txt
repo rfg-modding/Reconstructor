@@ -10,7 +10,7 @@ set(CMAKE_RELWITHDEBINFO_POSTFIX "")
 
 # Get list of source files in project src folders recursively
 # Places in SOURCES variable
-file(GLOB_RECURSE SOURCES 
+file(GLOB_RECURSE SOURCES
     ${CMAKE_SOURCE_DIR}/GuiBase/guiBase/*.cpp
     ${CMAKE_SOURCE_DIR}/GuiBase/guiBase/*.h
 )
@@ -45,6 +45,7 @@ target_include_directories(GuiBase SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/dependencies/
     ${CMAKE_SOURCE_DIR}/dependencies/imgui/
     ${CMAKE_SOURCE_DIR}/dependencies/RFGR_Types/
+    ${CMAKE_SOURCE_DIR}/dependencies/magic_enum/include/
     ${CMAKE_SOURCE_DIR}/dependencies/
 )
 

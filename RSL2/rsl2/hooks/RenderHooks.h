@@ -48,3 +48,6 @@ extern void RemoveOverlayCallback(OverlayCallbackFunc callback);
 using PrimitiveDrawCallbackFunc = void(__cdecl*)();
 extern void RegisterPrimitiveDrawCallback(PrimitiveDrawCallbackFunc callback);
 extern void RemovePrimitiveDrawCallback(PrimitiveDrawCallbackFunc callback);
+
+extern void ImGuiBeginFrame();
+extern void ImGuiEndFrame();

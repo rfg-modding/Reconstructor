@@ -96,6 +96,7 @@ HRESULT __stdcall D3D11_ResizeBuffersHookFunc(IDXGISwapChain* pSwapChain, UINT B
 }
 FunHook<D3D11_ResizeBuffersHook_Type> D3D11_ResizeBuffersHook{ 0x0, D3D11_ResizeBuffersHookFunc };
 
+static bool ImGuiFrameActive = false;
 FunHook<void* (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwapChain)> keen_graphics_beginFrame
 {
     0x0086A8A0,
@@ -114,7 +115,15 @@ FunHook<void* (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSw
             gSwapChain = pSwapChain;
         }
         if (globalState->ImGuiInitialized)
-            return keen_graphics_beginFrame.CallTarget(pGraphicsSystem, pSwapChain);
+        {
+            void* result = keen_graphics_beginFrame.CallTarget(pGraphicsSystem, pSwapChain);
+            if (!ImGuiFrameActive && !globalState->Host->PerformingReload)
+            {
+                ImGuiBeginFrame();
+                ImGuiFrameActive = true;
+            }
+            return result;
+        }
         if (!ReadyForD3D11Init())
             return keen_graphics_beginFrame.CallTarget(pGraphicsSystem, pSwapChain);
 
@@ -148,12 +157,17 @@ FunHook<void* (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSw
 
         globalState->RfgWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(globalState->gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(RSL2_WndProc)));
         if (!globalState->RfgWndProc)
-            printf("Failed to set custom WndProc! Error message: {}\n", GetLastWin32ErrorAsString().c_str());
+            printf("Failed to set custom WndProc! Error message: %s\n", GetLastWin32ErrorAsString().c_str());
 
 
         InitImGuiD3D11();
 
         return keen_graphics_beginFrame.CallTarget(pGraphicsSystem, pSwapChain);
+        //if (globalState->ImGuiInitialized)// && (globalState->OverlayActive || globalState->GuiActive))
+        //{
+        //    printf("a\n");
+        //    //ImGuiBeginFrame();
+        //}
     }
 };
 
@@ -165,11 +179,9 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
     if (!globalState->ImGuiInitialized || globalState->Host->PerformingReload)
         return D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
 
-    if (globalState->OverlayActive || globalState->GuiActive)
+    if (ImGuiFrameActive && (globalState->OverlayActive || globalState->GuiActive))
     {
-        ImGui_ImplDX11_NewFrame();
-        ImGui_ImplWin32_NewFrame();
-        ImGui::NewFrame();
+        //ImGuiBeginFrame();
 
         //Gui code here. This is an input blocking overlay
         if (globalState->GuiActive)
@@ -186,10 +198,13 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
                 callback();
         }
 
-        //Gui->Draw();
-        gD3D11Context->OMSetRenderTargets(1, &gMainRenderTargetView, nullptr);
-        ImGui::Render();
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        //ImGuiEndFrame();
+    }
+
+    if (ImGuiFrameActive)
+    {
+        ImGuiEndFrame();
+        ImGuiFrameActive = false;
     }
 
     HRESULT result = D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
@@ -198,6 +213,28 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
 #endif
 
     return result;
+}
+
+void ImGuiBeginFrame()
+{
+    static RSL2_GlobalState* globalState = GetGlobalState();
+    if (!globalState || !globalState->ImGuiInitialized)
+        return;
+
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+}
+
+void ImGuiEndFrame()
+{
+    static RSL2_GlobalState* globalState = GetGlobalState();
+    if (!globalState || !globalState->ImGuiInitialized)
+        return;
+
+    gD3D11Context->OMSetRenderTargets(1, &gMainRenderTargetView, nullptr);
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 bool ReadyForD3D11Init()

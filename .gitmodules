@@ -16,3 +16,6 @@
 [submodule "Dependencies/RSL2-Dependencies"]
 	path = Dependencies/RSL2-Dependencies
 	url = https://github.com/rsl-dev/RSL2-Dependencies.git
+[submodule "Dependencies/magic_enum"]
+	path = Dependencies/magic_enum
+	url = https://github.com/Neargye/magic_enum.git

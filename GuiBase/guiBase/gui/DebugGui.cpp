@@ -1,10 +1,12 @@
 #include "DebugGui.h"
 #include "rsl2/misc/GlobalState.h"
 #include "RFGR_Types/rfg/Player.h"
+#include "RFGR_Types/rfg/Game.h"
 #include "rsl2/functions/Functions.h"
 #include "KnownCues.h"
 #include <IconFontCppHeaders/IconsFontAwesome5_c.h>
 #include <imgui/imgui.h>
+#include <magic_enum/include/magic_enum.hpp>
 #include <imgui/misc/cpp/imgui_stdlib.h>
 #include <vector>
 
@@ -42,6 +44,30 @@ int GetWeaponInfoIndex(const string& name, RSL2_GlobalState* globalState)
     }
 
     return 0;
+}
+
+const ImVec4 SecondaryTextColor(0.32f, 0.67f, 1.0f, 1.00f); //Light blue;
+//const ImVec4 TertiaryTextColor(0.573f, 0.596f, 0.62f, 1.00f); //Light grey
+const ImVec4 TertiaryTextColor(0.64f, 0.67f, 0.69f, 1.00f); //Light grey
+const ImVec4 Red(0.784f, 0.094f, 0.035f, 1.0f);
+
+//Set formatted to false to disable imgui printf style formatting
+static void LabelAndValue(const std::string& Label, const std::string& Value, bool formatted = true)
+{
+    if (formatted)
+    {
+        ImGui::Text(Label.c_str());
+        ImGui::SameLine();
+        ImGui::TextColored(SecondaryTextColor, Value.c_str());
+    }
+    else
+    {
+        ImGui::TextUnformatted(Label.c_str());
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, SecondaryTextColor);
+        ImGui::TextUnformatted(Value.c_str());
+        ImGui::PopStyleColor();
+    }
 }
 
 void DebugGui_DoFrame(IRSL2* rsl2)
@@ -92,24 +118,13 @@ void DebugGui_DoFrame(IRSL2* rsl2)
         }
         ImGui::EndChild();
     }
-    
+
 
     ImGui::Separator();
     ImGui::PushFont(globalState->FontLarge);
     ImGui::Text(ICON_FA_PLANE_ARRIVAL " Air bombs test");
     ImGui::PopFont();
     ImGui::Separator();
-
-    //template<class T>
-    //T OffsetPtr(unsigned long Offset)
-    //{
-    //    static RSL2_GlobalState* globalState = GetGlobalState();
-    //    if (globalState->ModuleBase == 0)
-    //    {
-    //        globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
-    //    }
-    //    return reinterpret_cast<T>(globalState->ModuleBase + Offset);
-    //}
 
     static air_bomb_info customAirBomb;
     static bool firstRun = true;
@@ -248,7 +263,7 @@ void DebugGui_DoFrame(IRSL2* rsl2)
     ImGui::Text(ICON_FA_WRENCH " Misc tweaks");
     ImGui::PopFont();
     ImGui::Separator();
-    
+
     //Game speed multiplier
     ImGui::SetNextItemWidth(230.0f);
     ImGui::InputFloat("Game speed scale", globalState->SpeedScale);
@@ -266,6 +281,28 @@ void DebugGui_DoFrame(IRSL2* rsl2)
 
     //ImGui::SameLine();
     //Gui::ShowHelpMarker("1.0 = vanilla, # < 1.0 = slo-mo, # > 1.0 = \"fast-mo\"");
+
+    static bool onlyPrintUnregisteredStates = false;
+    ImGui::Checkbox("Only print unregistered states", &onlyPrintUnregisteredStates);
+    if (ImGui::Button("Print game state info"))
+    {
+        //Todo: Give other DLLs access to OffsetPtr<T> from RSL2.dll
+        state_info* State_info = reinterpret_cast<state_info*>(globalState->ModuleBase + 0x0213ADA0);
+        for (u32 i = 0; i < 64; i++)
+        {
+            state_info& state = State_info[i];
+            if (onlyPrintUnregisteredStates && state.registered)
+                continue;
+
+            printf("%s:\n", magic_enum::enum_name((game_state)i).data());
+            printf("    Transparent: %s\n", state.transparent ? "true" : "false");
+            printf("    Pause beneath: %s\n", state.pause_beneath ? "true" : "false");
+            printf("    User flags: %d\n", state.user_flags);
+            printf("    Hide cursor: %s\n", state.hide_cursor ? "true" : "false");
+            printf("    Registered: %s\n", state.registered ? "true" : "false");
+            printf("\n");
+        }
+    }
 
     ImGui::End();
 }
