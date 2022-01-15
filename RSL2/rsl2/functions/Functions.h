@@ -9,12 +9,19 @@
 #include "RFGR_Types/rfg/Audiolib.h"
 #include "RFGR_Types/rfg/Weapon.h"
 #include "RFGR_Types/rfg/stream2/cfile.h"
+#include "RFGR_Types/rfg/stream2/stream2.h"
 #include "common/patching/FunctionPointer.h"
 
 //Forward declarations
 struct human;
 struct rfg_rbb_node;
 struct xml_element;
+struct stream2_container;
+struct stream2_os_file;
+namespace keen
+{
+    struct Event;
+}
 
 namespace rfg
 {
@@ -120,5 +127,27 @@ namespace rfg
 
         FunctionPointer<rl_mesh_instance* __cdecl(static_mesh* base_mesh)> ui_create_static_mesh = { 0x004C48C0 };
         FunctionPointer<static_mesh* __cdecl(const char* filename, unsigned int srid)> static_mesh_find = { 0x004094A0 };
+
+        FunctionPointer<DWORD __stdcall()> get_current_thread_id = { 0x0018C220 };
+
+        //Todo: Remove these from this if they end up getting completely replaced
+        FunctionPointer<void __stdcall()> queue_process_unload = { 0x000AED10 };
+        FunctionPointer<void __stdcall()> queue_process = { 0x000B08D0 };
+        FunctionPointer<void __stdcall()> queue_process_passive = { 0x000AED90 };
+
+        //void __thiscall stream2_container::unload(stream2_container *this)
+        //Todo: Make member functions callable the normal way (e.g. someContainer.unload()). Need to provide ModuleBase and function offsets to RFGR_Types lib
+        FunctionPointer<void __fastcall(stream2_container* thisPtr, void* edx)> stream2_container_unload = { 0x000ADCD0 };
+        FunctionPointer<bool __fastcall(stream2_container* thisPtr, void* edx)> stream2_container_stream_wait = { 0x000AFAD0 };
+        FunctionPointer<bool __fastcall(stream2_container* thisPtr, void* edx)> stream2_container_abort_wait = { 0x000B03E0 };
+        FunctionPointer<bool __fastcall(stream2_container* thisPtr, void* edx)> stream2_container_alloc = { 0x000AD780 };
+        FunctionPointer<u32 __cdecl(stream2_os_file* request)> stream2_os_read = { 0x000AE250 };
+        FunctionPointer<bool __cdecl(char* new_filename, unsigned int new_filename_array_size, const char* filename, const char* ext, bool dont_replace)> cf_add_ext = { 0x00197F00 };
+        FunctionPointer<bool __fastcall(keen::Event* thisPtr, void* edx)> keen_Event_sleepUntilSignaled = { 0x007ED200 };
+        FunctionPointer<void __fastcall(keen::Event* thisPtr, void* edx)> keen_Event_signal = { 0x007ED230 };
+        FunctionPointer<stream2_os_req_status __fastcall(stream2_container* thisPtr, void* edx)> stream2_container_req_poll = { 0x000AD1A0 };
+        FunctionPointer<void __fastcall(stream2_container* thisPtr, void* edx)> stream2_container_req_abort = { 0x000AD2A0 };
+        FunctionPointer<void __fastcall(stream2_container* thisPtr, void* edx)> stream2_container_req_release = { 0x000AD2F0 };
+        FunctionPointer<bool __fastcall(stream2_os_device* thisPtr, void* edx)> stream2_os_device_process = { 0x000AAEE0 };
     };
 }

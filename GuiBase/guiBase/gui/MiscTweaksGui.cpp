@@ -1,4 +1,4 @@
-#include "DebugGui.h"
+#include "MiscTweaksGui.h"
 #include "rsl2/misc/GlobalState.h"
 #include "RFGR_Types/rfg/Player.h"
 #include "rsl2/functions/Functions.h"
@@ -7,9 +7,6 @@
 #include <imgui/imgui.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
 #include <vector>
-
-//int __cdecl audiolib_cue_play(int cue_id, audiolib_params *passed_params, audiolib_result *error) //0x0009F100
-//audiolib_result __cdecl audiolib_cue_get_id(const char *cue_name, int *caller_cue_id) //0x0008DC20
 
 int lastSoundPlayed = 0;
 void PlaySound(const char* name, rfg::RfgFunctions* functions)
@@ -44,13 +41,33 @@ int GetWeaponInfoIndex(const string& name, RSL2_GlobalState* globalState)
     return 0;
 }
 
-void DebugGui_DoFrame(IRSL2* rsl2)
+//Todo: Move into UI utility namespace or Imgui namespace
+const ImVec4 SecondaryTextColor(0.32f, 0.67f, 1.0f, 1.00f); //Light blue;
+static void LabelAndValue(const std::string& Label, const std::string& Value, bool formatted = true)
+{
+    if (formatted)
+    {
+        ImGui::Text(Label.c_str());
+        ImGui::SameLine();
+        ImGui::TextColored(SecondaryTextColor, Value.c_str());
+    }
+    else
+    {
+        ImGui::TextUnformatted(Label.c_str());
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, SecondaryTextColor);
+        ImGui::TextUnformatted(Value.c_str());
+        ImGui::PopStyleColor();
+    }
+}
+
+void MiscTweaksGui_DoFrame(IRSL2* rsl2, bool* open)
 {
     RSL2_GlobalState* globalState = rsl2->GetGlobalState();
     if (!globalState || !globalState->Player || !globalState->MainCamera || !globalState->World)
         return;
 
-    if (!ImGui::Begin("Debug gui"))
+    if (!ImGui::Begin("Debug gui", open))
     {
         ImGui::End();
         return;
@@ -61,12 +78,15 @@ void DebugGui_DoFrame(IRSL2* rsl2)
     ImGui::PopFont();
     ImGui::Separator();
 
+    ImGui::InputFloat3("Player position", (f32*)&globalState->Player->pos);
+
     ImGui::PushFont(globalState->FontLarge);
     ImGui::Text(ICON_FA_AUDIO_DESCRIPTION " Audio");
     ImGui::PopFont();
     ImGui::Separator();
 
     rfg::RfgFunctions* Functions = rsl2->GetRfgFunctions();
+
 
     static string input;
     ImGui::InputText("Custom sound name", &input);
@@ -92,24 +112,13 @@ void DebugGui_DoFrame(IRSL2* rsl2)
         }
         ImGui::EndChild();
     }
-    
+
 
     ImGui::Separator();
     ImGui::PushFont(globalState->FontLarge);
     ImGui::Text(ICON_FA_PLANE_ARRIVAL " Air bombs test");
     ImGui::PopFont();
     ImGui::Separator();
-
-    //template<class T>
-    //T OffsetPtr(unsigned long Offset)
-    //{
-    //    static RSL2_GlobalState* globalState = GetGlobalState();
-    //    if (globalState->ModuleBase == 0)
-    //    {
-    //        globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
-    //    }
-    //    return reinterpret_cast<T>(globalState->ModuleBase + Offset);
-    //}
 
     static air_bomb_info customAirBomb;
     static bool firstRun = true;
@@ -248,7 +257,7 @@ void DebugGui_DoFrame(IRSL2* rsl2)
     ImGui::Text(ICON_FA_WRENCH " Misc tweaks");
     ImGui::PopFont();
     ImGui::Separator();
-    
+
     //Game speed multiplier
     ImGui::SetNextItemWidth(230.0f);
     ImGui::InputFloat("Game speed scale", globalState->SpeedScale);
@@ -266,6 +275,111 @@ void DebugGui_DoFrame(IRSL2* rsl2)
 
     //ImGui::SameLine();
     //Gui::ShowHelpMarker("1.0 = vanilla, # < 1.0 = slo-mo, # > 1.0 = \"fast-mo\"");
+
+    //Stream containers & primitives
+    if (ImGui::CollapsingHeader("Stream containers"))
+    {
+        stream2_container* container = globalState->Stream_containers;
+        u32 i = 0;
+        while (container)
+        {
+            //Container linked list is circular
+            if (container == globalState->Stream_containers && i != 0)
+                break;
+
+            string containerName;
+            if (container->name)
+                containerName += container->name;
+            else
+                containerName += "Container (" + std::to_string((u32)container->name) + ")";
+
+            ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize() * 1.7f); //Increase spacing to differentiate leaves from expanded contents.
+            if (ImGui::TreeNode(containerName.c_str()))
+            {
+                //General state
+                LabelAndValue("Ref count:", std::to_string(container->ref_count));
+                LabelAndValue("Num entries:", std::to_string(container->num_entries));
+                LabelAndValue("Flags:", std::to_string(container->flags));
+                LabelAndValue("Priority:", std::to_string(container->cur_priority));
+                LabelAndValue("Category:", std::to_string(container->cur_category)); //Todo: Convert enum to string
+
+                //Container definition
+                if (container->cdef && ImGui::TreeNode("Definition"))
+                {
+                    stream2_container_def* def = container->cdef;
+                    LabelAndValue("Name:", def->name);
+                    LabelAndValue("Mode:", std::to_string(def->mode)); //Todo: Convert enum to string
+                    LabelAndValue("Container type:", std::to_string(def->container_type)); //Todo: Convert enum to string
+                    LabelAndValue("Allocator index:", std::to_string(def->allocator_idx)); //Todo: Convert enum to string
+                    ImGui::TreePop();
+                }
+
+                //Entries
+                if (ImGui::TreeNode("Entries"))
+                {
+                    if (container->entries)
+                    {
+                        for (u32 j = 0; j < container->num_entries; j++)
+                        {
+                            stream2_container::entry* entry = container->entries + j;
+                            const bool hasPrimitive = (entry && entry->prim);
+
+                            if (hasPrimitive) //Draw node with primitive name if one is present
+                            {
+                                stream2_prim* prim = entry->prim;
+                                if (ImGui::TreeNode(prim->name))
+                                {
+                                    LabelAndValue("Name:", prim->name);
+                                    LabelAndValue("Cpu size:", std::to_string(prim->cpu_size));
+                                    LabelAndValue("Gpu size:", std::to_string(prim->gpu_size));
+                                    LabelAndValue("Split ext index:", std::to_string(prim->split_ext_index));
+                                    LabelAndValue("Flags:", std::to_string(prim->flags)); //Todo: Convert enum to string
+                                    LabelAndValue("Allocator index:", std::to_string(prim->allocator_idx));
+                                    LabelAndValue("Ref count:", std::to_string(prim->ref_count));
+                                    LabelAndValue("Container ref count:", std::to_string(prim->container_ref_count));
+
+                                    if (ImGui::TreeNode("Entry data"))
+                                    {
+                                        LabelAndValue("Enable: ", std::to_string(entry->enable));
+                                        LabelAndValue("User0: ", std::to_string(entry->user0));
+                                        LabelAndValue("User1: ", std::to_string(entry->user1));
+                                        LabelAndValue("Flags: ", std::to_string(entry->flags));
+                                        ImGui::TreePop();
+                                    }
+
+                                    ImGui::TreePop();
+                                }
+                            }
+                            else //Draw node with entry data if there's no primitive
+                            {
+                                string entryLabel = "Entry " + std::to_string(j) + " (No primitive)";
+                                if (ImGui::TreeNode(entryLabel.c_str()))
+                                {
+                                    LabelAndValue("Enable: ", std::to_string(entry->enable));
+                                    LabelAndValue("User0: ", std::to_string(entry->user0));
+                                    LabelAndValue("User1: ", std::to_string(entry->user1));
+                                    LabelAndValue("Flags: ", std::to_string(entry->flags));
+                                    ImGui::TreePop();
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ImGui::Text(ICON_FA_EXCLAMATION_CIRCLE " No entries");
+                    }
+
+                    ImGui::TreePop();
+                }
+
+
+                ImGui::TreePop();
+            }
+            ImGui::PopStyleVar(); //Pop tree node spacing style var
+            container = container->next;
+            i++;
+        }
+    }
 
     ImGui::End();
 }

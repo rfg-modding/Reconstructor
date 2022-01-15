@@ -6,6 +6,7 @@
 #include "rfg/Containers.h"
 #include "rfg/Ui.h"
 #include "RFGR_Types/rfg/Weapon.h"
+#include "RFGR_Types/rfg/stream2/stream2.h"
 #include "common/containers/FixedArray.h"
 
 struct ImFont;
@@ -13,6 +14,10 @@ struct player;
 struct rfg_camera;
 struct world;
 struct mempool_base;
+namespace keen
+{
+    struct Event;
+}
 
 //Todo: Try to reduce the usage of this. Though a certain amount of global usage is unavoidable because the game has many global and static variables
 //TODO: Document what each RFG global does, if anything. Some are debug/dev values that don't do much in public builds.
@@ -48,6 +53,7 @@ public:
     player* Player = nullptr;
     rfg_camera* MainCamera = nullptr;
     world* World = nullptr;
+    stream2_container* Stream_containers = nullptr; //0x016C2B50
 
     //Whether or not to draw the games built in memory tracking overlay
     bool DrawRfgMemoryTracker = false;
@@ -73,6 +79,17 @@ public:
     float* SpeedScale = nullptr; //0x0125BBD4
     bool* Use_packfiles = nullptr; //0x01958C55
     mempool_base** Xml_mempool = nullptr; //0x018E77DC
+
+    u32* Stream_thread_id = nullptr; //0x016C2B4C
+    stream2_container** Stream_q = nullptr; //0x016C2B40
+    stream2_container** Stream_q_passive = nullptr; //0x016C2B44
+    stream2_container** Stream_q_unload = nullptr; //0x016C2B3C
+    bool* Stream_q_paused = nullptr; //0x016C2B48
+    bool* Re_entrant = nullptr; //0x01708A04
+    bool* Multiplayer = nullptr; //0x02BEA588
+    keen::Event* g_stream2ContainerLoadEvent = nullptr; //0x016C2B64
+    stream2_container** g_pStream2ContainerToLoad = nullptr; //0x016C2B60
+    volatile bool* g_stream2ContainerLoaded = nullptr; //0x016C2B4A
 };
 
 extern RSL2_GlobalState* GetGlobalState();

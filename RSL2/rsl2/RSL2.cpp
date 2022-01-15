@@ -6,6 +6,7 @@
 #include "hooks/MiscHooks.h"
 #include "hooks/XmlHooks.h"
 #include "hooks/ui/MainMenuHooks.h"
+#include "hooks/StreamingHooks.h"
 #include "functions/FunctionsInternal.h"
 #include "hooks/GrdRenderHooks.h"
 #include "hooks/RenderHooks.h"
@@ -82,6 +83,22 @@ extern "C"
         grd_bbox_aligned_hook.Install();
         grd_bbox_oriented_hook.Install();
 
+        //Streaming hooks
+        //assasm_start_hook.Install();
+        //assasm_finish_hook.Install();
+        //assasm_container_start.Install();
+        //assasm_container_finish.Install();
+
+        //stream2_container_start_hook.Install();
+        //stream2_container_add_prim_hook.Install();
+        //stream2_container_finish_hook.Install();
+
+        stream2_do_frame_hook.Install();
+        world_set_pending_territory_load_hook.Install();
+        world_init_territory_hook.Install();
+        stream2_container_load_hook.Install();
+        stream2_os_device_thread_hook.Install();
+
         //Misc hooks
         PlayerDoFrame_hook.Install();
         primitive_renderer_begin_deferredHook.Install();
@@ -124,6 +141,20 @@ extern "C"
         xml_parse_hook.Remove();
         rfg_init_stage_2_done_hook.Remove();
 
+        //assasm_start_hook.Remove();
+        //assasm_finish_hook.Remove();
+        //assasm_container_start.Remove();
+        //assasm_container_finish.Remove();
+
+        //stream2_container_start_hook.Remove();
+        //stream2_container_add_prim_hook.Remove();
+        //stream2_container_finish_hook.Remove();
+
+        stream2_do_frame_hook.Remove();
+        world_set_pending_territory_load_hook.Remove();
+        world_init_territory_hook.Remove();
+        stream2_container_load_hook.Remove();
+        stream2_os_device_thread_hook.Remove();
         //Relock mouse and camera so game has full control of them and patches are removed
         LockMouse();
         LockCamera();

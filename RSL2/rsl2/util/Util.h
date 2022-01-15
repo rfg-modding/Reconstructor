@@ -123,6 +123,7 @@ static void InitGlobals()
     globalState->World = OffsetPtr<world*>(0x02B97490);
     globalState->MainCamera = OffsetPtr<rfg_camera*>(0x019E3B50);
     globalState->RfgMenusList = OffsetPtr<farray<ui_menu*, 8>*>(0x1266698);
+    globalState->Stream_containers = *OffsetPtr<stream2_container**>(0x016C2B50);
 
     globalState->NumAirBombInfos = OffsetPtr<u32*>(0x01E28610);
     auto airBombInfosPtr = OffsetPtr<air_bomb_info**>(0x01E2860C);
@@ -145,4 +146,15 @@ static void InitGlobals()
 
     globalState->MouseGenericPollMouseVisibleAddress = globalState->ModuleBase + 0x001B88DC;
     globalState->CenterMouseCursorCallAddress = globalState->ModuleBase + 0x878D90;
+
+    globalState->Stream_thread_id = OffsetPtr<u32*>(0x016C2B4C);
+    globalState->Stream_q = OffsetPtr<stream2_container**>(0x016C2B40);
+    globalState->Stream_q_passive = OffsetPtr<stream2_container**>(0x016C2B44);
+    globalState->Stream_q_unload = OffsetPtr<stream2_container**>(0x016C2B3C);
+    globalState->Stream_q_paused = OffsetPtr<bool*>(0x016C2B48);
+    globalState->Re_entrant = OffsetPtr<bool*>(0x01708A04);
+    globalState->Multiplayer = OffsetPtr<bool*>(0x02BEA588);
+    globalState->g_stream2ContainerLoadEvent = OffsetPtr<keen::Event*>(0x016C2B64);
+    globalState->g_pStream2ContainerToLoad = OffsetPtr<stream2_container**>(0x016C2B60);
+    globalState->g_stream2ContainerLoaded = OffsetPtr<volatile bool*>(0x016C2B4A);
 }

@@ -70,3 +70,22 @@ public:
         return func(a...);
     }
 };
+
+template<class R, class... A>
+class FunctionPointer<R __stdcall(A...)> : public FunctionPointerImpl
+{
+private:
+    using FunPtrType = R(__stdcall*)(A...);
+
+public:
+    FunctionPointer(uintptr_t address) : FunctionPointerImpl(address)
+    {
+        Install();
+    }
+
+    R operator()(A... a)
+    {
+        FunPtrType func = reinterpret_cast<FunPtrType>(ptr_);
+        return func(a...);
+    }
+};
