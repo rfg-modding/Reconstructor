@@ -3,6 +3,7 @@
 #include "RFGR_Types/rfg/Player.h"
 #include "rsl2/functions/Functions.h"
 #include "KnownCues.h"
+#include "rsl2/IRSL2.h"
 #include <IconFontCppHeaders/IconsFontAwesome5_c.h>
 #include <imgui/imgui.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
@@ -44,13 +45,13 @@ int GetWeaponInfoIndex(const string& name, RSL2_GlobalState* globalState)
     return 0;
 }
 
-void DebugGui_DoFrame(IRSL2* rsl2)
+void DebugGui_DoFrame(IRSL2* rsl2, bool* open)
 {
     RSL2_GlobalState* globalState = rsl2->GetGlobalState();
     if (!globalState || !globalState->Player || !globalState->MainCamera || !globalState->World)
         return;
 
-    if (!ImGui::Begin("Debug gui"))
+    if (!ImGui::Begin("Debug gui", open))
     {
         ImGui::End();
         return;
@@ -92,7 +93,7 @@ void DebugGui_DoFrame(IRSL2* rsl2)
         }
         ImGui::EndChild();
     }
-    
+
 
     ImGui::Separator();
     ImGui::PushFont(globalState->FontLarge);
@@ -248,7 +249,7 @@ void DebugGui_DoFrame(IRSL2* rsl2)
     ImGui::Text(ICON_FA_WRENCH " Misc tweaks");
     ImGui::PopFont();
     ImGui::Separator();
-    
+
     //Game speed multiplier
     ImGui::SetNextItemWidth(230.0f);
     ImGui::InputFloat("Game speed scale", globalState->SpeedScale);

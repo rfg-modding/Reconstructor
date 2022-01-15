@@ -169,7 +169,7 @@ void GeneralDebugDraw_DoFrame(IRSL2* rsl2)
                 //Get object and it's stream data
                 general_mover* mover = reinterpret_cast<general_mover*>(object);
                 auto* rdd = mover->rdd.GetData();
-                
+
                 //Only draw object if it's fully loaded in and within the max draw distance
                 float maxDrawDistance = 100.0f;
                 vector distance = object->pos - globalState->MainCamera->real_pos;

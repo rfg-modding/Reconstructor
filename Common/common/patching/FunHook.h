@@ -4,6 +4,7 @@
 
 #pragma once
 #include "common/patching/Traits.h"
+#include "common/patching/Config.h"
 #include <cstdint>
 #include <subhook/subhook.h>
 #include <stdexcept>
@@ -22,8 +23,12 @@ protected:
     }
 
 public:
-    void Install()
+    //If useRelativeAddress is true m_target_fun_ptr will be treated as an address relative to the start of the rfg.exe module, which doesn't start at 0x0
+    void Install(bool useRelativeAddress = true)
     {
+        if(useRelativeAddress)
+            SetAddr(CommonLib_ModuleBase + (uintptr_t)m_target_fun_ptr);
+
         m_subhook.Install(m_target_fun_ptr, m_hook_fun_ptr);
         if (!m_subhook.GetTrampoline())
             throw std::runtime_error("trampoline is null for 0x%p"); //Todo: add ptr value to error

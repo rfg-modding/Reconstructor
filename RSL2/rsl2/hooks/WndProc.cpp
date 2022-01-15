@@ -98,9 +98,15 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
                 break;
             case VK_F6:
                 if (*globalState->Player_max_movement_speed_override < 49.0f)
+                {
                     *globalState->Player_max_movement_speed_override = 50.0f;
+                    globalState->Player->hflags.invulnerable = true;
+                }
                 else
+                {
                     *globalState->Player_max_movement_speed_override = 0.0f;
+                    globalState->Player->hflags.invulnerable = false;
+                }
 
                 break;
 

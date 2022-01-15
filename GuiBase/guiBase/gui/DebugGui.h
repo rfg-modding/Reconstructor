@@ -1,5 +1,7 @@
+#pragma once
 #include "common/Typedefs.h"
-#include "rsl2/IRSL2.h"
 
-extern void DebugGui_DoFrame(IRSL2* rsl2);
-extern void DebugOverlay_DoFrame(IRSL2* rsl2);
+class IRSL2;
+
+void DebugGui_DoFrame(IRSL2* rsl2, bool* open);
+void DebugOverlay_DoFrame(IRSL2* rsl2);

@@ -11,27 +11,19 @@
 
 FunHook<void(player*)> PlayerDoFrame_hook
 {
-    0x6E6290, //__cdecl
+    0x6E6290,
     [](player* player)
     {
-        if (!GetGlobalState()->Player)
-        {
-            GetGlobalState()->Player = player;
-        }
-        //Todo: Make RSL work with profiler without failing to load the DLL
-        //Todo: Wrap tracy macros in our own that can work even when it's not compiled in
 #ifdef COMPILE_IN_PROFILER
         ZoneScopedN("PlayerDoFrame");
 #endif
-        object* playerObj = reinterpret_cast<object*>(player);
-        human* playerAsHuman = (human*)playerObj;
-        playerAsHuman->hflags.invulnerable = true;
-        //playerAsHuman->move_speed = 50.0f;
+        if (!GetGlobalState()->Player)
+            GetGlobalState()->Player = player;
 
         //Todo: Provide a per-frame callback that stuff like CameraUpdate can be ran via. Sticking everything in this hook isn't sustainable
         //Update camera
         CameraUpdate();
-        //Update player
+
         PlayerDoFrame_hook.CallTarget(player);
     }
 };

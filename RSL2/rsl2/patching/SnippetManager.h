@@ -24,6 +24,7 @@ public:
 	std::vector <int> Opcodes;
 };
 
+//Used to disable and restore chunks of code
 class SnippetManager
 {
 public:
