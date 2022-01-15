@@ -5,6 +5,7 @@
 #include "common/Typedefs.h"
 #include "common/patching/Config.h"
 #include "common/Common.h"
+#include "gui/MainGui.h"
 #include "gui/DebugGui.h"
 #include "debugDraw/debugDraw.h"
 #include <imgui.h>
@@ -116,8 +117,8 @@ void ImGuiCallback()
         }
     }
 
+    MainGui_DoFrame(rsl2_);
     ImGui::ShowDemoWindow();
-    DebugGui_DoFrame(rsl2_);
 }
 
 void OverlayCallback()
