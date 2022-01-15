@@ -51,5 +51,6 @@ add_subdirectory(Common) # Statically linked common lib used in multiple sub-pro
 add_subdirectory(Profiler) # Profiler DLL included by other DLLs / applications which want to use tracy profiler. Needed for multi-DLL projects
 add_subdirectory(Launcher) # Launcher that starts RFGR and injects the host DLL into it
 add_subdirectory(Host) # Host DLL which is injected into RFGR and manages loading and reloading plugin DLLs
-add_subdirectory (RSL2) # Main plugin DLL of RSL2 with function hooks and patches
-add_subdirectory (GuiBase) # Base gui and overlays which are included with RSL2
+add_subdirectory(RSL2) # Main plugin DLL of RSL2 with function hooks and patches
+add_subdirectory(GuiBase) # Base gui and overlays which are included with RSL2
+add_subdirectory(Scripting) # Scripting API
