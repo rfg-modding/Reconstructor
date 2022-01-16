@@ -17,7 +17,7 @@ FunHook<void(player*)> PlayerDoFrame_hook
 #ifdef COMPILE_IN_PROFILER
         ZoneScopedN("PlayerDoFrame");
 #endif
-        if (!GetGlobalState()->Player)
+        if (GetGlobalState()->Player != player)
             GetGlobalState()->Player = player;
 
         //Todo: Provide a per-frame callback that stuff like CameraUpdate can be ran via. Sticking everything in this hook isn't sustainable
