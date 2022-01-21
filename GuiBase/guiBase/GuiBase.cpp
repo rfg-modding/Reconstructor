@@ -118,7 +118,6 @@ void ImGuiCallback()
     }
 
     MainGui_DoFrame(rsl2_);
-    ImGui::ShowDemoWindow();
 }
 
 void OverlayCallback()

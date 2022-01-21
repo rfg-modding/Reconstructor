@@ -26,6 +26,7 @@ void MainGui_DoFrame(IRSL2* rsl2)
 
     DrawMainMenuBar(rsl2);
     DrawDockspace(rsl2);
+    ImGui::ShowDemoWindow();
 
     if (MiscTweaksGui_Open)
         DebugGui_DoFrame(rsl2, &MiscTweaksGui_Open);
