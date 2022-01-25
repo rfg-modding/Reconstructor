@@ -15,6 +15,7 @@
 #include "common/Common.h"
 #include "common/patching/Config.h"
 #include "common/patching/Offset.h"
+#include "hooks/MpHooks.h"
 #include "rsl2/hooks/Camera.h"
 #include "rsl2/util/Util.h"
 #include "rsl2/IRSL2.h"
@@ -89,6 +90,7 @@ extern "C"
         main_menu_process_hook.Install();
         xml_parse_hook.Install();
         rfg_init_stage_2_done_hook.Install();
+        multi_game_process_remote_console_command_hook.Install(); //Disables rcon handler
 
         //Export functions for other plugins to use
         FillExports();
@@ -123,6 +125,7 @@ extern "C"
         main_menu_process_hook.Remove();
         xml_parse_hook.Remove();
         rfg_init_stage_2_done_hook.Remove();
+        multi_game_process_remote_console_command_hook.Remove();
 
         //Relock mouse and camera so game has full control of them and patches are removed
         LockMouse();
