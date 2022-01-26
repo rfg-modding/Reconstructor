@@ -4,7 +4,7 @@
 #include "rsl2/misc/GlobalState.h"
 #include "rsl2/hooks/WndProc.h"
 #include "common/patching/Offset.h"
-
+#include "rsl2/gui/GuiBase.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -18,15 +18,6 @@
 #ifdef COMPILE_IN_PROFILER
 #include "tracy/Tracy.hpp"
 #endif
-
-#include "RFGR_Types/rfg/keen/GraphicsSystem.h"
-#include "RFGR_Types/rfg/Game.h"
-#include "RFGR_Types/rfg/Player.h"
-#include "RFGR_Types/rfg/Human.h"
-#include "RFGR_Types/rfg/Object.h"
-#include "RFGR_Types/rfg/Camera.h"
-#include "RFGR_Types/rfg/World.h"
-#include "RFGR_Types/rfg/Memory.h"
 
 //Only used by render hooks
 keen::GraphicsSystem* gGraphicsSystem = nullptr;
@@ -77,7 +68,7 @@ HRESULT __stdcall D3D11_ResizeBuffersHookFunc(IDXGISwapChain* pSwapChain, UINT B
 
         ID3D11Texture2D* BackBuffer;
         Result = gD3D11Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<LPVOID*>(&BackBuffer));
-        if (Result != S_OK)
+        if (Result != S_OK || !BackBuffer)
             printf("GetBuffer() failed, return value: %d\n", Result);
         //Logger::LogFatalError("GetBuffer() failed, return value: {}\n", Result);
 
@@ -172,6 +163,7 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
         ImGui::NewFrame();
 
         //Gui code here. This is an input blocking overlay
+        DrawCustomGui();
         if (globalState->GuiActive)
         {
             //Run imgui callbacks

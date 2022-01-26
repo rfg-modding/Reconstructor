@@ -16,6 +16,7 @@
 #include "common/patching/Config.h"
 #include "common/patching/Offset.h"
 #include "hooks/MpHooks.h"
+#include "gui/GuiBase.h"
 #include "rsl2/hooks/Camera.h"
 #include "rsl2/util/Util.h"
 #include "rsl2/IRSL2.h"
@@ -149,4 +150,6 @@ void FillExports()
     ExportInterface.RemoveOverlayCallback = &RemoveOverlayCallback;
     ExportInterface.RegisterPrimitiveDrawCallback = &RegisterPrimitiveDrawCallback;
     ExportInterface.RemovePrimitiveDrawCallback = &RemovePrimitiveDrawCallback;
+    ExportInterface.AddCustomGui = &AddCustomGui;
+    ExportInterface.RemoveCustomGui = &RemoveCustomGui;
 }

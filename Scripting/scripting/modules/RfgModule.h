@@ -5,13 +5,13 @@
 #include "RFGR_Types/rfg/World.h"
 #include "RFGR_Types/rfg/Object.h"
 #include "rsl2/IRSL2.h"
-#include "misc/GlobalState.h"
+#include "scripting/misc/GlobalState.h"
 #define SOL_ALL_SAFETIES 1
 #include <sol/sol.hpp>
 
 void InitRfgLuaModule(sol::state& lua)
 {
-    sol::usertype<vector> vectorType = lua.new_usertype<vector>("vector", 
+    sol::usertype<vector> vectorType = lua.new_usertype<vector>("vector",
         sol::constructors<vector(f32, f32, f32), vector()>(),
         "x", &vector::x,
         "y", &vector::y,

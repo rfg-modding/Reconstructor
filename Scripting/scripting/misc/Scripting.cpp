@@ -7,10 +7,10 @@
 #include "common/Common.h"
 #include "rsl2/IRSL2.h"
 #include <cstdio>
-#include "misc/GlobalState.h"
+#include "scripting/misc/GlobalState.h"
 #define SOL_ALL_SAFETIES 1
 #include <sol/sol.hpp>
-#include "modules/RfgModule.h"
+#include "scripting/modules/RfgModule.h"
 
 bool LuaInitialized = false;
 sol::state* Lua = nullptr;
@@ -134,5 +134,5 @@ void PrimitiveDrawCallback()
 
     //End script timer and print time
     f32 elapsedSeconds = (f32)LuaScriptTimer.ElapsedMicroseconds() / 1000000.0f;
-    printf("Per frame lua script time: %f ms\n", elapsedSeconds * 1000.0f);
+    //printf("Per frame lua script time: %f ms\n", elapsedSeconds * 1000.0f);
 }
