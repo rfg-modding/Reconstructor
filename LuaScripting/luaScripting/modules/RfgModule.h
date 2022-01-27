@@ -5,7 +5,7 @@
 #include "RFGR_Types/rfg/World.h"
 #include "RFGR_Types/rfg/Object.h"
 #include "rsl2/IRSL2.h"
-#include "scripting/misc/GlobalState.h"
+#include "luaScripting/misc/GlobalState.h"
 #define SOL_ALL_SAFETIES 1
 #include <sol/sol.hpp>
 

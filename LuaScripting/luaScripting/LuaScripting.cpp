@@ -6,19 +6,25 @@
 #include "common/Typedefs.h"
 #include "common/Common.h"
 #include "rsl2/IRSL2.h"
+#include "ILuaScripting.h"
 #include <cstdio>
-#include "scripting/misc/GlobalState.h"
+#include "misc/GlobalState.h"
 #define SOL_ALL_SAFETIES 1
 #include <sol/sol.hpp>
-#include "scripting/modules/RfgModule.h"
+#include "modules/RfgModule.h"
 
+//TODO: Move these to another file.
 bool LuaInitialized = false;
 sol::state* Lua = nullptr;
 Timer LuaScriptTimer(false);
 void LuaInit();
 void LuaShutdown();
-
 void PrimitiveDrawCallback();
+sol::state& GetLuaState();
+void FillExports();
+
+//Interface this plugin exports for other plugins to use
+ILuaScripting ExportInterface;
 
 extern "C"
 {
@@ -48,6 +54,10 @@ extern "C"
 
         //Register callbacks
         rsl2_->RegisterPrimitiveDrawCallback(&PrimitiveDrawCallback);
+
+        //Export functions for other plugins to use
+        FillExports();
+        exportedFunctions.push_back({ &ExportInterface, "LuaScripting" });
 
         return true;
     }
@@ -91,6 +101,11 @@ extern "C"
     }
 }
 
+void FillExports()
+{
+    ExportInterface.GetLuaState = &GetLuaState;
+}
+
 void LuaInit()
 {
     Lua = new sol::state();
@@ -103,6 +118,11 @@ void LuaShutdown()
 {
     delete Lua;
     LuaInitialized = false;
+}
+
+sol::state& GetLuaState()
+{
+    return *Lua;
 }
 
 gr_state renderState;
