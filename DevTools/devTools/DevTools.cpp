@@ -6,7 +6,6 @@
 #include "common/patching/Config.h"
 #include "common/Common.h"
 #include "devTools/misc/GlobalState.h"
-#include "luaScripting/ILuaScripting.h"
 #include "rsl2/IRSL2.h"
 #include <cstdio>
 
@@ -23,8 +22,7 @@ extern "C"
         {
             .Dependencies =
             {
-                "RSL2",
-                "LuaScripting" //Required by dev console
+                "RSL2"
             }
         };
     }
@@ -36,8 +34,7 @@ extern "C"
 
         //External functions used by this plugin
         rsl2_ = (IRSL2*)host_->GetPluginInterface("RSL2", "RSL2");
-        luaScripting_ = (ILuaScripting*)host_->GetPluginInterface("LuaScripting", "LuaScripting");
-        if (!rsl2_ || !luaScripting_)
+        if (!rsl2_)
         {
             printf("Error! Failed to import all external functions in DevTools.dll::RSL2_PluginInit.\n");
             return false;
