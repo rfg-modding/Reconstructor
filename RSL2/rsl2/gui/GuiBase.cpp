@@ -1,55 +1,83 @@
-#include "MainGui.h"
-#include "DebugGui.h"
+#include "GuiBase.h"
 #include "rsl2/misc/GlobalState.h"
-#include "RFGR_Types/rfg/Player.h"
-#include "rsl2/functions/Functions.h"
-#include <IconFontCppHeaders/IconsFontAwesome5_c.h>
-#include <imgui/imgui.h>
-#include <imgui/misc/cpp/imgui_stdlib.h>
+#include <imgui.h>
 #include <vector>
 
-//Todo: Make list of debug guis + state like old RSL to reduce boilerplate
-    //Todo: Would be nice if it could support both IGuiModules and free function or lambdas
-        //Todo: Consider if this would backfire and make code a mess
-    //Todo: Make accessible from other DLLs so they can add new tools or menus to the main menu bar
-    //Todo: Support overlays too
-static bool MiscTweaksGui_Open = true;
-
-void DrawMainMenuBar(IRSL2* rsl2);
-void DrawDockspace(IRSL2* rsl2);
-
-void MainGui_DoFrame(IRSL2* rsl2)
+struct Gui
 {
-    RSL2_GlobalState* globalState = rsl2->GetGlobalState();
-    if (!globalState)
+    string Name;
+    GuiUpdateFunction Update;
+    bool Open;
+
+    Gui(string name, GuiUpdateFunction update, bool open = false) : Name(name), Update(update), Open(open)
+    {
+
+    }
+};
+
+std::vector<Gui> Guis;
+
+void DrawMainMenuBar();
+void DrawDockspace();
+
+void DrawCustomGui()
+{
+    static RSL2_GlobalState* state = GetGlobalState();
+    if (!state->ImGuiInitialized || !state->GuiActive)
         return;
 
-    DrawMainMenuBar(rsl2);
-    DrawDockspace(rsl2);
+    //Draw main menu bar and dockspace
+    DrawMainMenuBar();
+    DrawDockspace();
+#if DEBUG_BUILD
     ImGui::ShowDemoWindow();
+#endif
 
-    if (MiscTweaksGui_Open)
-        DebugGui_DoFrame(rsl2, &MiscTweaksGui_Open);
+    //Draw guis
+    for (Gui& gui : Guis)
+        gui.Update(&gui.Open);
 }
 
-void DrawMainMenuBar(IRSL2* rsl2)
+void AddCustomGui(const std::string& name, GuiUpdateFunction update)
 {
-    RSL2_GlobalState* globalState = rsl2->GetGlobalState();
+    auto find = std::find_if(Guis.begin(), Guis.end(), [name](Gui& gui) -> bool { return gui.Name == name; });
+    if (find == Guis.end())
+    {
+        Guis.emplace_back(name, update, false);
+    }
+    else
+    {
+        printf("Tried to add the custom gui '%s' when it already exists.", name.c_str());
+    }
+}
+
+void RemoveCustomGui(const std::string& name)
+{
+    auto find = std::find_if(Guis.begin(), Guis.end(), [name](Gui& gui) -> bool { return gui.Name == name; });
+    if (find != Guis.end())
+    {
+        Guis.erase(find);
+    }
+}
+
+void DrawMainMenuBar()
+{
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))
         {
-
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Tools"))
         {
-            ImGui::MenuItem("Misc tweaks gui", "", &MiscTweaksGui_Open);
+            for (Gui& gui : Guis)
+            {
+                ImGui::MenuItem(gui.Name.c_str(), "", &gui.Open);
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Help"))
         {
-
             ImGui::EndMenu();
         }
 
@@ -57,10 +85,8 @@ void DrawMainMenuBar(IRSL2* rsl2)
     }
 }
 
-void DrawDockspace(IRSL2* rsl2)
+void DrawDockspace()
 {
-    RSL2_GlobalState* globalState = rsl2->GetGlobalState();
-
     //Dockspace flags
     static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
 

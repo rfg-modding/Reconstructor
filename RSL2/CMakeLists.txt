@@ -10,7 +10,7 @@ set(CMAKE_RELWITHDEBINFO_POSTFIX "")
 
 # Get list of source files in project src folders recursively
 # Places in SOURCES variable
-file(GLOB_RECURSE SOURCES 
+file(GLOB_RECURSE SOURCES
     ${CMAKE_SOURCE_DIR}/RSL2/rsl2/*.cpp
     ${CMAKE_SOURCE_DIR}/RSL2/rsl2/*.h
 )

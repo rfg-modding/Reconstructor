@@ -1,7 +1,7 @@
 #pragma once
 #include "common/Typedefs.h"
 #include "common/windows/WindowsWrapper.h"
-#include "rsl2/patching/SnippetManager.h"
+#include "rsl2/patching/CodePatcher.h"
 #include "common/plugins/IHost.h"
 #include "rfg/Containers.h"
 #include "rfg/Ui.h"
@@ -30,7 +30,7 @@ public:
     HWND gGameWindowHandle = nullptr;
     RECT gWindowRect = { 0, 0, 0, 0 };
 
-    SnippetManager SnippetManager;
+    CodePatcher Patcher;
 
     WNDPROC RfgWndProc = nullptr;
 
