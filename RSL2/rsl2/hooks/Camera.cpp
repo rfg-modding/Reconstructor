@@ -49,8 +49,8 @@ void UnlockCamera()
     }
 
     //Patch camera_do_frame so the game doesn't edit the camera's position
-    globalState->SnippetManager.BackupSnippet("CameraLockPatch1", Patch1Address, 8, true);
-    globalState->SnippetManager.BackupSnippet("CameraLockPatch2", Patch2Address, 6, true);
+    globalState->Patcher.BackupSnippet("CameraLockPatch1", Patch1Address, 8, true);
+    globalState->Patcher.BackupSnippet("CameraLockPatch2", Patch2Address, 6, true);
     CameraLocked = false;
     OnFreeCamEnable(); //Todo: Separate free cam behavior from locking/unlocking behavior
 }
@@ -64,8 +64,8 @@ void LockCamera()
     }
 
     //Remove camera_do_frame patches to return normal camera position behavior
-    globalState->SnippetManager.RestoreSnippet("CameraLockPatch1", true);
-    globalState->SnippetManager.RestoreSnippet("CameraLockPatch2", true);
+    globalState->Patcher.RestoreSnippet("CameraLockPatch1", true);
+    globalState->Patcher.RestoreSnippet("CameraLockPatch2", true);
     CameraLocked = true;
     OnFreeCamDisable(); //Todo: Separate free cam behavior from locking/unlocking behavior
 }
@@ -216,9 +216,14 @@ void UpdateCameraInput()
     if (x_down)
         CameraMove(Up);
     if (q_down)
+    {
         CameraSpeed -= 0.02f;
+        CameraSpeed = std::max(0.0f, CameraSpeed);
+    }
     if (e_down)
+    {
         CameraSpeed += 0.02f;
+    }
 }
 
 void CameraUpdate()

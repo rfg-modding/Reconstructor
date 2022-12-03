@@ -1,8 +1,9 @@
 #pragma once
 #include "common/Typedefs.h"
 #include "common/windows/WindowsWrapper.h"
-#include <vector>
 #include <unordered_map>
+#include <vector>
+#include <span>
 
 enum Opcodes : int
 {
@@ -24,17 +25,14 @@ public:
 	std::vector <int> Opcodes;
 };
 
-//Used to disable and restore chunks of code
-class SnippetManager
+//Used to disable, replace, patch, and restore code and memory
+class CodePatcher
 {
 public:
-	SnippetManager() { }
-	~SnippetManager() { }
-
-	void BackupSnippet(std::string Name, DWORD Address, DWORD Length, bool NOP);
-	void RestoreSnippet(std::string Name, bool RemoveFromCache);
-	void NOPSnippet(std::string Name);
-	void ReplaceSnippet(std::string Name, DWORD Address, std::vector<int>& NewOpcodes);
+	void BackupSnippet(const string& name, DWORD address, DWORD length, bool nop);
+	void RestoreSnippet(const string& name, bool removeFromCache);
+	void NOPSnippet(const string& name);
+	void ReplaceSnippet(const string& name, DWORD address, std::span<u8> newValues);
 
 private:
 	std::unordered_map <std::string, CodeSnippet> SnippetCache;
