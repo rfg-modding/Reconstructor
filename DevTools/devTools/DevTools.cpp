@@ -23,7 +23,7 @@ extern "C"
         {
             .Dependencies =
             {
-                "RSL",
+                "RSL2",
                 "LuaScripting" //Required by dev console
             }
         };

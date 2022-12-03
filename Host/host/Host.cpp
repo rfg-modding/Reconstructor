@@ -82,6 +82,7 @@ void* Host::GetPluginInterface(const string& pluginName, const string& functionN
 void Host::InitialPluginLoad()
 {
     //Load all plugin DLLs and get their dependency info, but don't initialize them yet
+    std::filesystem::create_directories(pluginsPath);
     for (const auto& entry : std::filesystem::directory_iterator(pluginsPath))
     {
         //Skip folders and non .dll files

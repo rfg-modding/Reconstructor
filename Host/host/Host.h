@@ -30,10 +30,10 @@ private:
 
     //Holds plugins loaded by the host dll
     std::vector<Plugin> Plugins;
-    //Dll names that the host won't try to load as plugins 
+    //Dll names that the host won't try to load as plugins
     const std::vector<string> PluginIgnoreList =
     {
-        //DLLs included with RFGR 
+        //DLLs included with RFGR
         "binkw32",
         "discord-rpc",
         "Galaxy",
@@ -52,10 +52,10 @@ private:
     //Todo: Stick this in a file that's loaded at runtime
 //Path to look for plugin dlls. Special value in debug builds for convenience
 #ifdef DEBUG_BUILD
-    string pluginsPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\out\\build\\x86-Debug\\bin\\";
+    string pluginsPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\out\\build\\x86-Debug\\bin\\";
 #elif defined DEBUG_BUILD_OPTIMIZED
-    string pluginsPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\out\\build\\x86-Release\\bin\\";
+    string pluginsPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\out\\build\\x86-Release\\bin\\";
 #else
-    string pluginsPath = "./RSL2/Plugins/";
+    string pluginsPath = ".\\RSL2\\Plugins\\";
 #endif
 };

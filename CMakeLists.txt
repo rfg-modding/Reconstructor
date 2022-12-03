@@ -10,6 +10,8 @@ if(COMPILE_IN_PROFILER)
     add_compile_definitions(COMPILE_IN_PROFILER)
 endif()
 
+set(DEVELOPMENT_BUILD TRUE)
+
 # TODO: Make this toggleable with COMPILE_IN_PROFILER
 add_compile_definitions(TRACY_ENABLE)
 
@@ -39,9 +41,9 @@ message(BinaryDir=${CMAKE_BINARY_DIR})
 
 # TODO: this toggleable via command line for CI
 # Set config specific defines
-if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+if((CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo") AND DEVELOPMENT_BUILD)
     add_compile_definitions(DEBUG_BUILD)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release" AND DEVELOPMENT_BUILD EQUAL TRUE)
     add_compile_definitions(DEBUG_BUILD_OPTIMIZED)
 endif()
 

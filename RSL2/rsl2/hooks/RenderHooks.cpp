@@ -234,14 +234,14 @@ void InitImGuiD3D11()
     //Logger::LogError("GetWindowRect() failed during script loader init!\n Error message: {}\n", Globals::GetLastWin32ErrorAsString());
 
 #ifdef DEBUG_BUILD
-    string FontAwesomeSolidPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\fonts\\fa-solid-900.ttf";
-    string DefaultFontPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\fonts\\Ruda-Bold.ttf";
+    string FontAwesomeSolidPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\assets\\fonts\\fa-solid-900.ttf";
+    string DefaultFontPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\assets\\fonts\\Ruda-Bold.ttf";
 #elif defined DEBUG_BUILD_OPTIMIZED
-    string FontAwesomeSolidPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\fonts\\fa-solid-900.ttf";
-    string DefaultFontPath = "C:\\Users\\moneyl\\source\\repos\\RSL2\\assets\\fonts\\Ruda-Bold.ttf";
+    string FontAwesomeSolidPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\assets\\fonts\\fa-solid-900.ttf";
+    string DefaultFontPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\assets\\fonts\\Ruda-Bold.ttf";
 #else
-    string FontAwesomeSolidPath = "./RSL/fonts/fa-solid-900.ttf");
-    string DefaultFontPath = "./RSL/fonts/Roboto-Regular.ttf");
+    string FontAwesomeSolidPath = "./RSL2/fonts/fa-solid-900.ttf";
+    string DefaultFontPath = "./RSL2/fonts/Roboto-Regular.ttf";
 #endif
 
     ImGui_ImplWin32_Init(globalState->gGameWindowHandle);
