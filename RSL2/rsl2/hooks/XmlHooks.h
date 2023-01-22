@@ -27,9 +27,14 @@ FunHook<xml_element*(const char* filename, mempool_base* dest)> xml_parse_hook
         if (!globalState || !functions)
             return nullptr;
 
-        //TODO: Give each mod a subfolder and search those instead for file overrides
         //Load override if one exists
-        string overridePath = "G:/GOG/Games/Red Faction Guerrilla Re-Mars-tered/RSL2/Overrides/" + string(filename);
+#ifdef DEBUG_BUILD
+        string overridePath = "D:/GOG/Games/Red Faction Guerrilla Re-Mars-tered/RSL2/Overrides/" + string(filename);
+#elif defined DEBUG_BUILD_OPTIMIZED
+        string overridePath = "D:/GOG/Games/Red Faction Guerrilla Re-Mars-tered/RSL2/Overrides/" + string(filename);
+#else
+        string overridePath = "./RSL2/Overrides/" + string(filename);
+#endif
         if (std::filesystem::exists(overridePath))
         {
             printf("Found override for \"%s\"\n", filename);
@@ -40,6 +45,7 @@ FunHook<xml_element*(const char* filename, mempool_base* dest)> xml_parse_hook
             if (!fileBuffer)
             {
                 printf("Error: Failed to allocate buffer for xml override. Reverting to default xml parser.\n");
+                //TODO: DE-FUCKING-ALLOC THE BUFFER SHITHEAD (IF NECESSARY MAYBE GAME SCOPE DE-ALLOCS)
                 return xml_parse_hook.CallTarget(filename, dest);
             }
 
@@ -58,6 +64,7 @@ FunHook<xml_element*(const char* filename, mempool_base* dest)> xml_parse_hook
             else
             {
                 printf("Error: xml_parse_from_string() failed for xml override. Reverting to default xml parser.\n");
+                //TODO: DE-FUCKING-ALLOC THE BUFFER SHITHEAD (IF NECESSARY MAYBE GAME SCOPE DE-ALLOCS)
                 return xml_parse_hook.CallTarget(filename, dest);
             }
         }
