@@ -45,7 +45,6 @@ FunHook<xml_element*(const char* filename, mempool_base* dest)> xml_parse_hook
             if (!fileBuffer)
             {
                 printf("Error: Failed to allocate buffer for xml override. Reverting to default xml parser.\n");
-                //TODO: DE-FUCKING-ALLOC THE BUFFER SHITHEAD (IF NECESSARY MAYBE GAME SCOPE DE-ALLOCS)
                 return xml_parse_hook.CallTarget(filename, dest);
             }
 
@@ -64,7 +63,6 @@ FunHook<xml_element*(const char* filename, mempool_base* dest)> xml_parse_hook
             else
             {
                 printf("Error: xml_parse_from_string() failed for xml override. Reverting to default xml parser.\n");
-                //TODO: DE-FUCKING-ALLOC THE BUFFER SHITHEAD (IF NECESSARY MAYBE GAME SCOPE DE-ALLOCS)
                 return xml_parse_hook.CallTarget(filename, dest);
             }
         }
