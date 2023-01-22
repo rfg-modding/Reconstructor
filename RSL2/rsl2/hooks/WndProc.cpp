@@ -82,38 +82,9 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
                     UnlockMouse();
                 else
                     LockMouse();
-
-                break;
-            case VK_F2:
-                globalState->OverlayActive = !globalState->OverlayActive;
-                break;
-            case VK_F3:
-                globalState->DrawRfgMemoryTracker = !globalState->DrawRfgMemoryTracker;
-                break;
-            case VK_F4:
-                globalState->DrawRSLDebugOverlay = !globalState->DrawRSLDebugOverlay;
-                break;
-            case VK_F5:
-                *globalState->Salvage_debug = !(*globalState->Salvage_debug);
-                break;
-            case VK_F6:
-                if (*globalState->Player_max_movement_speed_override < 49.0f)
-                {
-                    *globalState->Player_max_movement_speed_override = 50.0f;
-                    globalState->Player->hflags.invulnerable = true;
-                }
-                else
-                {
-                    *globalState->Player_max_movement_speed_override = 0.0f;
-                    globalState->Player->hflags.invulnerable = false;
-                }
-
-                break;
-
             case VK_F7:
                 ReloadXtbls();
                 break;
-
             case VK_NUMPAD1:
                 ToggleHud();
                 break;
