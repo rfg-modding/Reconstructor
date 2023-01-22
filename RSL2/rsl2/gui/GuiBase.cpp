@@ -1,5 +1,6 @@
 #include "GuiBase.h"
 #include "rsl2/misc/GlobalState.h"
+#include "RFGR_Types/rfg/Player.h"
 #include <imgui.h>
 #include <vector>
 
@@ -32,6 +33,22 @@ void DrawCustomGui()
 #if DEBUG_BUILD
     ImGui::ShowDemoWindow();
 #endif
+
+    {
+        ImGui::Begin("Dev info");
+        if (state && state->Player && state->MainCamera)
+        {
+            vector cameraPos = state->MainCamera->real_pos;
+            vector playerPos = state->Player->pos;
+            ImGui::InputFloat3("Player pos", (float*)&playerPos);
+            ImGui::InputFloat3("Camera pos", (float*)&cameraPos);
+        }
+        else
+        {
+            ImGui::Text("Player* is null. Load a map or save.");
+        }
+        ImGui::End();
+    }
 
     //Draw guis
     for (Gui& gui : Guis)
