@@ -18,8 +18,8 @@ void LockMouse()
         return;
 
     static RSL2_GlobalState* globalState = GetGlobalState();
-    globalState->Patcher.RestoreSnippet("MouseGenericPollMouseVisible", true);
-    globalState->Patcher.RestoreSnippet("CenterMouseCursorCall", true); //Todo: See if this patch is even needed anymore
+    globalState->Patcher.Restore("MouseGenericPollMouseVisible", true);
+    globalState->Patcher.Restore("CenterMouseCursorCall", true); //Todo: See if this patch is even needed anymore
 
     printf("Locked mouse movement.\n");
     MouseUnlocked = false;
@@ -30,8 +30,8 @@ void UnlockMouse()
         return;
 
     static RSL2_GlobalState* globalState = GetGlobalState();
-    globalState->Patcher.BackupSnippet("MouseGenericPollMouseVisible", globalState->MouseGenericPollMouseVisibleAddress, 12, true);
-    globalState->Patcher.BackupSnippet("CenterMouseCursorCall", globalState->CenterMouseCursorCallAddress, 11, true);
+    globalState->Patcher.Backup("MouseGenericPollMouseVisible", globalState->MouseGenericPollMouseVisibleAddress, 12, true);
+    globalState->Patcher.Backup("CenterMouseCursorCall", globalState->CenterMouseCursorCallAddress, 11, true);
 
     MouseUnlocked = true;
     printf("Unlocked mouse movement.\n");

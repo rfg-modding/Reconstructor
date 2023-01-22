@@ -5,6 +5,7 @@
 #include "hooks/PlayerDoFrame.h"
 #include "hooks/MiscHooks.h"
 #include "hooks/XmlHooks.h"
+#include "hooks/ErrorHooks.h"
 #include "hooks/ui/MainMenuHooks.h"
 #include "functions/FunctionsInternal.h"
 #include "hooks/GrdRenderHooks.h"
@@ -16,8 +17,10 @@
 #include "common/patching/Config.h"
 #include "common/patching/Offset.h"
 #include "hooks/MpHooks.h"
+#include "hooks/AnimationHooks.h"
 #include "gui/GuiBase.h"
 #include "rsl2/hooks/Camera.h"
+#include "patching/Patches.h"
 #include "rsl2/util/Util.h"
 #include "rsl2/IRSL2.h"
 #ifdef COMPILE_IN_PROFILER
@@ -92,10 +95,16 @@ extern "C"
         xml_parse_hook.Install();
         rfg_init_stage_2_done_hook.Install();
         multi_game_process_remote_console_command_hook.Install(); //Disables rcon handler
+        //keen_debug_nativePrint_hook.Install();
+        //anim_rig_find_index_hook.Install();
+        //animlib_get_loaded_rig_hook.Install();
 
         //Export functions for other plugins to use
         FillExports();
         exportedFunctions.push_back({ &ExportInterface, "RSL2" });
+
+        ApplyPatches();
+
         return true;
     }
 
@@ -127,6 +136,9 @@ extern "C"
         xml_parse_hook.Remove();
         rfg_init_stage_2_done_hook.Remove();
         multi_game_process_remote_console_command_hook.Remove();
+        //keen_debug_nativePrint_hook.Remove();
+        //anim_rig_find_index_hook.Remove();
+        //animlib_get_loaded_rig_hook.Remove();
 
         //Relock mouse and camera so game has full control of them and patches are removed
         LockMouse();
@@ -134,6 +146,7 @@ extern "C"
 
         //Remove custom WndProc
         SetWindowLongPtr(globalState->gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(globalState->RfgWndProc));
+
         return true;
     }
 }

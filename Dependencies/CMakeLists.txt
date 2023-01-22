@@ -6,4 +6,7 @@ add_subdirectory(subhook)
 
 add_subdirectory(sol2)
 
+set(ASMJIT_STATIC TRUE)
+add_subdirectory(asmjit)
+
 add_subdirectory(RFGR_Types)

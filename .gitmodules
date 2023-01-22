@@ -19,3 +19,9 @@
 [submodule "Dependencies/sol2"]
 	path = Dependencies/sol2
 	url = https://github.com/ThePhD/sol2.git
+[submodule "Dependencies/asmjit"]
+	path = Dependencies/asmjit
+	url = https://github.com/asmjit/asmjit.git
+[submodule "Dependencies/RFGR_Types"]
+	path = Dependencies/RFGR_Types
+	url = https://github.com/rsl-dev/RFGR_Types.git

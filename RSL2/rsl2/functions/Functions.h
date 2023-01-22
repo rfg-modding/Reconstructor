@@ -120,5 +120,7 @@ namespace rfg
 
         FunctionPointer<rl_mesh_instance* __cdecl(static_mesh* base_mesh)> ui_create_static_mesh = { 0x004C48C0 };
         FunctionPointer<static_mesh* __cdecl(const char* filename, unsigned int srid)> static_mesh_find = { 0x004094A0 };
+
+        FunctionPointer<int __cdecl(const char* filename)> anim_rig_find_index = { 0x0088AAC0 };
     };
 }

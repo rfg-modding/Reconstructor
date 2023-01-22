@@ -13,6 +13,7 @@ struct player;
 struct rfg_camera;
 struct world;
 struct mempool_base;
+struct anim_rig;
 
 //Todo: Try to reduce the usage of this. Though a certain amount of global usage is unavoidable because the game has many global and static variables
 //TODO: Document what each RFG global does, if anything. Some are debug/dev values that don't do much in public builds.
@@ -73,6 +74,9 @@ public:
     float* SpeedScale = nullptr; //0x0125BBD4
     bool* Use_packfiles = nullptr; //0x01958C55
     mempool_base** Xml_mempool = nullptr; //0x018E77DC
+
+    anim_rig* CustomAnimRigArray = nullptr;
+    anim_rig* OriginalAnimRigArray = nullptr;
 };
 
 extern RSL2_GlobalState* GetGlobalState();

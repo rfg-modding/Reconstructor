@@ -10,7 +10,7 @@ if(COMPILE_IN_PROFILER)
     add_compile_definitions(COMPILE_IN_PROFILER)
 endif()
 
-set(DEVELOPMENT_BUILD TRUE)
+set(DEVELOPMENT_BUILD FALSE)
 
 # TODO: Make this toggleable with COMPILE_IN_PROFILER
 add_compile_definitions(TRACY_ENABLE)
