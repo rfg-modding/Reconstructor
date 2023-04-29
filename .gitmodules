@@ -15,7 +15,7 @@
 	url = https://github.com/juliettef/IconFontCppHeaders.git
 [submodule "Dependencies/RSL2-Dependencies"]
 	path = Dependencies/RSL2-Dependencies
-	url = https://github.com/rsl-dev/RSL2-Dependencies.git
+	url = https://github.com/rfg-modding/RSL2-Dependencies.git
 [submodule "Dependencies/sol2"]
 	path = Dependencies/sol2
 	url = https://github.com/ThePhD/sol2.git
@@ -24,4 +24,4 @@
 	url = https://github.com/asmjit/asmjit.git
 [submodule "Dependencies/RFGR_Types"]
 	path = Dependencies/RFGR_Types
-	url = https://github.com/rsl-dev/RFGR_Types.git
+	url = https://github.com/rfg-modding/RFGR_Types.git
