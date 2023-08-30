@@ -1,9 +1,9 @@
 #pragma once
 
 class IHost;
-class IRSL2;
+class IReconstructor;
 class ILuaScripting;
 
 extern IHost* host_;
-extern IRSL2* rsl2_;
+extern IReconstructor* reconstructor;
 extern ILuaScripting* luaScripting_;

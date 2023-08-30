@@ -1,10 +1,10 @@
 #include "RenderHooks.h"
 #include <IconFontCppHeaders/IconsFontAwesome5_c.h>
-#include "rsl2/functions/FunctionsInternal.h"
-#include "rsl2/misc/GlobalState.h"
-#include "rsl2/hooks/WndProc.h"
+#include "reconstructor/functions/FunctionsInternal.h"
+#include "reconstructor/misc/GlobalState.h"
+#include "reconstructor/hooks/WndProc.h"
 #include "common/patching/Offset.h"
-#include "rsl2/gui/GuiBase.h"
+#include "reconstructor/gui/GuiBase.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -43,7 +43,7 @@ std::vector<PrimitiveDrawCallbackFunc> PrimitiveDrawCallbacks;
 
 HRESULT __stdcall D3D11_ResizeBuffersHookFunc(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
-    static RSL2_GlobalState* globalState = GetGlobalState();
+    static Reconstructor_GlobalState* globalState = GetGlobalState();
 
     //Todo: Write this
     bool ShouldReInit = false;
@@ -92,7 +92,7 @@ FunHook<void* (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSw
     0x0086A8A0,
     [](keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwapChain) -> void*
     {
-        static RSL2_GlobalState* globalState = GetGlobalState();
+        static Reconstructor_GlobalState* globalState = GetGlobalState();
 
         if (gGraphicsSystem != pGraphicsSystem || gSwapChain != pSwapChain)
         {
@@ -137,7 +137,7 @@ FunHook<void* (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSw
 
         BackBuffer->Release();
 
-        globalState->RfgWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(globalState->gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(RSL2_WndProc)));
+        globalState->RfgWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(globalState->gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(Reconstructor_WndProc)));
         if (!globalState->RfgWndProc)
             printf("Failed to set custom WndProc! Error message: {}\n", GetLastWin32ErrorAsString().c_str());
 
@@ -151,7 +151,7 @@ FunHook<void* (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSw
 FunHook<D3D11_PresentHook_Type> D3D11_PresentHook{ 0x0, D3D11_PresentHookFunc };
 HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
-    static RSL2_GlobalState* globalState = GetGlobalState();
+    static Reconstructor_GlobalState* globalState = GetGlobalState();
 
     if (!globalState->ImGuiInitialized || globalState->Host->PerformingReload)
         return D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
@@ -194,7 +194,7 @@ HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInt
 
 bool ReadyForD3D11Init()
 {
-    static RSL2_GlobalState* globalState = GetGlobalState();
+    static Reconstructor_GlobalState* globalState = GetGlobalState();
 
     if (!gGraphicsSystem || !gGraphicsSystem->pDevice || !gGraphicsSystem->pImmediateContext || !gGraphicsSystem->pDefaultSwapChain
         || !gGraphicsSystem->pDefaultSwapChain->pSwapChain || !gGraphicsSystem->pDefaultSwapChain->pBackBufferRenderTargetView)
@@ -217,7 +217,7 @@ bool ReadyForD3D11Init()
 
 void InitImGuiD3D11()
 {
-    static RSL2_GlobalState* globalState = GetGlobalState();
+    static Reconstructor_GlobalState* globalState = GetGlobalState();
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -230,18 +230,18 @@ void InitImGuiD3D11()
     ImGui_ImplDX11_Init(gD3D11Device, gD3D11Context);
     const bool RectResult = GetWindowRect(globalState->gGameWindowHandle, &globalState->gWindowRect);
     if (!RectResult)
-        printf("GetWindowRect() failed during RSL2 init! Error message: %s\n", GetLastWin32ErrorAsString().c_str());
+        printf("GetWindowRect() failed during Reconstructor init! Error message: %s\n", GetLastWin32ErrorAsString().c_str());
     //Logger::LogError("GetWindowRect() failed during script loader init!\n Error message: {}\n", Globals::GetLastWin32ErrorAsString());
 
 #ifdef DEBUG_BUILD
-    string FontAwesomeSolidPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\assets\\fonts\\fa-solid-900.ttf";
-    string DefaultFontPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\assets\\fonts\\Ruda-Bold.ttf";
+    string FontAwesomeSolidPath = "C:\\Users\\lukem\\source\\repos\\Reconstructor\\assets\\fonts\\fa-solid-900.ttf";
+    string DefaultFontPath = "C:\\Users\\lukem\\source\\repos\\Reconstructor\\assets\\fonts\\Ruda-Bold.ttf";
 #elif defined DEBUG_BUILD_OPTIMIZED
-    string FontAwesomeSolidPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\assets\\fonts\\fa-solid-900.ttf";
-    string DefaultFontPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\assets\\fonts\\Ruda-Bold.ttf";
+    string FontAwesomeSolidPath = "C:\\Users\\lukem\\source\\repos\\Reconstructor\\assets\\fonts\\fa-solid-900.ttf";
+    string DefaultFontPath = "C:\\Users\\lukem\\source\\repos\\Reconstructor\\assets\\fonts\\Ruda-Bold.ttf";
 #else
-    string FontAwesomeSolidPath = "./RSL2/fonts/fa-solid-900.ttf";
-    string DefaultFontPath = "./RSL2/fonts/Roboto-Regular.ttf";
+    string FontAwesomeSolidPath = "./Reconstructor/fonts/fa-solid-900.ttf";
+    string DefaultFontPath = "./Reconstructor/fonts/Roboto-Regular.ttf";
 #endif
 
     ImGui_ImplWin32_Init(globalState->gGameWindowHandle);
@@ -366,7 +366,7 @@ void InitImGuiD3D11()
 
 void __fastcall primitive_renderer_begin_deferredHook_Func(rl_primitive_renderer* thisPtr)
 {
-    static RSL2_GlobalState* globalState = GetGlobalState();
+    static Reconstructor_GlobalState* globalState = GetGlobalState();
     primitive_renderer_begin_deferredHook.CallTarget(thisPtr);
 
     if (!globalState->ImGuiInitialized || globalState->Host->PerformingReload)

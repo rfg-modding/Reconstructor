@@ -57,7 +57,7 @@ bool InjectHostDll(PROCESS_INFORMATION& processInfo)
 #ifdef DEBUG_BUILD
     string hostDllPath = std::filesystem::current_path().string() + "/Host.dll";
 #else
-    string hostDllPath = std::filesystem::current_path().string() + "/RSL2/Host.dll";
+    string hostDllPath = std::filesystem::current_path().string() + "/Reconstructor/Host.dll";
 #endif
     long hostDllPathSize = hostDllPath.length() + 1;
     HANDLE handle = processInfo.hProcess;

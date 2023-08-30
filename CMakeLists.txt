@@ -1,6 +1,6 @@
 ﻿
 cmake_minimum_required (VERSION 3.8)
-project (RSL2Solution)
+project (ReconstructorSolution)
 
 add_compile_definitions(IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT IMGUI_IMPL_WIN32_DISABLE_GAMEPAD)
 
@@ -10,7 +10,7 @@ if(COMPILE_IN_PROFILER)
     add_compile_definitions(COMPILE_IN_PROFILER)
 endif()
 
-set(DEVELOPMENT_BUILD FALSE)
+set(DEVELOPMENT_BUILD TRUE)
 
 # TODO: Make this toggleable with COMPILE_IN_PROFILER
 add_compile_definitions(TRACY_ENABLE)
@@ -53,5 +53,5 @@ add_subdirectory(Common) # Statically linked common lib used in multiple sub-pro
 add_subdirectory(Profiler) # Profiler DLL included by other DLLs / applications which want to use tracy profiler. Needed for multi-DLL projects
 add_subdirectory(Launcher) # Launcher that starts RFGR and injects the host DLL into it
 add_subdirectory(Host) # Host DLL which is injected into RFGR and manages loading and reloading plugin DLLs
-add_subdirectory(RSL2) # Main plugin DLL of RSL2 with function hooks and patches
+add_subdirectory(Reconstructor) # Main plugin DLL of Reconstructor with function hooks and patches
 add_subdirectory(DevTools) # Built in developer tools for testing & debugging mods

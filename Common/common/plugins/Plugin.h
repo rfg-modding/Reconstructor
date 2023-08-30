@@ -30,11 +30,11 @@ using PluginOnDependencyUnloadFuncPtr = void(__cdecl*)(const string& dependencyN
 using PluginOnDependencyLoadFuncPtr = void(__cdecl*)(const string& dependencyName); //Called immediately after plugin load. This is only called during reloads of the dep.
 
 //Called when the plugin is being loaded. Function hooks and patches should go here. 
-//Exported name must be RSL2_PluginInit
+//Exported name must be Reconstructor_PluginInit
 using PluginInitFuncPtr = bool(__cdecl*)(IHost* host, std::vector<PluginInterface>& exportedFunctions);
 
 //Called when the plugin is being unloaded or reloaded. Should reset hooks and patches here + deallocate anything allocated by the plugin. 
-//Exported name must be RSL2_PluginUnload
+//Exported name must be Reconstructor_PluginUnload
 using PluginShutdownFuncPtr = void(__cdecl*)();
 
 

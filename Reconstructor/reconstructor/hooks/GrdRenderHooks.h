@@ -1,7 +1,7 @@
 #pragma once
 #include "common/patching/FunHook.h"
 #include "RFGR_Types/rfg/DrawData.h"
-#include "rsl2/functions/FunctionsInternal.h"
+#include "reconstructor/functions/FunctionsInternal.h"
 
 //Hook all grd_ functions so they call their gr_ equivalents. Necessary since the grd_ functions are empty in public builds but gr_ functions aren't
 //Lets us use the games built in debug rendering things which were broken because grd_ functions were removed.

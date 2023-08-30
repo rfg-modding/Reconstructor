@@ -1,7 +1,7 @@
 #include "Camera.h"
-#include "rsl2/misc/GlobalState.h"
-#include "rsl2/functions/FunctionsInternal.h"
-#include "rsl2/math/Math.h"
+#include "reconstructor/misc/GlobalState.h"
+#include "reconstructor/functions/FunctionsInternal.h"
+#include "reconstructor/math/Math.h"
 #include "RFGR_Types/rfg/Camera.h"
 #include "RFGR_Types/rfg/Player.h"
 
@@ -24,8 +24,8 @@ bool CameraLocked = true;
 //Target position of the free camera that we lerp towards each frame. Creates smooth camera movement
 vector CameraTargetPos = vector(0.0f, 0.0f, 0.0f);
 
-//Pointer to the RSL2 global state. Used for convenience so GetGlobalState only needs to be called once here.
-RSL2_GlobalState* globalState = nullptr;
+//Pointer to the Reconstructor global state. Used for convenience so GetGlobalState only needs to be called once here.
+Reconstructor_GlobalState* globalState = nullptr;
 
 //Todo: Move these two free cam functions into a script
 //Ran when the free cam is enabled and disabled respectively

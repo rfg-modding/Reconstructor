@@ -1,10 +1,10 @@
 #include "WndProc.h"
 #include "common/Typedefs.h"
-#include "rsl2/misc/GlobalState.h"
+#include "reconstructor/misc/GlobalState.h"
 #include "RFGR_Types/rfg/Camera.h"
-#include "rsl2/hooks/Camera.h"
-#include "rsl2/util/Util.h"
-#include "rsl2/functions/FunctionsInternal.h"
+#include "reconstructor/hooks/Camera.h"
+#include "reconstructor/util/Util.h"
+#include "reconstructor/functions/FunctionsInternal.h"
 #include "RFGR_Types/rfg/Player.h"
 
 //Functions for locking / unlocking the games auto-centering and hiding of the mouse. For imgui interaction with game running
@@ -17,7 +17,7 @@ void LockMouse()
     if (!MouseUnlocked)
         return;
 
-    static RSL2_GlobalState* globalState = GetGlobalState();
+    static Reconstructor_GlobalState* globalState = GetGlobalState();
     globalState->Patcher.Restore("MouseGenericPollMouseVisible", true);
     globalState->Patcher.Restore("CenterMouseCursorCall", true); //Todo: See if this patch is even needed anymore
 
@@ -29,7 +29,7 @@ void UnlockMouse()
     if (MouseUnlocked)
         return;
 
-    static RSL2_GlobalState* globalState = GetGlobalState();
+    static Reconstructor_GlobalState* globalState = GetGlobalState();
     globalState->Patcher.Backup("MouseGenericPollMouseVisible", globalState->MouseGenericPollMouseVisibleAddress, 12, true);
     globalState->Patcher.Backup("CenterMouseCursorCall", globalState->CenterMouseCursorCallAddress, 11, true);
 
@@ -39,11 +39,11 @@ void UnlockMouse()
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);// , const KeyState& keys);
-extern LRESULT __stdcall RSL2_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+extern LRESULT __stdcall Reconstructor_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    static RSL2_GlobalState* globalState = GetGlobalState();
+    static Reconstructor_GlobalState* globalState = GetGlobalState();
 
-    //Pass input to RSL2 input function
+    //Pass input to Reconstructor input function
     ProcessInput(hWnd, msg, wParam, lParam);
 
     //Todo: Make it so you can have imgui visible without unlocking mouse look. Useful for data overlays
@@ -64,7 +64,7 @@ extern LRESULT __stdcall RSL2_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
 LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , const KeyState& keys);
 {
-    static RSL2_GlobalState* globalState = GetGlobalState();
+    static Reconstructor_GlobalState* globalState = GetGlobalState();
     if (!globalState->ImGuiInitialized)
         return 0;
 

@@ -1,6 +1,6 @@
 //License note: Originally from DashFaction, may have been modified: https://github.com/rafalh/dashfaction
 //DashFaction is licensed under MPL2: https://github.com/rafalh/dashfaction/blob/c2e1b1cb42b637f5876268d91e6a4edb4f4b2cdc/LICENSE.txt
-//RSL2 is also licensed under MPL2 to keep things simple.
+//Reconstructor is also licensed under MPL2 to keep things simple.
 
 #pragma once
 #include "common/windows/WindowsWrapper.h"

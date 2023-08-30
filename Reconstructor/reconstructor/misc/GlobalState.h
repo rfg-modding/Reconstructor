@@ -1,7 +1,7 @@
 #pragma once
 #include "common/Typedefs.h"
 #include "common/windows/WindowsWrapper.h"
-#include "rsl2/patching/CodePatcher.h"
+#include "reconstructor/patching/CodePatcher.h"
 #include "common/plugins/IHost.h"
 #include "rfg/Containers.h"
 #include "rfg/Ui.h"
@@ -17,7 +17,7 @@ struct anim_rig;
 
 //Todo: Try to reduce the usage of this. Though a certain amount of global usage is unavoidable because the game has many global and static variables
 //TODO: Document what each RFG global does, if anything. Some are debug/dev values that don't do much in public builds.
-class RSL2_GlobalState
+class Reconstructor_GlobalState
 {
 public:
     IHost* Host = nullptr;
@@ -79,4 +79,4 @@ public:
     anim_rig* OriginalAnimRigArray = nullptr;
 };
 
-extern RSL2_GlobalState* GetGlobalState();
+extern Reconstructor_GlobalState* GetGlobalState();

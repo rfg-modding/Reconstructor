@@ -1,6 +1,6 @@
 #pragma once
-#include "rsl2/misc/GlobalState.h"
-#include "rsl2/functions/FunctionsInternal.h"
+#include "reconstructor/misc/GlobalState.h"
+#include "reconstructor/functions/FunctionsInternal.h"
 #include "common/patching/Offset.h"
 #include "RFGR_Types/rfg/World.h"
 #include "RFGR_Types/rfg/Weapon.h"
@@ -28,7 +28,7 @@ static std::string CharArrayToString(const char* Array, int Size)
 //Attempts to disable the main menu buttons for disabled features such as MP, LAN, and Wrecking Crew.
 static void TryHideInvalidMainMenuOptions()
 {
-    RSL2_GlobalState* globalState = GetGlobalState();
+    Reconstructor_GlobalState* globalState = GetGlobalState();
     if (!globalState->RfgMenusList || !(*globalState->RfgMenusList)[0])
         return;
 
@@ -58,7 +58,7 @@ static void TryHideInvalidMainMenuOptions()
 static void ReloadWeaponsXtbl();
 static void ReloadXtbls()
 {
-    RSL2_GlobalState* globalState = GetGlobalState();
+    Reconstructor_GlobalState* globalState = GetGlobalState();
     rfg::RfgFunctions* functions = GetRfgFunctions();
     if (!globalState || !functions || !globalState->WeaponInfos.GetRawPointer())
         return;
@@ -69,7 +69,7 @@ static void ReloadXtbls()
 //Reloads weapons.xtbl and aim_drift.xtbl and patches memory so that the changes are applied
 static void ReloadWeaponsXtbl()
 {
-    RSL2_GlobalState* globalState = GetGlobalState();
+    Reconstructor_GlobalState* globalState = GetGlobalState();
     rfg::RfgFunctions* functions = GetRfgFunctions();
 
     //Clear weapon info states. weapons_read_table() doesn't reset them all.
@@ -117,7 +117,7 @@ static void ReloadWeaponsXtbl()
 
 static void InitGlobals()
 {
-    RSL2_GlobalState* globalState = GetGlobalState();
+    Reconstructor_GlobalState* globalState = GetGlobalState();
 
     //Set global pointers
     globalState->World = OffsetPtr<world*>(0x02B97490);

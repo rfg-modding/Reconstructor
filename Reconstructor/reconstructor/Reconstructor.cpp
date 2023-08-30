@@ -19,31 +19,31 @@
 #include "hooks/MpHooks.h"
 #include "hooks/AnimationHooks.h"
 #include "gui/GuiBase.h"
-#include "rsl2/hooks/Camera.h"
+#include "reconstructor/hooks/Camera.h"
 #include "patching/Patches.h"
-#include "rsl2/util/Util.h"
-#include "rsl2/IRSL2.h"
+#include "reconstructor/util/Util.h"
+#include "reconstructor/IReconstructor.h"
 #ifdef COMPILE_IN_PROFILER
 #include "tracy/Tracy.hpp"
 #endif
 #include <kiero/kiero.h>
 #include <cstdio>
 
-//Note: When a plugin is reloaded the host calls RSL2_PluginUnload and then RSL2_PluginInit again
+//Note: When a plugin is reloaded the host calls Reconstructor_PluginUnload and then Reconstructor_PluginInit again
 //      as if it were the first time the host were loading the plugin.
 
-IRSL2 ExportInterface;
+IReconstructor ExportInterface;
 void FillExports();
 
-//Need to use extern "C" to avoid C++ export name mangling. Lets us use the exact name RSL2_XXXX with GetProcAddress in the host
+//Need to use extern "C" to avoid C++ export name mangling. Lets us use the exact name Reconstructor_XXXX with GetProcAddress in the host
 extern "C"
 {
     //Called when a plugin this one depends on is loaded/unloaded. This one has no dependencies so they'll never be called
-    DLLEXPORT void __cdecl RSL2_OnDependencyUnload(const string& dependencyName) { } //Called immediately before dependency shutdown + unload
-    DLLEXPORT void __cdecl RSL2_OnDependencyLoad(const string& dependencyName) { } //Called immediately after dependency load + init
+    DLLEXPORT void __cdecl Reconstructor_OnDependencyUnload(const string& dependencyName) { } //Called immediately before dependency shutdown + unload
+    DLLEXPORT void __cdecl Reconstructor_OnDependencyLoad(const string& dependencyName) { } //Called immediately after dependency load + init
 
     //Called before init. Returns info like a dependencies list used to determine plugin load order
-    DLLEXPORT PluginInfo __cdecl RSL2_PluginInfo()
+    DLLEXPORT PluginInfo __cdecl Reconstructor_PluginInfo()
     {
         return PluginInfo
         {
@@ -52,9 +52,9 @@ extern "C"
     }
 
     //Called when the host dll loads this plugin
-    DLLEXPORT bool __cdecl RSL2_PluginInit(IHost* host, std::vector<PluginInterface>& exportedFunctions)
+    DLLEXPORT bool __cdecl Reconstructor_PluginInit(IHost* host, std::vector<PluginInterface>& exportedFunctions)
     {
-        RSL2_GlobalState* globalState = GetGlobalState();
+        Reconstructor_GlobalState* globalState = GetGlobalState();
         globalState->Host = host;
         globalState->ModuleBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
         CommonLib_ModuleBase = globalState->ModuleBase;
@@ -101,7 +101,7 @@ extern "C"
 
         //Export functions for other plugins to use
         FillExports();
-        exportedFunctions.push_back({ &ExportInterface, "RSL2" });
+        exportedFunctions.push_back({ &ExportInterface, "Reconstructor" });
 
         ApplyPatches();
 
@@ -109,9 +109,9 @@ extern "C"
     }
 
     //Called when the host dll unloads this plugin
-    DLLEXPORT bool __cdecl RSL2_PluginShutdown()
+    DLLEXPORT bool __cdecl Reconstructor_PluginShutdown()
     {
-        RSL2_GlobalState* globalState = GetGlobalState();
+        Reconstructor_GlobalState* globalState = GetGlobalState();
 
         kiero::shutdown();
 
@@ -151,7 +151,7 @@ extern "C"
     }
 }
 
-//Fill IRSL2 function interface so other plugins can access functions this one exposes
+//Fill IReconstructor function interface so other plugins can access functions this one exposes
 void FillExports()
 {
     ExportInterface.GetGlobalState = &GetGlobalState;

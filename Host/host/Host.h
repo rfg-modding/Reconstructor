@@ -43,19 +43,22 @@ private:
         "ssleay32",
         "sw_api",
 
-        //Non-plugin RSL2 DLLs
+        //Non-plugin Reconstructor DLLs
         "Profiler",
-        "Host"
+        "Host",
+
+        //Old project names DLL, just in case.
+        "RSL2.dll"
     };
 
     //Todo: Make this work for release builds without needing to manually edit the path
     //Todo: Stick this in a file that's loaded at runtime
 //Path to look for plugin dlls. Special value in debug builds for convenience
 #ifdef DEBUG_BUILD
-    string pluginsPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\out\\build\\x86-Debug\\bin\\";
+    string pluginsPath = "C:\\Users\\lukem\\source\\repos\\Reconstructor\\out\\build\\x86-Debug\\bin\\";
 #elif defined DEBUG_BUILD_OPTIMIZED
-    string pluginsPath = "C:\\Users\\lukem\\source\\repos\\RSL2\\out\\build\\x86-Release\\bin\\";
+    string pluginsPath = "C:\\Users\\lukem\\source\\repos\\Reconstructor\\out\\build\\x86-Release\\bin\\";
 #else
-    string pluginsPath = ".\\RSL2\\Plugins\\";
+    string pluginsPath = ".\\Reconstructor\\Plugins\\";
 #endif
 };

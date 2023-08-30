@@ -2,9 +2,9 @@
 #include "common/patching/FunHook.h"
 #include "common/Typedefs.h"
 #include "rfg/Player.h"
-#include "rsl2/misc/GlobalState.h"
-#include "rsl2/functions/Functions.h"
-#include "rsl2/hooks/Camera.h"
+#include "reconstructor/misc/GlobalState.h"
+#include "reconstructor/functions/Functions.h"
+#include "reconstructor/hooks/Camera.h"
 #ifdef COMPILE_IN_PROFILER
 #include "tracy/Tracy.hpp"
 #endif

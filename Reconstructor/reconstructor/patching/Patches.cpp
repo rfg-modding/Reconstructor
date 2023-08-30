@@ -3,7 +3,7 @@
 #include "RFGR_Types/rfg/Animation.h"
 #include "common/patching/Config.h"
 #include "common/patching/Offset.h"
-#include "rsl2/misc/GlobalState.h"
+#include "reconstructor/misc/GlobalState.h"
 #include <cassert>
 
 //Patch a push instruction to `push pushValue`. Currently used to adjust size arguments of string_pool::init() since mods can overload the vanilla string pool sizes
@@ -16,7 +16,7 @@ void PatchCmpValInstruction(u32 relativeAddress, asmjit::x86::Gpd reg, u32 value
 
 void ApplyPatches()
 {
-    RSL2_GlobalState* globalState = GetGlobalState();
+    Reconstructor_GlobalState* globalState = GetGlobalState();
     uintptr_t moduleBase = globalState->ModuleBase;
 
     /* Patch mempool max sizes */
@@ -182,7 +182,7 @@ void ApplyPatches()
 
 void PatchPushInstruction(u32 relativeAddress, u32 pushValue)
 {
-    RSL2_GlobalState* globalState = GetGlobalState();
+    Reconstructor_GlobalState* globalState = GetGlobalState();
     uintptr_t moduleBase = globalState->ModuleBase;
     DWORD absoluteAddress = moduleBase + relativeAddress;
 
@@ -201,7 +201,7 @@ void PatchPushInstruction(u32 relativeAddress, u32 pushValue)
 
 void PatchMovValInstruction(u32 relativeAddress, asmjit::x86::Gpd reg, u32 value)
 {
-    RSL2_GlobalState* globalState = GetGlobalState();
+    Reconstructor_GlobalState* globalState = GetGlobalState();
     uintptr_t moduleBase = globalState->ModuleBase;
     DWORD absoluteAddress = moduleBase + relativeAddress;
 
@@ -219,7 +219,7 @@ void PatchMovValInstruction(u32 relativeAddress, asmjit::x86::Gpd reg, u32 value
 
 void PatchLeaInstruction(u32 relativeAddress, asmjit::x86::Gpd reg, u32 leaAddress)
 {
-    RSL2_GlobalState* globalState = GetGlobalState();
+    Reconstructor_GlobalState* globalState = GetGlobalState();
     uintptr_t moduleBase = globalState->ModuleBase;
     DWORD absoluteAddress = moduleBase + relativeAddress;
     DWORD absoluteLeaAddress = moduleBase + leaAddress;
@@ -240,7 +240,7 @@ void PatchLeaInstruction(u32 relativeAddress, asmjit::x86::Gpd reg, u32 leaAddre
 //      Would be better to have a version that let you set all the arguments instead of just the address
 void PatchOffsetLeaInstruction(u32 relativeAddress, u32 leaAddress)
 {
-    RSL2_GlobalState* globalState = GetGlobalState();
+    Reconstructor_GlobalState* globalState = GetGlobalState();
     uintptr_t moduleBase = globalState->ModuleBase;
     DWORD absoluteAddress = moduleBase + relativeAddress;
 
@@ -252,7 +252,7 @@ void PatchOffsetLeaInstruction(u32 relativeAddress, u32 leaAddress)
 
 void PatchCmpValInstruction(u32 relativeAddress, asmjit::x86::Gpd reg, u32 value)
 {
-    RSL2_GlobalState* globalState = GetGlobalState();
+    Reconstructor_GlobalState* globalState = GetGlobalState();
     uintptr_t moduleBase = globalState->ModuleBase;
     DWORD absoluteAddress = moduleBase + relativeAddress;
 

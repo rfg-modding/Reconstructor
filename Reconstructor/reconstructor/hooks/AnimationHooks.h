@@ -1,4 +1,4 @@
-#include "rsl2/functions/FunctionsInternal.h"
+#include "reconstructor/functions/FunctionsInternal.h"
 #include "RFGR_Types/rfg/Animation.h"
 #include "common/string/String.h"
 #include "misc/GlobalState.h"
@@ -22,7 +22,7 @@ FunHook<int __cdecl(const char* filename)> anim_rig_find_index_hook
         {
             int debug0 = 0;
             
-            RSL2_GlobalState* globalState = GetGlobalState();
+            Reconstructor_GlobalState* globalState = GetGlobalState();
             std::vector<anim_rig*> rigs = {};
             for (u32 i = 0; i < 500; i++)
             {
@@ -37,7 +37,7 @@ FunHook<int __cdecl(const char* filename)> anim_rig_find_index_hook
             printf("%s\n", filename);
             int a = 0;
             
-            RSL2_GlobalState* globalState = GetGlobalState();
+            Reconstructor_GlobalState* globalState = GetGlobalState();
             std::vector<anim_rig*> rigs = {};
             for (u32 i = 0; i < 500; i++)
             {

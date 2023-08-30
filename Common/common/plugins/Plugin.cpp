@@ -29,11 +29,11 @@ bool Plugin::Load()
     }
 
     //Get the plugin interface functions
-    InfoFuncPtr = reinterpret_cast<PluginInfoFuncPtr>(GetProcAddress(pluginHandle_, "RSL2_PluginInfo"));
-    OnDependencyUnloadFuncPtr = reinterpret_cast<PluginOnDependencyUnloadFuncPtr>(GetProcAddress(pluginHandle_, "RSL2_OnDependencyUnload"));
-    OnDependencyLoadFuncPtr = reinterpret_cast<PluginOnDependencyLoadFuncPtr>(GetProcAddress(pluginHandle_, "RSL2_OnDependencyLoad"));
-    InitFuncPtr = reinterpret_cast<PluginInitFuncPtr>(GetProcAddress(pluginHandle_, "RSL2_PluginInit"));
-    ShutdownFuncPtr = reinterpret_cast<PluginShutdownFuncPtr>(GetProcAddress(pluginHandle_, "RSL2_PluginShutdown"));
+    InfoFuncPtr = reinterpret_cast<PluginInfoFuncPtr>(GetProcAddress(pluginHandle_, "Reconstructor_PluginInfo"));
+    OnDependencyUnloadFuncPtr = reinterpret_cast<PluginOnDependencyUnloadFuncPtr>(GetProcAddress(pluginHandle_, "Reconstructor_OnDependencyUnload"));
+    OnDependencyLoadFuncPtr = reinterpret_cast<PluginOnDependencyLoadFuncPtr>(GetProcAddress(pluginHandle_, "Reconstructor_OnDependencyLoad"));
+    InitFuncPtr = reinterpret_cast<PluginInitFuncPtr>(GetProcAddress(pluginHandle_, "Reconstructor_PluginInit"));
+    ShutdownFuncPtr = reinterpret_cast<PluginShutdownFuncPtr>(GetProcAddress(pluginHandle_, "Reconstructor_PluginShutdown"));
 
     //Ensure the plugin dll has all the interface functions
     if (!InfoFuncPtr || !InitFuncPtr || !ShutdownFuncPtr)

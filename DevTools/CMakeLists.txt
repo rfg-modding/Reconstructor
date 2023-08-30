@@ -42,7 +42,7 @@ target_include_directories(DevTools SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
     ${CMAKE_SOURCE_DIR}/DevTools/
     ${CMAKE_SOURCE_DIR}/LuaScripting/
-    ${CMAKE_SOURCE_DIR}/RSL2/
+    ${CMAKE_SOURCE_DIR}/Reconstructor/
     ${CMAKE_SOURCE_DIR}/dependencies/
     ${CMAKE_SOURCE_DIR}/dependencies/imgui/
     ${CMAKE_SOURCE_DIR}/dependencies/RFGR_Types/

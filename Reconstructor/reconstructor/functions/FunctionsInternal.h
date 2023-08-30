@@ -1,6 +1,6 @@
 #pragma once
 #include "Functions.h"
-#include "rsl2/misc/GlobalState.h"
+#include "reconstructor/misc/GlobalState.h"
 
 namespace rfg
 {

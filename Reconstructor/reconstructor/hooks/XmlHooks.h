@@ -4,12 +4,12 @@
 #include "common/filesystem/File.h"
 #include "RFGR_Types/rfg/xml/Xml.h"
 #include "RFGR_Types/rfg/Memory.h"
-#include "rsl2/misc/GlobalState.h"
-#include "rsl2/functions/Functions.h"
-#include "rsl2/util/Util.h"
+#include "reconstructor/misc/GlobalState.h"
+#include "reconstructor/functions/Functions.h"
+#include "reconstructor/util/Util.h"
 #include "common/patching/Offset.h"
 #include "common/BuildConfig.h"
-#include "rsl2/functions/FunctionsInternal.h"
+#include "reconstructor/functions/FunctionsInternal.h"
 #include <filesystem>
 #ifdef COMPILE_IN_PROFILER
 #include "tracy/Tracy.hpp"
@@ -22,18 +22,18 @@ FunHook<xml_element*(const char* filename, mempool_base* dest)> xml_parse_hook
     0x001CD2F0,
     [](const char* filename, mempool_base* dest) -> xml_element*
     {
-        RSL2_GlobalState* globalState = GetGlobalState();
+        Reconstructor_GlobalState* globalState = GetGlobalState();
         rfg::RfgFunctions* functions = GetRfgFunctions();
         if (!globalState || !functions)
             return nullptr;
 
         //Load override if one exists
 #ifdef DEBUG_BUILD
-        string overridePath = "D:/GOG/Games/Red Faction Guerrilla Re-Mars-tered/RSL2/Overrides/" + string(filename);
+        string overridePath = "D:/GOG/Games/Red Faction Guerrilla Re-Mars-tered/Reconstructor/Overrides/" + string(filename);
 #elif defined DEBUG_BUILD_OPTIMIZED
-        string overridePath = "D:/GOG/Games/Red Faction Guerrilla Re-Mars-tered/RSL2/Overrides/" + string(filename);
+        string overridePath = "D:/GOG/Games/Red Faction Guerrilla Re-Mars-tered/Reconstructor/Overrides/" + string(filename);
 #else
-        string overridePath = "./RSL2/Overrides/" + string(filename);
+        string overridePath = "./Reconstructor/Overrides/" + string(filename);
 #endif
         if (std::filesystem::exists(overridePath))
         {

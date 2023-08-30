@@ -39,7 +39,7 @@ extern f32 FreeCamSmoothingFactor;
 
 /*General camera functions*/
 
-//Called by RSL2_PluginInit. Initializes some values used internally by the camera patches.
+//Called by Reconstructor_PluginInit. Initializes some values used internally by the camera patches.
 extern void InitCameraPatches();
 //Disables the games camera controls so we can manipulate the camera however we see fit.
 extern void UnlockCamera();
@@ -49,11 +49,11 @@ extern void LockCamera();
 extern void ToggleCameraLock();
 //Returns if the camera is locked or not. See UnlockCamera comments for more info on what that means.
 extern bool IsCameraLocked();
-//Conveniently translate the camera around. You can also edit the camera's state directly from RSL2_GlobalState::MainCamera.
+//Conveniently translate the camera around. You can also edit the camera's state directly from Reconstructor_GlobalState::MainCamera.
 extern void CameraMove(vector& translation);
 //Move camera via direction enums
 extern void CameraMove(MoveDirection direction);
-//Conveniently change the camera's position. You can also edit the camera's state directly from RSL2_GlobalState::MainCamera.
+//Conveniently change the camera's position. You can also edit the camera's state directly from Reconstructor_GlobalState::MainCamera.
 extern void CameraSetPosition(vector& newPosition);
 
 //Process keyboard & mouse input

@@ -1,5 +1,5 @@
 #include "GuiBase.h"
-#include "rsl2/misc/GlobalState.h"
+#include "reconstructor/misc/GlobalState.h"
 #include "RFGR_Types/rfg/Player.h"
 #include <imgui.h>
 #include <vector>
@@ -23,7 +23,7 @@ void DrawDockspace();
 
 void DrawCustomGui()
 {
-    static RSL2_GlobalState* state = GetGlobalState();
+    static Reconstructor_GlobalState* state = GetGlobalState();
     if (!state->ImGuiInitialized || !state->GuiActive)
         return;
 

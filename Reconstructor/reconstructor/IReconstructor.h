@@ -9,17 +9,17 @@ using GuiUpdateFunction = void(*)(bool* open);
 
 //Forward declarations so we're not forcing other plugins to include things til they need them
 struct ImGuiContext;
-class RSL2_GlobalState;
+class Reconstructor_GlobalState;
 namespace rfg
 {
     class RfgFunctions;
 }
 
-//Function interface exposed by main RSL2 plugin. Used for cross-plugin interaction
-class IRSL2
+//Function interface exposed by main Reconstructor plugin. Used for cross-plugin interaction
+class IReconstructor
 {
 public:
-    RSL2_GlobalState* (*GetGlobalState)() = nullptr;
+    Reconstructor_GlobalState* (*GetGlobalState)() = nullptr;
     rfg::RfgFunctions* (*GetRfgFunctions)() = nullptr;
     ImGuiContext* (*GetImGuiContext)() = nullptr;
     void (*RegisterImGuiCallback)(ImGuiCallbackFunc callback) = nullptr;
