@@ -76,25 +76,27 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
         {
             switch (wParam)
             {
-            case VK_F1:
-                globalState->GuiActive = !globalState->GuiActive;
-                if (globalState->GuiActive)
-                    UnlockMouse();
-                else
-                    LockMouse();
-            case VK_F7:
-                ReloadXtbls();
-                break;
+            //case VK_F1:
+            //    globalState->GuiActive = !globalState->GuiActive;
+            //    if (globalState->GuiActive)
+            //        UnlockMouse();
+            //    else
+            //        LockMouse();
+            //case VK_F7:
+            //    ReloadXtbls();
+            //    break;
             case VK_NUMPAD1:
                 ToggleHud();
                 break;
             case VK_NUMPAD2:
                 ToggleFog();
                 break;
+            default:
+                break;
             }
         }
     }
 
     //Pass input to camera code
-    CameraProcessInput(hwnd, msg, wParam, lParam);
+    //CameraProcessInput(hwnd, msg, wParam, lParam);
 }
