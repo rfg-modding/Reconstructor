@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32929.386
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReconstructorNagDLL", "ReconstructorNagDLL.vcxproj", "{4C5DA8B1-52AE-4D21-AAAF-64FC5E197475}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C5DA8B1-52AE-4D21-AAAF-64FC5E197475}.Debug|x86.ActiveCfg = Debug|Win32
+		{4C5DA8B1-52AE-4D21-AAAF-64FC5E197475}.Debug|x86.Build.0 = Debug|Win32
+		{4C5DA8B1-52AE-4D21-AAAF-64FC5E197475}.Release|x86.ActiveCfg = Release|Win32
+		{4C5DA8B1-52AE-4D21-AAAF-64FC5E197475}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {604CC393-0955-4F06-9ACB-7F257EC70FAF}
+	EndGlobalSection
+EndGlobal

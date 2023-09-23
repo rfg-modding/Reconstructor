@@ -23,8 +23,9 @@ int main()
 
     //Start rfg.exe process in suspended state
     printf("Starting rfg.exe in suspended state. Path = '%s'\n", rfgrPath.c_str());
-    BOOL result = CreateProcessA(rfgrPath.c_str(), nullptr, nullptr, nullptr, FALSE, CREATE_SUSPENDED,
-        nullptr, std::filesystem::path(rfgrPath).parent_path().string().c_str(), &startupInfo, &processInfo);
+    LPSTR commandLine = (LPSTR)"/RanWithReconstructor";
+    BOOL result = CreateProcessA(rfgrPath.c_str(), commandLine, nullptr, nullptr, FALSE, CREATE_SUSPENDED,
+        NULL, std::filesystem::path(rfgrPath).parent_path().string().c_str(), &startupInfo, &processInfo);
 
     if (result)
     {
