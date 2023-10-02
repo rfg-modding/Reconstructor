@@ -15,7 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dinput8.c" />
-    <ClCompile Include="keyboard.c" />
     <ClCompile Include="proxy_idi.c" />
     <ClCompile Include="proxy_idid.c" />
   </ItemGroup>
