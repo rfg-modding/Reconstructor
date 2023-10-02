@@ -25,3 +25,9 @@
 [submodule "Dependencies/RFGR_Types"]
 	path = Dependencies/RFGR_Types
 	url = https://github.com/rfg-modding/RFGR_Types.git
+[submodule "Dependencies/sentry-native"]
+	path = Dependencies/sentry-native
+	url = https://github.com/getsentry/sentry-native.git
+[submodule "Dependencies/pugixml"]
+	path = Dependencies/pugixml
+	url = https://github.com/zeux/pugixml.git

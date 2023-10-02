@@ -5,9 +5,13 @@
 #include <filesystem>
 #include <TlHelp32.h>
 #include "Host.h"
+#include "SentryHooks.h"
 
 void Host::Run(HINSTANCE hModule)
 {
+    //Only installs if sentry was included in the build and the user consents to analytics
+    InstallSentryHooks();
+
     //Todo: Use an actual logger
     printf("Host thread started.\n");
     printf("Loading plugin dlls...\n");
@@ -56,6 +60,8 @@ void Host::Run(HINSTANCE hModule)
 
         pluginChangeTimer.Reset();
     }
+
+    RemoveSentryHooks();
 
     //Exit
     printf("Host thread exiting...\n");

@@ -10,3 +10,7 @@ set(ASMJIT_STATIC TRUE)
 add_subdirectory(asmjit)
 
 add_subdirectory(RFGR_Types)
+
+add_subdirectory(sentry-native)
+
+add_subdirectory(pugixml)

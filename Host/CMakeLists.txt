@@ -19,10 +19,20 @@ file(GLOB_RECURSE SOURCES
 add_library(Host SHARED ${SOURCES})
 
 target_link_libraries(Host PRIVATE Common)
+target_link_libraries(Host PRIVATE sentry::sentry)
+target_link_libraries(Host PRIVATE subhook)
+target_link_libraries(Host PRIVATE AsmJit::AsmJit)
+target_link_libraries(Host PRIVATE pugixml::static)
 
 # Compile in profiler if it's flag is set
 if(COMPILE_IN_PROFILER)
     target_link_libraries(Host PRIVATE Profiler)
+endif()
+
+# Sentry is toggleable so people who don't have the header with the sentry key can still build reconstructor
+set(BUILD_WITH_SENTRY FALSE)
+if(BUILD_WITH_SENTRY)
+    add_compile_definitions(BUILD_WITH_SENTRY)
 endif()
 
 # Add include directories
@@ -30,6 +40,8 @@ target_include_directories(Host SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
     ${CMAKE_SOURCE_DIR}/Host/
     ${CMAKE_SOURCE_DIR}/dependencies/
+    ${CMAKE_SOURCE_DIR}/Dependencies/sentry-native/include/
+    ${CMAKE_SOURCE_DIR}/Dependencies/pugixml/
 )
 
 add_compile_definitions(TRACY_IMPORTS)
