@@ -62,34 +62,34 @@ extern "C"
 
         InitGlobals();
         rfg::Functions = {}; //Initialize pointers to RFG functions
-        InitCameraPatches();
+        //InitCameraPatches();
 
-        if (kiero::init(kiero::RenderType::D3D11) != kiero::Status::Success)
-        {
-            printf("Error! Failed to init kiero in RSdL2.dll!\n");
-            return false;
-        }
+        //if (kiero::init(kiero::RenderType::D3D11) != kiero::Status::Success)
+        //{
+        //    printf("Error! Failed to init kiero in RSdL2.dll!\n");
+        //    return false;
+        //}
 
         //Rendering hooks
-        keen_graphics_beginFrame.Install();
-        D3D11_ResizeBuffersHook.SetAddr(kiero::getMethodsTable()[13]);
-        D3D11_ResizeBuffersHook.Install(false);
-        D3D11_PresentHook.SetAddr(kiero::getMethodsTable()[8]);
-        D3D11_PresentHook.Install(false);
-        grd_string_hook.Install();
-        grd_3d_string_hook.Install();
-        grd_get_string_size_hook.Install();
-        grd_get_font_height.Install();
-        grd_rect_hook.Install();
-        grd_set_color_hook.Install();
-        grd_line_hook.Install();
-        grd_sphere_hook.Install();
-        grd_bbox_aligned_hook.Install();
-        grd_bbox_oriented_hook.Install();
+        //keen_graphics_beginFrame.Install();
+        //D3D11_ResizeBuffersHook.SetAddr(kiero::getMethodsTable()[13]);
+        //D3D11_ResizeBuffersHook.Install(false);
+        //D3D11_PresentHook.SetAddr(kiero::getMethodsTable()[8]);
+        //D3D11_PresentHook.Install(false);
+        //grd_string_hook.Install();
+        //grd_3d_string_hook.Install();
+        //grd_get_string_size_hook.Install();
+        //grd_get_font_height.Install();
+        //grd_rect_hook.Install();
+        //grd_set_color_hook.Install();
+        //grd_line_hook.Install();
+        //grd_sphere_hook.Install();
+        //grd_bbox_aligned_hook.Install();
+        //grd_bbox_oriented_hook.Install();
+        //primitive_renderer_begin_deferredHook.Install();
 
         //Misc hooks
         PlayerDoFrame_hook.Install();
-        primitive_renderer_begin_deferredHook.Install();
         keen_getBuildVersionString_hook.Install();
         main_menu_process_hook.Install();
         xml_parse_hook.Install();
@@ -113,24 +113,24 @@ extern "C"
     {
         Reconstructor_GlobalState* globalState = GetGlobalState();
 
-        kiero::shutdown();
+        //kiero::shutdown();
 
         //Remove hooks
         PlayerDoFrame_hook.Remove();
-        keen_graphics_beginFrame.Remove();
-        D3D11_ResizeBuffersHook.Remove();
-        D3D11_PresentHook.Remove();
-        grd_string_hook.Remove();
-        grd_3d_string_hook.Remove();
-        grd_get_string_size_hook.Remove();
-        grd_get_font_height.Remove();
-        grd_rect_hook.Remove();
-        grd_set_color_hook.Remove();
-        grd_line_hook.Remove();
-        grd_sphere_hook.Remove();
-        grd_bbox_aligned_hook.Remove();
-        grd_bbox_oriented_hook.Remove();
-        primitive_renderer_begin_deferredHook.Remove();
+        //keen_graphics_beginFrame.Remove();
+        //D3D11_ResizeBuffersHook.Remove();
+        //D3D11_PresentHook.Remove();
+        //grd_string_hook.Remove();
+        //grd_3d_string_hook.Remove();
+        //grd_get_string_size_hook.Remove();
+        //grd_get_font_height.Remove();
+        //grd_rect_hook.Remove();
+        //grd_set_color_hook.Remove();
+        //grd_line_hook.Remove();
+        //grd_sphere_hook.Remove();
+        //grd_bbox_aligned_hook.Remove();
+        //grd_bbox_oriented_hook.Remove();
+        //primitive_renderer_begin_deferredHook.Remove();
         keen_getBuildVersionString_hook.Remove();
         main_menu_process_hook.Remove();
         xml_parse_hook.Remove();
@@ -141,8 +141,8 @@ extern "C"
         //animlib_get_loaded_rig_hook.Remove();
 
         //Relock mouse and camera so game has full control of them and patches are removed
-        LockMouse();
-        LockCamera();
+        //LockMouse();
+        //LockCamera();
 
         //Remove custom WndProc
         SetWindowLongPtr(globalState->gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(globalState->RfgWndProc));
