@@ -171,13 +171,14 @@ void ApplyPatches()
     PatchStringPoolSizeInit(0x007ACE81, 0x007ACEAE, 16384);
     PatchStringPoolSizeInit(0x007AFE92, 0x007AFEC2, 16384);
 
+    //The patch was disabled by the request of Camo. He originally requested the change and now found a workaround.
     //Disable video player log spam. Appears to be caused by missing intro videos. Useful to disable them while modding for quicker startup. The error isn't useful.
     //video_player_update_render_all - call to keen::debug::nativePrintArgs("...", 1570)
-    {
-        DWORD startAddress = moduleBase + 0x007D84B1;
-        size_t sizeBytes = 23;
-        globalState->Patcher.Backup("DisableAnnoyingVideoPlayerLogSpam", startAddress, sizeBytes, true);
-    }
+    //{
+    //    DWORD startAddress = moduleBase + 0x007D84B1;
+    //    size_t sizeBytes = 23;
+    //    globalState->Patcher.Backup("DisableAnnoyingVideoPlayerLogSpam", startAddress, sizeBytes, true);
+    //}
 }
 
 void PatchPushInstruction(u32 relativeAddress, u32 pushValue)
