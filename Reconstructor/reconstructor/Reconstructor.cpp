@@ -91,7 +91,7 @@ extern "C"
         //Misc hooks
         PlayerDoFrame_hook.Install();
         keen_getBuildVersionString_hook.Install();
-        main_menu_process_hook.Install();
+        //main_menu_process_hook.Install();
         xml_parse_hook.Install();
         rfg_init_stage_2_done_hook.Install();
         multi_game_process_remote_console_command_hook.Install(); //Disables rcon handler
@@ -132,7 +132,7 @@ extern "C"
         //grd_bbox_oriented_hook.Remove();
         //primitive_renderer_begin_deferredHook.Remove();
         keen_getBuildVersionString_hook.Remove();
-        main_menu_process_hook.Remove();
+        //main_menu_process_hook.Remove();
         xml_parse_hook.Remove();
         rfg_init_stage_2_done_hook.Remove();
         multi_game_process_remote_console_command_hook.Remove();
