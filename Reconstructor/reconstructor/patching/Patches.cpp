@@ -179,6 +179,14 @@ void ApplyPatches()
     //    size_t sizeBytes = 23;
     //    globalState->Patcher.Backup("DisableAnnoyingVideoPlayerLogSpam", startAddress, sizeBytes, true);
     //}
+
+    //Patch MP match countdown time. Vanilla is 10000ms
+    {
+        const int matchCountdownMS = 5000;
+        const DWORD movInstructionBaseAddress = globalState->ModuleBase + 0x005AAD87; //We just need to alter the 32bit integer parameter of the mov instruction that's here.
+        const DWORD timeParamAddress = movInstructionBaseAddress + 6;
+        globalState->Patcher.ReplaceAndBackup("MatchCountdownTime", timeParamAddress, std::span<u8>((u8*)&matchCountdownMS, sizeof(matchCountdownMS)));
+    }
 }
 
 void PatchPushInstruction(u32 relativeAddress, u32 pushValue)
