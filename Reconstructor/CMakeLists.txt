@@ -26,8 +26,6 @@ add_library(Reconstructor SHARED ${SOURCES}
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_widgets.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_tables.cpp
             ${CMAKE_SOURCE_DIR}/dependencies/imgui/backends/imgui_impl_win32.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/backends/imgui_impl_dx11.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/kiero/kiero.cpp
             )
 
 target_link_libraries(Reconstructor PRIVATE subhook)

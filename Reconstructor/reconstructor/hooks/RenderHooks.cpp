@@ -13,7 +13,7 @@
 #include <d3dcommon.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_win32.h>
-#include <imgui/backends/imgui_impl_dx11.h>
+#include "reconstructor/gui/imgui_impl_dx11.h"
 #include <filesystem>
 #ifdef COMPILE_IN_PROFILER
 #include "tracy/Tracy.hpp"
@@ -25,7 +25,6 @@ keen::RenderSwapChain* gSwapChain = nullptr;
 ID3D11Device* gD3D11Device = nullptr;
 ID3D11DeviceContext* gD3D11Context = nullptr;
 IDXGISwapChain* gD3D11Swapchain = nullptr;
-ID3D11RenderTargetView* gMainRenderTargetView = nullptr;
 
 namespace fs = std::filesystem;
 
@@ -41,53 +40,7 @@ std::vector<ImGuiCallbackFunc> ImGuiCallbacks;
 std::vector<OverlayCallbackFunc> OverlayCallbacks;
 std::vector<PrimitiveDrawCallbackFunc> PrimitiveDrawCallbacks;
 
-HRESULT __stdcall D3D11_ResizeBuffersHookFunc(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
-{
-    static Reconstructor_GlobalState* globalState = GetGlobalState();
-
-    //Todo: Write this
-    bool ShouldReInit = false;
-    if (gMainRenderTargetView)
-    {
-        gMainRenderTargetView->Release();
-        gMainRenderTargetView = nullptr;
-        ShouldReInit = true;
-    }
-
-    HRESULT Result = D3D11_ResizeBuffersHook.CallTarget(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
-    printf("D3D11_ResizeBuffersHook called!\n");
-#ifdef DEBUG
-    Logger::Log("[D3D11_ResizeBuffersHook]:: BufferCount: {}, Width: {}, Height: {}, NewFormat: {}, SwapChainFlags: {} .... Result: {:#x}\n", BufferCount, Width, Height, NewFormat, SwapChainFlags, (uint)Result);
-#endif
-
-    if (ShouldReInit)
-    {
-        gD3D11Device = gGraphicsSystem->pDevice;
-        gD3D11Context = gGraphicsSystem->pImmediateContext;
-        gD3D11Swapchain = gGraphicsSystem->pDefaultSwapChain->pSwapChain;
-
-        ID3D11Texture2D* BackBuffer;
-        Result = gD3D11Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<LPVOID*>(&BackBuffer));
-        if (Result != S_OK || !BackBuffer)
-            printf("GetBuffer() failed, return value: %d\n", Result);
-        //Logger::LogFatalError("GetBuffer() failed, return value: {}\n", Result);
-
-        D3D11_RENDER_TARGET_VIEW_DESC desc = {};
-        memset(&desc, 0, sizeof(desc));
-        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; //Required to avoid rendering issue with overlay. Without this the proper rgb values will not be displayed.
-        desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-        Result = gD3D11Device->CreateRenderTargetView(BackBuffer, &desc, &gMainRenderTargetView);
-        if (Result != S_OK)
-            printf("CreateRenderTargetView() failed, return value: %d\n", Result);
-        //Logger::LogFatalError("CreateRenderTargetView() failed, return value: {}\n", Result);
-
-        BackBuffer->Release();
-    }
-    return Result;
-}
-FunHook<D3D11_ResizeBuffersHook_Type> D3D11_ResizeBuffersHook{ 0x0, D3D11_ResizeBuffersHookFunc };
-
-FunHook<void* (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwapChain)> keen_graphics_beginFrame
+FunHook<void* _cdecl (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwapChain)> keen_graphics_beginFrame
 {
     0x0086A8A0,
     [](keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwapChain) -> void*
@@ -122,21 +75,6 @@ FunHook<void* (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSw
         gD3D11Context = gGraphicsSystem->pImmediateContext;
         gD3D11Swapchain = gGraphicsSystem->pDefaultSwapChain->pSwapChain;
 
-        ID3D11Texture2D* BackBuffer;
-        HRESULT Result = gD3D11Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<LPVOID*>(&BackBuffer));
-        if (Result != S_OK)
-            printf("GetBuffer() failed, return value: %d\n", Result);
-
-        D3D11_RENDER_TARGET_VIEW_DESC desc = {};
-        memset(&desc, 0, sizeof(desc));
-        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; //Required to avoid rendering issue with overlay. Without this the proper rgb values will not be displayed.
-        desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-        Result = gD3D11Device->CreateRenderTargetView(BackBuffer, &desc, &gMainRenderTargetView);
-        if (Result != S_OK)
-            printf("CreateRenderTargetView() failed, return value: %d\n", Result);
-
-        BackBuffer->Release();
-
         globalState->RfgWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(globalState->gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(Reconstructor_WndProc)));
         if (!globalState->RfgWndProc)
             printf("Failed to set custom WndProc! Error message: {}\n", GetLastWin32ErrorAsString().c_str());
@@ -148,49 +86,52 @@ FunHook<void* (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSw
     }
 };
 
-FunHook<D3D11_PresentHook_Type> D3D11_PresentHook{ 0x0, D3D11_PresentHookFunc };
-HRESULT __stdcall D3D11_PresentHookFunc(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+FunHook<bool _cdecl (keen::GraphicsSystem* pGraphicsSystem)> keen_graphics_endFrame
 {
-    static Reconstructor_GlobalState* globalState = GetGlobalState();
-
-    if (!globalState->ImGuiInitialized || globalState->Host->PerformingReload)
-        return D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
-
-    if (globalState->OverlayActive || globalState->GuiActive)
+    0x0086FFF0,
+    [](keen::GraphicsSystem* pGraphicsSystem) -> bool
     {
-        ImGui_ImplDX11_NewFrame();
-        ImGui_ImplWin32_NewFrame();
-        ImGui::NewFrame();
+        static Reconstructor_GlobalState* globalState = GetGlobalState();
 
-        //Gui code here. This is an input blocking overlay
-        DrawCustomGui();
-        if (globalState->GuiActive)
+        if (!globalState->ImGuiInitialized || globalState->Host->PerformingReload)
         {
+            return keen_graphics_endFrame.CallTarget(pGraphicsSystem);
+        }
+
+        if (globalState->OverlayActive || globalState->GuiActive)
+        {
+            ImGui_ImplDX11_NewFrame();
+            ImGui_ImplWin32_NewFrame();
+            ImGui::NewFrame();
+
+            //Gui code here. This is an input blocking overlay
+            DrawCustomGui();
+
             //Run imgui callbacks
             for (ImGuiCallbackFunc callback : ImGuiCallbacks)
+            {
                 callback();
-        }
-        //Overlay code here, non input blocking
-        if (globalState->OverlayActive)
-        {
-            //Run overlay callbacks
+            }
+
+            //Overlay code here, non input blocking
             for (OverlayCallbackFunc callback : OverlayCallbacks)
+            {
                 callback();
+            }
+
+            gD3D11Context->OMSetRenderTargets(1, &gGraphicsSystem->pCurrentSwapChain->backBufferRenderTarget.renderTargetViews[0], nullptr);
+            ImGui::Render();
+            ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
         }
 
-        //Gui->Draw();
-        gD3D11Context->OMSetRenderTargets(1, &gMainRenderTargetView, nullptr);
-        ImGui::Render();
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-    }
-
-    HRESULT result = D3D11_PresentHook.CallTarget(pSwapChain, SyncInterval, Flags);
+        bool result = keen_graphics_endFrame.CallTarget(pGraphicsSystem);
 #ifdef COMPILE_IN_PROFILER
-    FrameMark;
+        FrameMark;
 #endif
 
-    return result;
-}
+        return result;
+    }
+};
 
 bool ReadyForD3D11Init()
 {
