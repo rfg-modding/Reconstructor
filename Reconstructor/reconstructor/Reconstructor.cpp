@@ -18,11 +18,12 @@
 #include "common/patching/Offset.h"
 #include "hooks/MpHooks.h"
 #include "hooks/AnimationHooks.h"
-#include "gui/GuiBase.h"
+#include "gui/OverlayGuis.h"
 #include "reconstructor/hooks/Camera.h"
 #include "patching/Patches.h"
 #include "reconstructor/util/Util.h"
 #include "reconstructor/IReconstructor.h"
+#include "reconstructor/gui/OverlayGuis.h"
 #ifdef COMPILE_IN_PROFILER
 #include "tracy/Tracy.hpp"
 #endif
@@ -141,18 +142,24 @@ extern "C"
     }
 }
 
+void RegisterGui(GuiBase* gui)
+{
+    OverlayGuis::Instance().RegisterGui(gui);
+}
+
+void RemoveGui(GuiBase* gui)
+{
+    OverlayGuis::Instance().RemoveGui(gui);
+}
+
 //Fill IReconstructor function interface so other plugins can access functions this one exposes
 void FillExports()
 {
     ExportInterface.GetGlobalState = &GetGlobalState;
     ExportInterface.GetRfgFunctions = &GetRfgFunctions;
     ExportInterface.GetImGuiContext = &GetImGuiContext;
-    ExportInterface.RegisterImGuiCallback = &RegisterImGuiCallback;
-    ExportInterface.RemoveImGuiCallback = &RemoveImGuiCallback;
-    ExportInterface.RegisterOverlayCallback = &RegisterOverlayCallback;
-    ExportInterface.RemoveOverlayCallback = &RemoveOverlayCallback;
     ExportInterface.RegisterPrimitiveDrawCallback = &RegisterPrimitiveDrawCallback;
     ExportInterface.RemovePrimitiveDrawCallback = &RemovePrimitiveDrawCallback;
-    ExportInterface.AddCustomGui = &AddCustomGui;
-    ExportInterface.RemoveCustomGui = &RemoveCustomGui;
+    ExportInterface.RegisterGui = &RegisterGui;
+    ExportInterface.RemoveGui = &RemoveGui;
 }

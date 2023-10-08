@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "gui/OverlayGuis.h"
 
 //Alias for callback function pointer types
 using ImGuiCallbackFunc = void(__cdecl*)();
@@ -22,12 +23,8 @@ public:
     Reconstructor_GlobalState* (*GetGlobalState)() = nullptr;
     rfg::RfgFunctions* (*GetRfgFunctions)() = nullptr;
     ImGuiContext* (*GetImGuiContext)() = nullptr;
-    void (*RegisterImGuiCallback)(ImGuiCallbackFunc callback) = nullptr;
-    void (*RemoveImGuiCallback)(ImGuiCallbackFunc callback) = nullptr;
-    void (*RegisterOverlayCallback)(OverlayCallbackFunc callback) = nullptr;
-    void (*RemoveOverlayCallback)(OverlayCallbackFunc callback) = nullptr;
     void (*RegisterPrimitiveDrawCallback)(PrimitiveDrawCallbackFunc callback) = nullptr;
     void (*RemovePrimitiveDrawCallback)(PrimitiveDrawCallbackFunc callback) = nullptr;
-    void (*AddCustomGui)(const std::string& name, GuiUpdateFunction update) = nullptr;
-    void (*RemoveCustomGui)(const std::string& name) = nullptr;
+    void (*RegisterGui)(GuiBase* gui) = nullptr;
+    void (*RemoveGui)(GuiBase* gui) = nullptr;
 };

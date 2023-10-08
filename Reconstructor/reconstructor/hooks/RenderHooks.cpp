@@ -4,7 +4,7 @@
 #include "reconstructor/misc/GlobalState.h"
 #include "reconstructor/hooks/WndProc.h"
 #include "common/patching/Offset.h"
-#include "reconstructor/gui/GuiBase.h"
+#include "reconstructor/gui/OverlayGuis.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -36,8 +36,6 @@ namespace gui
 
 void InitImGuiD3D11();
 
-std::vector<ImGuiCallbackFunc> ImGuiCallbacks;
-std::vector<OverlayCallbackFunc> OverlayCallbacks;
 std::vector<PrimitiveDrawCallbackFunc> PrimitiveDrawCallbacks;
 
 FunHook<void* _cdecl (keen::GraphicsSystem* pGraphicsSystem, keen::RenderSwapChain* pSwapChain)> keen_graphics_beginFrame
@@ -98,26 +96,13 @@ FunHook<bool _cdecl (keen::GraphicsSystem* pGraphicsSystem)> keen_graphics_endFr
             return keen_graphics_endFrame.CallTarget(pGraphicsSystem);
         }
 
-        if (globalState->OverlayActive || globalState->GuiActive)
+        if (globalState->WidgetsVisible || globalState->GuiVisible)
         {
             ImGui_ImplDX11_NewFrame();
             ImGui_ImplWin32_NewFrame();
             ImGui::NewFrame();
 
-            //Gui code here. This is an input blocking overlay
-            DrawCustomGui();
-
-            //Run imgui callbacks
-            for (ImGuiCallbackFunc callback : ImGuiCallbacks)
-            {
-                callback();
-            }
-
-            //Overlay code here, non input blocking
-            for (OverlayCallbackFunc callback : OverlayCallbacks)
-            {
-                callback();
-            }
+            OverlayGuis::Instance().Draw();
 
             gD3D11Context->OMSetRenderTargets(1, &gGraphicsSystem->pCurrentSwapChain->backBufferRenderTarget.renderTargetViews[0], nullptr);
             ImGui::Render();
@@ -329,70 +314,6 @@ ImGuiContext* GetImGuiContext()
 {
     return ImGui::GetCurrentContext();
 }
-
-//ImGui callback handling code
-extern void RegisterImGuiCallback(ImGuiCallbackFunc callback)
-{
-    if (!callback)
-        printf("Warning! Attempted to register imgui callback via nullptr to callback.\n");
-
-    for (auto* existingCallback : ImGuiCallbacks)
-    {
-        if (existingCallback == callback)
-            return;
-    }
-
-    ImGuiCallbacks.push_back(callback);
-}
-
-extern void RemoveImGuiCallback(ImGuiCallbackFunc callback)
-{
-    i32 callbackIndex = -1;
-    for (i32 i = 0; i < ImGuiCallbacks.size(); i++)
-    {
-        if (ImGuiCallbacks[i] == callback)
-        {
-            callbackIndex = i;
-            break;
-        }
-    }
-
-    if (callbackIndex != -1)
-        ImGuiCallbacks.erase(ImGuiCallbacks.begin() + callbackIndex);
-}
-
-
-//Overlay callback handling code
-void RegisterOverlayCallback(OverlayCallbackFunc callback)
-{
-    if (!callback)
-        printf("Warning! Attempted to register imgui callback via nullptr to callback.\n");
-
-    for (auto* existingCallback : OverlayCallbacks)
-    {
-        if (existingCallback == callback)
-            return;
-    }
-
-    OverlayCallbacks.push_back(callback);
-}
-
-void RemoveOverlayCallback(OverlayCallbackFunc callback)
-{
-    i32 callbackIndex = -1;
-    for (i32 i = 0; i < OverlayCallbacks.size(); i++)
-    {
-        if (OverlayCallbacks[i] == callback)
-        {
-            callbackIndex = i;
-            break;
-        }
-    }
-
-    if (callbackIndex != -1)
-        OverlayCallbacks.erase(OverlayCallbacks.begin() + callbackIndex);
-}
-
 
 //Primitive draw callback handling code
 extern void RegisterPrimitiveDrawCallback(PrimitiveDrawCallbackFunc callback)

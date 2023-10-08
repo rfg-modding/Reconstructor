@@ -29,16 +29,6 @@ extern FunHook<primitive_renderer_begin_deferredHook_Type> primitive_renderer_be
 struct ImGuiContext;
 extern ImGuiContext* GetImGuiContext();
 
-//Callback where you can safely use dear imgui windows/primitives
-using ImGuiCallbackFunc = void(__cdecl*)();
-extern void RegisterImGuiCallback(ImGuiCallbackFunc callback);
-extern void RemoveImGuiCallback(ImGuiCallbackFunc callback);
-
-//Callback where you can safely use dear imgui windows/primitives. Explicitly for the purpose of overlays that are independently visible from GUIs.
-using OverlayCallbackFunc = void(__cdecl*)();
-extern void RegisterOverlayCallback(OverlayCallbackFunc callback);
-extern void RemoveOverlayCallback(OverlayCallbackFunc callback);
-
 //Callback where rfg primitive rendering functions can be used safely. E.g. rfg::gr_rect and rfg::gr_3d_line
 using PrimitiveDrawCallbackFunc = void(__cdecl*)();
 extern void RegisterPrimitiveDrawCallback(PrimitiveDrawCallbackFunc callback);

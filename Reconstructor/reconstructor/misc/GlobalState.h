@@ -37,10 +37,10 @@ public:
 
     bool ImGuiInitialized = false;
 
-    //Whether overlay is active (does not block input)
-    bool OverlayActive = true;
-    //Whether imgui gui overlay is active (does block input)
-    bool GuiActive = false;
+    //Whether widgets are visible (does not block input)
+    bool WidgetsVisible = true;
+    //Whether imgui gui overlay is visible (does block input)
+    bool GuiVisible = false;
 
     //Addresses of some locations that are patched to control mouse movement + visibility
     DWORD MouseGenericPollMouseVisibleAddress = 0;

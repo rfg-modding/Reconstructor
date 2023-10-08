@@ -7,11 +7,10 @@
 #include "common/Common.h"
 #include "devTools/misc/GlobalState.h"
 #include "reconstructor/IReconstructor.h"
+#include "gui/MiscToolsGui.h"
 #include <cstdio>
 
-void ImGuiCallback();
-
-bool ImGuiContextInitialized = false;
+MiscToolsGui MiscTools;
 
 extern "C"
 {
@@ -47,6 +46,8 @@ extern "C"
             return false;
         }
 
+        reconstructor->RegisterGui(&MiscTools);
+
         //Initialize common lib
         CommonLib_ModuleBase = globalState->ModuleBase;
 
@@ -56,6 +57,7 @@ extern "C"
     //Called when the host dll unloads this plugin
     DLLEXPORT bool __cdecl Reconstructor_PluginShutdown()
     {
+        reconstructor->RemoveGui(&MiscTools);
         reconstructor = nullptr;
         ImGuiContextInitialized = false;
 
@@ -65,6 +67,7 @@ extern "C"
     //Called immediately before dependency shutdown + unload
     DLLEXPORT void __cdecl Reconstructor_OnDependencyUnload(const string& dependencyName)
     {
+        reconstructor->RemoveGui(&MiscTools);
         reconstructor = nullptr;
         ImGuiContextInitialized = false;
     }
@@ -74,5 +77,6 @@ extern "C"
     {
         //Re-import external functions from dependency
         reconstructor = (IReconstructor*)host_->GetPluginInterface("Reconstructor", "Reconstructor");
+        reconstructor->RegisterGui(&MiscTools);
     }
 }
