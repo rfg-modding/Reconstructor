@@ -21,7 +21,10 @@ FunHook<int __cdecl(int argc, char** argv)> keen_main_hook
 
             sentry_options_set_database_path(options, ".sentry-native");
             sentry_options_set_release(options, config::BuildVersion);
+#if defined DEBUG_BUILD
             sentry_options_set_debug(options, 1);
+            sentry_options_set_environment(options, "development");
+#endif
             sentry_init(options);
         }
 #endif
