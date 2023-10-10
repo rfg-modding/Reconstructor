@@ -69,7 +69,7 @@ void OverlayGuis::Draw()
 #if DEBUG_BUILD
     if (state->GuiVisible)
     {
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
     }
 #endif
 }

@@ -42,11 +42,11 @@ extern f32 FreeCamSmoothingFactor;
 //Called by Reconstructor_PluginInit. Initializes some values used internally by the camera patches.
 extern void InitCameraPatches();
 //Disables the games camera controls so we can manipulate the camera however we see fit.
-extern void UnlockCamera();
+extern void ActivateFreeCamera();
 //Re-enable the games camera controls. Custom cameras like the free cam won't work if the cam is locked.
-extern void LockCamera();
+extern void DeactivateFreeCamera();
 //Toggles the camera lock
-extern void ToggleCameraLock();
+extern void ToggleFreeCamera();
 //Returns if the camera is locked or not. See UnlockCamera comments for more info on what that means.
 extern bool IsCameraLocked();
 //Conveniently translate the camera around. You can also edit the camera's state directly from Reconstructor_GlobalState::MainCamera.

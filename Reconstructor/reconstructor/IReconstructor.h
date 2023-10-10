@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "gui/OverlayGuis.h"
+#include "hooks/WndProc.h"
 
 //Alias for callback function pointer types
 using ImGuiCallbackFunc = void(__cdecl*)();
@@ -27,4 +28,14 @@ public:
     void (*RemovePrimitiveDrawCallback)(PrimitiveDrawCallbackFunc callback) = nullptr;
     void (*RegisterGui)(GuiBase* gui) = nullptr;
     void (*RemoveGui)(GuiBase* gui) = nullptr;
+    void (*AddWndProcCallback)(WndProcCallbackFunction callback) = nullptr;
+    void (*ActivateFreeCamera)() = nullptr;
+    void (*DeactivateFreeCamera)() = nullptr;
+    void (*ToggleFreeCamera)() = nullptr;
+    void (*ShowHud)() = nullptr;
+    void (*HideHud)() = nullptr;
+    void (*ToggleHud)() = nullptr;
+    void (*ShowFog)() = nullptr;
+    void (*HideFog)() = nullptr;
+    void (*ToggleFog)() = nullptr;
 };

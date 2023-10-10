@@ -15,7 +15,6 @@ bool FreeCamRememberPlayerPosition = false;
 //Movement smoothing amount for free cam
 f32 FreeCamSmoothingFactor = 0.125f;
 
-
 //Addresses of patches used to lock/unlock the camera. Set by InitCameraPatches
 u32 Patch1Address = 0;
 u32 Patch2Address = 0;
@@ -32,7 +31,6 @@ Reconstructor_GlobalState* globalState = nullptr;
 void OnFreeCamEnable();
 void OnFreeCamDisable();
 
-
 void InitCameraPatches()
 {
     globalState = GetGlobalState();
@@ -40,7 +38,7 @@ void InitCameraPatches()
     Patch2Address = globalState->ModuleBase + 0x2E0494;
 }
 
-void UnlockCamera()
+void ActivateFreeCamera()
 {
     if (!CameraLocked)
     {
@@ -55,7 +53,7 @@ void UnlockCamera()
     OnFreeCamEnable(); //Todo: Separate free cam behavior from locking/unlocking behavior
 }
 
-void LockCamera()
+void DeactivateFreeCamera()
 {
     if (CameraLocked)
     {
@@ -70,12 +68,12 @@ void LockCamera()
     OnFreeCamDisable(); //Todo: Separate free cam behavior from locking/unlocking behavior
 }
 
-void ToggleCameraLock()
+void ToggleFreeCamera()
 {
     if (CameraLocked)
-        UnlockCamera();
+        ActivateFreeCamera();
     else
-        LockCamera();
+        DeactivateFreeCamera();
 }
 
 bool IsCameraLocked()
@@ -137,11 +135,12 @@ void CameraProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         switch (wParam)
         {
+            //Note: The free cam toggle is in DevTools.dll so only people with that plugin installed can use it. The actual camera logic is still in Reconstructor.dll so scripts can toggle the free cam eventually without depending on DevTools.dll (plugin for modders)
             //If camera is unlocked then pass input to it. Currently the free cam is enabled automatically if the camera is unlocked.
             //The plan is to separate them eventually so other custom cameras can be added more easily.
-        case VK_NUMPAD3:
-            ToggleCameraLock(); //Todo: This currently toggles the lock and the free cam. Separate these
-            break;
+        //case VK_NUMPAD3:
+        //    ToggleCameraLock(); //Todo: This currently toggles the lock and the free cam. Separate these
+        //    break;
         case 0x57: //w key
             w_down = true;
             break;

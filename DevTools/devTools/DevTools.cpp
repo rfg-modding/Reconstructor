@@ -8,6 +8,7 @@
 #include "devTools/misc/GlobalState.h"
 #include "reconstructor/IReconstructor.h"
 #include "gui/MiscToolsGui.h"
+#include "DevToolsWndProc.h"
 #include <cstdio>
 
 MiscToolsGui MiscTools;
@@ -46,11 +47,12 @@ extern "C"
             return false;
         }
 
-        reconstructor->RegisterGui(&MiscTools);
-
         //Initialize common lib
         CommonLib_ModuleBase = globalState->ModuleBase;
 
+        MiscTools.Open = true; //Open by default since it's the only debug gui currently
+        reconstructor->RegisterGui(&MiscTools);
+        reconstructor->AddWndProcCallback(&DevToolsWndProc);
         return true;
     }
 
@@ -78,5 +80,6 @@ extern "C"
         //Re-import external functions from dependency
         reconstructor = (IReconstructor*)host_->GetPluginInterface("Reconstructor", "Reconstructor");
         reconstructor->RegisterGui(&MiscTools);
+        reconstructor->AddWndProcCallback(&DevToolsWndProc);
     }
 }

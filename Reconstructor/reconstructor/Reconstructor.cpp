@@ -83,6 +83,9 @@ extern "C"
         PlayerDoFrame_hook.Install();
         keen_getBuildVersionString_hook.Install();
         //main_menu_process_hook.Install();
+
+        //mp_menu_process_hook.Install();
+        
         xml_parse_hook.Install();
         rfg_init_stage_2_done_hook.Install();
         multi_game_process_remote_console_command_hook.Install(); //Disables rcon handler
@@ -133,7 +136,7 @@ extern "C"
 
         //Relock mouse and camera so game has full control of them and patches are removed
         LockMouse();
-        LockCamera();
+        DeactivateFreeCamera();
 
         //Remove custom WndProc
         SetWindowLongPtr(globalState->gGameWindowHandle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(globalState->RfgWndProc));
@@ -162,4 +165,14 @@ void FillExports()
     ExportInterface.RemovePrimitiveDrawCallback = &RemovePrimitiveDrawCallback;
     ExportInterface.RegisterGui = &RegisterGui;
     ExportInterface.RemoveGui = &RemoveGui;
+    ExportInterface.AddWndProcCallback = &AddWndProcCallback;
+    ExportInterface.ActivateFreeCamera = &ActivateFreeCamera;
+    ExportInterface.DeactivateFreeCamera = &DeactivateFreeCamera;
+    ExportInterface.ToggleFreeCamera = &ToggleFreeCamera;
+    ExportInterface.ShowHud = &ShowHud;
+    ExportInterface.HideHud = &HideHud;
+    ExportInterface.ToggleHud = &ToggleHud;
+    ExportInterface.ShowFog = &ShowFog;
+    ExportInterface.HideFog = &HideFog;
+    ExportInterface.ToggleFog = &ToggleFog;
 }

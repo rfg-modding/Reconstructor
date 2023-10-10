@@ -28,7 +28,8 @@ void MiscToolsGui::Draw()
 	InitializeImGui();
     Reconstructor_GlobalState* state = reconstructor->GetGlobalState();
 
-    if (!ImGui::Begin("Misc dev tools"))
+    ImGui::SetNextWindowSize({ 500, 425 }, ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("Misc dev tools", &Open))
     {
         ImGui::End();
         return;
@@ -38,8 +39,22 @@ void MiscToolsGui::Draw()
     {
         vector cameraPos = state->MainCamera->real_pos;
         vector playerPos = state->Player->pos;
-        ImGui::InputFloat3("Player pos", (float*)&playerPos);
-        ImGui::InputFloat3("Camera pos", (float*)&cameraPos);
+        ImGui::Text("Player position:");
+        ImGui::InputFloat3("##PlayerPos", (float*)&playerPos);
+        ImGui::Text("Player orientation:");
+        ImGui::InputFloat3("Right", (float*)&state->Player->orient.rvec);
+        ImGui::InputFloat3("Up", (float*)&state->Player->orient.uvec);
+        ImGui::InputFloat3("Forward", (float*)&state->Player->orient.fvec);
+
+        ImGui::Separator();
+        ImGui::Text("Camera position:");
+        ImGui::InputFloat3("##CameraPos", (float*)&cameraPos);
+        ImGui::Text("Camera orientation:");
+        ImGui::InputFloat3("Right", (float*)&state->MainCamera->real_orient);
+        ImGui::InputFloat3("Up", (float*)&state->MainCamera->real_orient);
+        ImGui::InputFloat3("Forward", (float*)&state->MainCamera->real_orient);
+
+
     }
     else
     {
@@ -55,9 +70,9 @@ void MiscToolsGui::MainMenu()
 
     if (ImGui::BeginMenu("Tools"))
     {
-        if (ImGui::MenuItem("Dev tools"))
+        if (ImGui::MenuItem("Dev tools", nullptr, &Open))
         {
-            Open = true;
+
         }
         ImGui::EndMenu();
     }

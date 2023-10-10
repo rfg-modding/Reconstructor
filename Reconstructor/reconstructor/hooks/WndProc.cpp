@@ -6,11 +6,13 @@
 #include "reconstructor/util/Util.h"
 #include "reconstructor/functions/FunctionsInternal.h"
 #include "RFGR_Types/rfg/Player.h"
+#include <vector>
 
 //Functions for locking / unlocking the games auto-centering and hiding of the mouse. For imgui interaction with game running
 bool MouseUnlocked = false;
 char* MouseGenericPollOriginalCode = nullptr;
 char* CenterMouseCursorOriginalCode = nullptr;
+std::vector<WndProcCallbackFunction> WndProcCallbacks;
 
 void LockMouse()
 {
@@ -42,12 +44,18 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);// , con
 extern LRESULT __stdcall Reconstructor_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     static Reconstructor_GlobalState* globalState = GetGlobalState();
-
+ 
     //Pass input to Reconstructor input function
     ProcessInput(hWnd, msg, wParam, lParam);
 
+    //Pass messages to callbacks registered by other plugins
+    for (WndProcCallbackFunction callback : WndProcCallbacks)
+    {
+        callback(hWnd, msg, wParam, lParam);
+    }
+
     //Todo: Make it so you can have imgui visible without unlocking mouse look. Useful for data overlays
-    if (globalState->GuiActive)
+    if (globalState->GuiVisible)
     {
         //When imgui is active only pass WM_SIZE messages to game so it doesn't react to gui mouse/keyboard input
         if (msg == WM_SIZE)
@@ -62,13 +70,24 @@ extern LRESULT __stdcall Reconstructor_WndProc(HWND hWnd, UINT msg, WPARAM wPara
     return CallWindowProc(globalState->RfgWndProc, hWnd, msg, wParam, lParam);
 }
 
-LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , const KeyState& keys);
+void AddWndProcCallback(WndProcCallbackFunction callback)
+{
+    for (WndProcCallbackFunction existingCallback : WndProcCallbacks)
+    {
+        if (callback == existingCallback)
+        {
+            return;
+        }
+    }
+
+    WndProcCallbacks.push_back(callback);
+}
+
+LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     static Reconstructor_GlobalState* globalState = GetGlobalState();
     if (!globalState->ImGuiInitialized)
         return 0;
-
-    f32 camSpeed = 5.0f;
 
     if (msg == WM_KEYDOWN)
     {
@@ -76,27 +95,27 @@ LRESULT ProcessInput(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)// , cons
         {
             switch (wParam)
             {
-            //case VK_F1:
-            //    globalState->GuiActive = !globalState->GuiActive;
-            //    if (globalState->GuiActive)
-            //        UnlockMouse();
-            //    else
-            //        LockMouse();
-            //case VK_F7:
-            //    ReloadXtbls();
-            //    break;
-            case VK_NUMPAD1:
-                ToggleHud();
+            case VK_F1:
+                globalState->GuiVisible = !globalState->GuiVisible;
+                if (globalState->GuiVisible)
+                {
+                    UnlockMouse();
+                }
+                else
+                {
+                    LockMouse();
+                }
                 break;
-            case VK_NUMPAD2:
-                ToggleFog();
+
+            case VK_F2:
+                globalState->WidgetsVisible = !globalState->WidgetsVisible;
                 break;
+
             default:
                 break;
             }
         }
     }
 
-    //Pass input to camera code
-    //CameraProcessInput(hwnd, msg, wParam, lParam);
+    CameraProcessInput(hwnd, msg, wParam, lParam);
 }
