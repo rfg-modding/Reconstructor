@@ -14,6 +14,25 @@ void PatchLeaInstruction(u32 relativeAddress, asmjit::x86::Gpd reg, u32 leaAddre
 void PatchOffsetLeaInstruction(u32 relativeAddress, u32 leaAddress);
 void PatchCmpValInstruction(u32 relativeAddress, asmjit::x86::Gpd reg, u32 value);
 
+void PatchLeaInstruction2(u32 relativeAddress, asmjit::x86::Gpd reg, u32 leaAddress, u32 shift)
+{
+    Reconstructor_GlobalState* globalState = GetGlobalState();
+    uintptr_t moduleBase = globalState->ModuleBase;
+    DWORD absoluteAddress = moduleBase + relativeAddress;
+    DWORD absoluteLeaAddress = moduleBase + leaAddress;
+
+    //Holds generated code
+    asmjit::CodeHolder code;
+    code.init(asmjit::Environment::host(), asmjit::CpuInfo::host().features());
+
+    //Generate code
+    asmjit::x86::Assembler assembler(&code);
+    assembler.lea(reg, asmjit::x86::ptr(leaAddress, asmjit::x86::esi, shift, relativeAddress));
+
+    //Apply generated code to games code
+    globalState->Patcher.Replace(absoluteAddress, code);
+}
+
 void ApplyPatches()
 {
     Reconstructor_GlobalState* globalState = GetGlobalState();
@@ -59,6 +78,37 @@ void ApplyPatches()
 
     //    globalState->CustomAnimRigArray = customAnimRigs;
     //}
+
+    //Patch inventory items array to be larger. It's fixed size so we have to allocate a new one and patch the code to use that array + the new max size instead of the old one
+    {
+        const u32 maxInventoryItems = 127;
+        assert(maxInventoryItems <= 127); //Must not exceed this since the vanilla instruction is comparing against a signed byte. Any bigger and we need more space for the instructions. Don't want to screw with relocating other instructions at the moment.
+        const uintptr_t originalArray = moduleBase + 0x02C6D550;
+        globalState->OriginalInventoryItemArray = (inv_item_info*)originalArray;
+
+        //The array is static so first we need to make our own array. Then we patch all spots in the game code that use the array or its original size  
+        inv_item_info* customInvItems = new inv_item_info[maxInventoryItems];
+        memset(customInvItems, 0, maxInventoryItems * sizeof(inv_item_info));
+        const u8* customInvItemsEnd = ((u8*)customInvItems) + (maxInventoryItems * sizeof(inv_item_info));
+        const u8* customInvItemsLastEntry = customInvItemsEnd - sizeof(inv_item_info);
+        globalState->CustomInventoryItemArray = customInvItems;
+
+        //Patch all uses of the original array to point to the new one
+        //inv_item_parse()
+        //TODO: Give this function a better name
+        PatchLeaInstruction2(0x0061203A, asmjit::x86::esi, (u32)customInvItems, 3); //TODO: Check disassembly for assembly pattern and put it in a comment here so I remember what sort of patch this is (use online disassembler to strip name). Makes future patches easier
+        PatchCmpValInstruction(0x00612013, asmjit::x86::eax, maxInventoryItems);
+        //inv_item_get_info()
+        PatchMovValInstruction(0x00612251, asmjit::x86::edi, (u32)customInvItems);
+        //inv_item_info_from_handle()
+        PatchMovValInstruction(0x00612381, asmjit::x86::ecx, (u32)customInvItems + offsetof(inv_item_info, name_checksum));
+        PatchLeaInstruction2(0x00612399, asmjit::x86::eax, (u32)customInvItems, 3);
+        //player::load_inventory()
+        PatchMovValInstruction(0x006C2FFB, asmjit::x86::edi, (u32)customInvItems);
+        PatchMovValInstruction(0x006C3050, asmjit::x86::edi, (u32)customInvItems);
+
+        auto debug = 0;
+    }
 
     /* Patch string pool max sizes */
 
