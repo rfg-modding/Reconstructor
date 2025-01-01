@@ -277,3 +277,6 @@ out/
 
 weapons.xtbl
 Host/host/SentrySecrets.h
+cmake-build-debug/
+cmake-build-release/
+cmake-build-relwithdebinfo/
