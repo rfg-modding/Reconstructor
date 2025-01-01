@@ -20,12 +20,12 @@ add_compile_definitions(IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT IMGUI_IMPL_WIN32
 # Add source to this project's DLL
 add_library(Reconstructor SHARED ${SOURCES}
             ${CMAKE_SOURCE_DIR}/Dependencies/subhook/subhook.c
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_demo.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_draw.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_widgets.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_tables.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/backends/imgui_impl_win32.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/imgui.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/imgui_demo.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/imgui_draw.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/imgui_widgets.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/imgui_tables.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/backends/imgui_impl_win32.cpp
             )
 
 target_link_libraries(Reconstructor PRIVATE subhook)
@@ -43,9 +43,9 @@ target_include_directories(Reconstructor SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
     ${CMAKE_SOURCE_DIR}/Reconstructor/
     ${CMAKE_SOURCE_DIR}/dependencies/
-    ${CMAKE_SOURCE_DIR}/dependencies/imgui/
-    ${CMAKE_SOURCE_DIR}/dependencies/RFGR_Types/
-    ${CMAKE_SOURCE_DIR}/dependencies/asmjit/src/
+    ${CMAKE_SOURCE_DIR}/Dependencies/imgui/
+    ${CMAKE_SOURCE_DIR}/Dependencies/RFGR_Types/
+    ${CMAKE_SOURCE_DIR}/Dependencies/asmjit/src/
 )
 
 add_compile_definitions(TRACY_IMPORTS)

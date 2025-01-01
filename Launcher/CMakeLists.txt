@@ -27,7 +27,7 @@ endif()
 target_include_directories(Launcher SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
     ${CMAKE_SOURCE_DIR}/Launcher/
-    ${CMAKE_SOURCE_DIR}/dependencies/
+    ${CMAKE_SOURCE_DIR}/Dependencies/
 )
 
 add_compile_definitions(TRACY_IMPORTS)

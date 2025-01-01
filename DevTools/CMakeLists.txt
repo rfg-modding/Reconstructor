@@ -19,14 +19,14 @@ add_compile_definitions(IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT IMGUI_IMPL_WIN32
 
 # Add source to this project's DLL
 add_library(DevTools SHARED ${SOURCES}
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_demo.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_draw.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_widgets.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/imgui_tables.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/misc/cpp/imgui_stdlib.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/backends/imgui_impl_win32.cpp
-            ${CMAKE_SOURCE_DIR}/dependencies/imgui/backends/imgui_impl_dx11.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/imgui.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/imgui_demo.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/imgui_draw.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/imgui_widgets.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/imgui_tables.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/misc/cpp/imgui_stdlib.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/backends/imgui_impl_win32.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/imgui/backends/imgui_impl_dx11.cpp
             )
 
 target_link_libraries(DevTools PRIVATE RFGR_Types)
@@ -43,10 +43,10 @@ target_include_directories(DevTools SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/DevTools/
     ${CMAKE_SOURCE_DIR}/LuaScripting/
     ${CMAKE_SOURCE_DIR}/Reconstructor/
-    ${CMAKE_SOURCE_DIR}/dependencies/
-    ${CMAKE_SOURCE_DIR}/dependencies/imgui/
-    ${CMAKE_SOURCE_DIR}/dependencies/RFGR_Types/
-    ${CMAKE_SOURCE_DIR}/dependencies/
+    ${CMAKE_SOURCE_DIR}/Dependencies/
+    ${CMAKE_SOURCE_DIR}/Dependencies/imgui/
+    ${CMAKE_SOURCE_DIR}/Dependencies/RFGR_Types/
+    ${CMAKE_SOURCE_DIR}/Dependencies/
 )
 
 add_compile_definitions(TRACY_IMPORTS)

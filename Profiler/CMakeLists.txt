@@ -19,7 +19,7 @@ file(GLOB_RECURSE SOURCES
 # Add source to this project's DLL
 add_library(Profiler SHARED ${SOURCES}
             # Include tracy client file
-            ${CMAKE_SOURCE_DIR}/dependencies/tracy/TracyClient.cpp
+            ${CMAKE_SOURCE_DIR}/Dependencies/tracy/TracyClient.cpp
             )
 
 # Add include directories

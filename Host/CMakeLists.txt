@@ -39,7 +39,7 @@ endif()
 target_include_directories(Host SYSTEM PRIVATE
     ${CMAKE_SOURCE_DIR}/Common/
     ${CMAKE_SOURCE_DIR}/Host/
-    ${CMAKE_SOURCE_DIR}/dependencies/
+    ${CMAKE_SOURCE_DIR}/Dependencies/
     ${CMAKE_SOURCE_DIR}/Dependencies/sentry-native/include/
     ${CMAKE_SOURCE_DIR}/Dependencies/pugixml/
 )
