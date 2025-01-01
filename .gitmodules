@@ -3,13 +3,13 @@
 	url = https://github.com/wolfpld/tracy.git
 [submodule "Dependencies/subhook"]
 	path = Dependencies/subhook
-	url = https://github.com/rsl-dev/subhook.git
+	url = https://github.com/rfg-modding/subhook.git
 [submodule "Dependencies/imgui"]
 	path = Dependencies/imgui
 	url = https://github.com/ocornut/imgui.git
 [submodule "Dependencies/kiero"]
 	path = Dependencies/kiero
-	url = https://github.com/rsl-dev/kiero.git
+	url = https://github.com/rfg-modding/kiero.git
 [submodule "Dependencies/IconFontCppHeaders"]
 	path = Dependencies/IconFontCppHeaders
 	url = https://github.com/juliettef/IconFontCppHeaders.git
