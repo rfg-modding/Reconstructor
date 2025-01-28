@@ -77,6 +77,9 @@ public:
 
     anim_rig* CustomAnimRigArray = nullptr;
     anim_rig* OriginalAnimRigArray = nullptr;
+
+    inv_item_info* OriginalInventoryItemArray = nullptr;
+    inv_item_info* CustomInventoryItemArray = nullptr;
 };
 
 extern Reconstructor_GlobalState* GetGlobalState();
