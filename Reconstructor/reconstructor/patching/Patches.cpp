@@ -49,6 +49,7 @@ void ApplyPatches()
     //MP_item_preload_mempool. Vanilla size is 80735232
     PatchPushInstruction(0x0054F3A2, 161470464); //TODO: May need to increase size of pool used by Stream_mp_effect_preload_allocator (source allocator)
     //Item_preload_pool. Vanilla is 134217728
+    PatchPushInstruction(0x001D8F16, 268435456);
     PatchPushInstruction(0x001D8F2B, 268435456);
 
     //Patch Anim_rig array. Default size is 290 entries. Need more for modding
