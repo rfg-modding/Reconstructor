@@ -2,5 +2,5 @@
 
 namespace config
 {
-    const char* BuildVersion = "Reconstructor - v1.2.0";
+    const char* BuildVersion = "Reconstructor - v1.3.0";
 }

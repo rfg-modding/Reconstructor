@@ -11,6 +11,7 @@
 #include "hooks/GrdRenderHooks.h"
 #include "hooks/RenderHooks.h"
 #include "hooks/WndProc.h"
+#include "hooks/MemoryHooks.h"
 #include "misc/GlobalState.h"
 #include "common/Typedefs.h"
 #include "common/Common.h"
