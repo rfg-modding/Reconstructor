@@ -29,8 +29,8 @@ if(COMPILE_IN_PROFILER)
     target_link_libraries(Host PRIVATE Profiler)
 endif()
 
-# Sentry is toggleable so people who don't have the header with the sentry key can still build reconstructor
-set(BUILD_WITH_SENTRY FALSE)
+# Toggle building with Sentry
+set(BUILD_WITH_SENTRY TRUE)
 if(BUILD_WITH_SENTRY)
     add_compile_definitions(BUILD_WITH_SENTRY)
 endif()
