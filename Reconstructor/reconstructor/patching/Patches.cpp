@@ -240,6 +240,14 @@ void ApplyPatches()
         const DWORD timeParamAddress = movInstructionBaseAddress + 6;
         globalState->Patcher.ReplaceAndBackup("MatchCountdownTime", timeParamAddress, std::span<u8>((u8*)&matchCountdownMS, sizeof(matchCountdownMS)));
     }
+
+    //Enables saving game while cheats are enabled. Warning still visible in UI.
+    //stats_set_cheat(cheat_indexes cheat_index, bool enable)
+    {
+        DWORD cheatEnabledInstructionAddress = moduleBase + 0x003EADED;
+        u8 patchBytes[] = { 0x00 }; //Set Cheats_enabled to 0 when a cheat is enabled.
+        globalState->Patcher.ReplaceAndBackup("EnableCheatSaving", cheatEnabledInstructionAddress, patchBytes);
+    }
 }
 
 void PatchPushInstruction(u32 relativeAddress, u32 pushValue)
