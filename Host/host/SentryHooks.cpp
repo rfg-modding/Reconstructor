@@ -19,6 +19,7 @@ FunHook<int __cdecl(int argc, char** argv)> keen_main_hook
             sentry_options_t* options = sentry_options_new();
             sentry_options_set_dsn(options, SENTRY_DSN);
 
+            sentry_options_add_attachment(options, "./Red Faction Guerrilla Re-Mars-tered.log");
             sentry_options_set_database_path(options, ".sentry-native");
             sentry_options_set_release(options, config::BuildVersion);
 #if defined DEBUG_BUILD
