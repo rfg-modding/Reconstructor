@@ -97,6 +97,9 @@ extern "C"
 
         keen_getMemoryLayoutDefinition_hook.Install();
 
+	gameseqPushState_hook.Install();
+	ApplyMultiplayerUIPatches();
+
         //Export functions for other plugins to use
         FillExports();
         exportedFunctions.push_back({ &ExportInterface, "Reconstructor" });
@@ -138,6 +141,7 @@ extern "C"
         //anim_rig_find_index_hook.Remove();
         //animlib_get_loaded_rig_hook.Remove();
 
+        gameseqPushState_hook.Remove();
 
         keen_getMemoryLayoutDefinition_hook.Install();
 
