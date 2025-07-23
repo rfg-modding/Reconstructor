@@ -28,28 +28,3 @@ void ApplyMultiplayerUIPatches()
     // still access this if they go to multiplayer menu, not move mouse and press enter
     WriteMem<int8_t>(0x8AD61D, GS_MULTIPLAYER_LIVE_FIND_SERVERS);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
