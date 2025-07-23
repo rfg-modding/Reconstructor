@@ -34,3 +34,17 @@ FunHook<void(void* pSoundSystem)> rfg_init_stage_2_done_hook
         InitGlobals();
     }
 };
+
+// void __cdecl gameseq_push_state(game_state new_state, bool transparent, bool pause_beneath) //0x003D87E0
+FunHook<void __cdecl(game_state new_state, bool transparent, bool pause_beneath)> gameseqPushState_hook
+{
+    0x003D87E0,
+    [](game_state new_state, bool transparent, bool pause_beneath) -> void
+    {
+        if (new_state == GS_MULTIPLAYER_SEARCH_MATCHMAKING || new_state == GS_MULTIPLAYER_CHANGE_MATCHMAKING) {
+            // do nothing
+        } else {
+            gameseqPushState_hook.CallTarget(new_state, transparent, pause_beneath);
+        }
+    }
+};
